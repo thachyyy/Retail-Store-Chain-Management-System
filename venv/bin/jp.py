@@ -1,4 +1,4 @@
-#!/home/chau/Desktop/fastapi_thach/Retail-Store-Chain-Management-System/venv/bin/python
+#!/home/chau/Documents/tailiedaihoc/hk_232/do_an/code/Retail-Store-Chain-Management-System/venv/bin/python
 
 import sys
 import json

@@ -1,4 +1,4 @@
-#!/home/chau/Desktop/fastapi_thach/Retail-Store-Chain-Management-System/venv/bin/python3
+#!/home/chau/Documents/tailiedaihoc/hk_232/do_an/code/Retail-Store-Chain-Management-System/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

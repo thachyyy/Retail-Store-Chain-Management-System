@@ -11,7 +11,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import User
 from app.schemas import ChangePassword, UserResponse
-from app.schemas.user import UserUpdate, UserCreateParams, LoginUserSchema
+from app.schemas.customer import CustomerCreateParams
 from app.services.user import UserService
 from app.utils.response import make_response_object
 
@@ -22,5 +22,5 @@ router = APIRouter()
 async def create_customer(
     customer_create: CustomerCreateParams,
     db: Session = Depends(get_db)
-):
+) -> Any:
     pass
