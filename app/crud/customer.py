@@ -33,3 +33,4 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         logger.info("CRUDCustomer: create called successfully.")
         return db_obj
 
+customer = CRUDCustomer(Customer)

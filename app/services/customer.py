@@ -36,10 +36,10 @@ class CustomerService:
         
     async def create_customer(self, obj_in):
         logger.info("CustomerService: get_customer_me called.")
-        current_phone = await self.get_customer_by_phone(obj_in.phone)
+        current_phone_number = await self.get_customer_by_phone(obj_in.phone)
         current_email = await self.get_customer_by_email(obj_in.email)
         
-        if current_phone:
+        if current_phone_number:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         if current_email:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
@@ -53,7 +53,7 @@ class CustomerService:
             dob=obj_in.dob,
             gender=obj_in.gender,
             email=obj_in.email,
-            phone=obj_in.phone,
+            phone_number=obj_in.phone_number,
             address=obj_in.address,
             district=obj_in.district,
             province=obj_in.province,
@@ -61,4 +61,8 @@ class CustomerService:
             note=obj_in.note,
         )
         
-        result = crud
+        result = crud.customer.create(db=self.db, obj_in=customer_create)
+        # await
+        self.db.commit()
+        logger.info("Service: create_customer success.")
+        return dict(message_code=AppStatus.SUCCESS.message)
