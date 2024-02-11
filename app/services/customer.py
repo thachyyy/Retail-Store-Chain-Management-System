@@ -28,15 +28,15 @@ class CustomerService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def get_customer_by_phone(self, phone: str) -> Optional[Customer]:
-        return self.db.query(Customer).filter(Customer.phone == phone).first()
+    async def get_customer_by_phone(self, phone_number: str) -> Optional[Customer]:
+        return self.db.query(Customer).filter(Customer.phone_number == phone_number).first()
     
     async def get_customer_by_email(self, email: EmailStr) -> Optional[Customer]:
         return self.db.query(Customer).filter(Customer.email == email).first()
         
     async def create_customer(self, obj_in):
         logger.info("CustomerService: get_customer_me called.")
-        current_phone_number = await self.get_customer_by_phone(obj_in.phone)
+        current_phone_number = await self.get_customer_by_phone(obj_in.phone_number)
         current_email = await self.get_customer_by_email(obj_in.email)
         
         if current_phone_number:
@@ -45,7 +45,7 @@ class CustomerService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
         
         obj_in.email = obj_in.email.lower()
-        obj_in.username = obj_in.username.lower()
+        # obj_in.username = obj_in.username.lower()
         
         customer_create = CustomerCreate(
             id=uuid.uuid4(),

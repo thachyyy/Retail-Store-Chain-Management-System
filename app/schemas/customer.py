@@ -4,7 +4,7 @@ from pydantic import BaseModel, constr, Field, EmailStr, UUID4
 
 class CustomerCreateParams(BaseModel):
     full_name: str
-    dob: Optional[str] = None
+    dob: Optional[date] = None
     gender: str
     email: Optional[EmailStr] = None
     phone_number: str
@@ -17,7 +17,7 @@ class CustomerCreateParams(BaseModel):
 class CustomerCreate(BaseModel):
     id: UUID4
     full_name: str
-    dob: Optional[str] = None
+    dob: Optional[date] = None
     gender: str
     email: Optional[EmailStr] = None
     phone_number: str
