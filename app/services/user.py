@@ -62,7 +62,6 @@ class UserService:
             id=str(uuid.uuid4()),
             email=obj_in.email,
             username=obj_in.username,
-
         )
         result = crud.user.create(db=self.db, obj_in=user_create)
         await self.get_verification_code(email=obj_in.email, username=obj_in.username, action="is_active")
