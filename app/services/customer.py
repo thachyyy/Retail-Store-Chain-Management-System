@@ -33,6 +33,9 @@ class CustomerService:
     
     async def get_customer_by_email(self, email: EmailStr) -> Optional[Customer]:
         return self.db.query(Customer).filter(Customer.email == email).first()
+    
+    async def get_all_customers(self) -> Optional[Customer]:
+        return self.db.query(Customer).all()
         
     async def create_customer(self, obj_in):
         logger.info("CustomerService: get_customer_me called.")
