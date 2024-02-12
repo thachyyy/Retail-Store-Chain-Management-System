@@ -3,6 +3,7 @@ import logging
 from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from pydantic import UUID4
 
 from app.api.depends import oauth2
 from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
@@ -31,10 +32,20 @@ async def create_customer(
     return make_response_object(customer_response)
 
 @router.get("/customers")
-async def   get_all_customers(db: Session = Depends(get_db)) -> Any:
+async def get_all_customers(db: Session = Depends(get_db)) -> Any:
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: get_all_customers called.")
     
-    customer_response = await customer_service.get_all_customers()
+    msg, customer_response = await customer_service.get_all_customers()
     logger.info("Endpoints: get_all_customers called successfully.")
-    return make_response_object(customer_response)
+    return make_response_object(customer_response, msg)
+
+@router.get("/customers/{customer_id}")
+async def get_customer_by_id(customer_id: str, db: Session = Depends(get_db)) -> Any:
+    customer_service = CustomerService(db=db)
+    logger.info("Endpoints: get_customer_by_id called.")
+    
+    msg, customer_response = await customer_service.get_customer_by_id(customer_id)
+    logger.info("Endpoints: get_all_customers called successfully.")
+    return make_response_object(customer_response, msg)
+    
