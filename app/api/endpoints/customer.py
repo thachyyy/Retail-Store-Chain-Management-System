@@ -12,7 +12,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import Customer
 from app.schemas import ChangePassword, CustomerResponse
-from app.schemas.customer import CustomerCreateParams
+from app.schemas.customer import CustomerCreateParams, CustomerUpdate
 from app.services.customer import CustomerService
 from app.utils.response import make_response_object
 
@@ -43,9 +43,26 @@ async def get_all_customers(db: Session = Depends(get_db)) -> Any:
 @router.get("/customers/{customer_id}")
 async def get_customer_by_id(customer_id: str, db: Session = Depends(get_db)) -> Any:
     customer_service = CustomerService(db=db)
-    logger.info("Endpoints: get_customer_by_id called.")
     
+    logger.info("Endpoints: get_customer_by_id called.")  
     msg, customer_response = await customer_service.get_customer_by_id(customer_id)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
     
+@router.put("/customers/{customer_id}")
+async def update_customer(customer_id: str, customer_update: CustomerUpdate, db: Session = Depends(get_db)) -> Any:
+    customer_service = CustomerService(db=db)
+    
+    logger.info("Endpoints: update_customer called.")
+    msg, customer_response = await customer_service.update_customer(customer_id, customer_update)
+    logger.info("Endpoints: update_customer called successfully.")
+    return make_response_object(customer_response, msg)
+
+@router.delete("/customers/{customer_id}")
+async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> Any:
+    customer_service = CustomerService(db=db)
+    
+    logger.info("Endpoints: delete_customer called.")
+    msg, customer_response = await customer_service.delete_customer(customer_id)
+    logger.info("Endpoints: delete_customer called successfully.")
+    return make_response_object(customer_response, msg)

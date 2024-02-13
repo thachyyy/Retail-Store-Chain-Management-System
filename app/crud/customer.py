@@ -17,14 +17,9 @@ from app.utils import hash_lib
 logger = logging.getLogger(__name__)
 
 
-class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
-
+class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):    
     @staticmethod
-    def get_by_email(db: Session, *, email: str) -> Optional[Customer]:
-        return db.query(Customer).filter(Customer.email == email).first()
-    
-    @staticmethod
-    def get_all_customers(db: Session) -> Optional[Customer]:
+    async def get_all_customers(db: Session) -> Optional[Customer]:
         return db.query(Customer).all()
     
     @staticmethod
@@ -40,12 +35,13 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return db.query(Customer).filter(Customer.id == customer_id).first()
     
     @staticmethod
-    async def update_customer(db: Session, customer_id: str):
-        pass
+    async def update_customer(db: Session, customer_id: str, customer_update: CustomerUpdate):
+        update_data = customer_update.dict(exclude_none=True)
+        return db.query(Customer).filter(Customer.id == customer_id).update(update_data)
     
     @staticmethod
     async def delete_customer(db: Session, customer_id: str):
-        pass
+        return db.query(Customer).filter(Customer.id == customer_id).delete()
 
     def create(self, db: Session, *, obj_in: CustomerCreate) -> Customer:
         logger.info("CRUDCustomer: create called.")

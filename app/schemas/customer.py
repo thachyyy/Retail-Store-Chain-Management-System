@@ -28,7 +28,11 @@ class CustomerCreate(BaseModel):
     note: Optional[str] = None
     
 class CustomerUpdate(BaseModel):
-    pass
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    reward_point: Optional[int] = None
+    note: Optional[str] = None
 
 class CustomerResponse(BaseModel):
     pass
