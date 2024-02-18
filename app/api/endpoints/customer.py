@@ -4,6 +4,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from pydantic import UUID4
+from datetime import date
 
 from app.api.depends import oauth2
 from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
@@ -68,12 +69,28 @@ async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> An
     return make_response_object(customer_response, msg)
 
 @router.get("customers/search")
-async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)
-) -> Any:
+async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: search_customer called.")
     msg, customer_response = await customer_service.search_customer(condition)
     logger.info("Endpoints: search_customer called successfully.")
+    
+    return make_response_object(customer_response, msg)
+
+@router.get("customers/filter")
+async def filter_customer(
+    db: Session = Depends(get_db),
+    gender: str = None,
+    start_date: date = None,
+    end_date: date = None,
+    province: str = None,
+    district: str = None,
+) -> Any:
+    customer_service = CustomerService(db=db)
+    
+    logger.info("Endpoints: filter_customer called.")
+    msg, customer_response = await customer_service.filter_customer(gender, start_date, end_date, province, district)
+    logger.info("Endpoints: filter_customer called successfully.")
     
     return make_response_object(customer_response, msg)

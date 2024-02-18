@@ -5,6 +5,7 @@ import smtplib
 import secrets
 import string
 
+from datetime import date
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from pydantic import UUID4
@@ -119,6 +120,21 @@ class CustomerService:
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
     
+    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+        whereList = list()
+        
+        if 'gender' in conditions:
+            whereList.append(f"gender = '{conditions['gender']}'")
+        if 'province' in conditions:
+            whereList.append(f"province = '{conditions['province']}'")
+        if 'district' in conditions:
+            whereList.append(f"district = '{conditions['district']}'")
+        if 'start_date' in conditions and 'end_date' in conditions:
+            whereList.append(f"dob between '{conditions['start_date']}' and '{conditions['end_date']}'")
+            
+        whereConditions = "WHERE " + ' AND '.join(whereList)
+        return whereConditions
+    
     async def search_customer(self, condition: str = None):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.customers {whereCondition};"
@@ -129,3 +145,33 @@ class CustomerService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def filter_customer(
+        self,
+        gender: str = None,
+        start_date: date = None,
+        end_date: date = None,
+        province: str = None,
+        district: str = None,
+):
+        conditions = dict()
+        logger.info("CODE IS HERE", gender)
+        if gender:
+            conditions['gender'] = gender
+        if start_date:
+            conditions['start_date'] = start_date
+        if end_date:
+            conditions['end_date'] = end_date
+        if province:
+            conditions['province'] = province
+        if district:
+            conditions['district'] = district
+        
+        whereConditions = await self.whereConditionBuilderForFilter(conditions)
+        sql = f"SELECT * FROM public.customers {whereConditions};"
+        
+        logger.info("CustomerService: filter_customer called.")
+        result = await crud.customer.filter_customer(self.db, sql)
+        logger.info("CustomerService: filter_customer called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        
