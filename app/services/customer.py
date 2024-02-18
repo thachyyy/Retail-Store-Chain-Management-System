@@ -38,6 +38,7 @@ class CustomerService:
         logger.info("CustomerService: get_all_customers called.")
         result = await crud.customer.get_all_customers(db=self.db)
         logger.info("CustomerService: get_all_customers called successfully.")
+        # print(type(result))
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
         
@@ -107,5 +108,24 @@ class CustomerService:
         
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+    
+    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"full_name ilike '%{condition}%'")
+        conditions.append(f"phone_number ilike '%{condition}%'")
+        conditions.append(f"address ilike '%{condition}%'")
+            
+        whereCondition = "WHERE " + ' OR '.join(conditions)
+        return whereCondition
+    
+    async def search_customer(self, condition: str = None):
+        whereCondition = await self.whereConditionBuilderForSearch(condition)
+        sql = f"SELECT * FROM public.customers {whereCondition};"
         
+        logger.info("CustomerService: search_customer called.")
+        result = await crud.customer.search_customer(self.db, sql)
+        logger.info("CustomerService: search_customer called successfully.")
         
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    

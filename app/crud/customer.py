@@ -42,6 +42,12 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
     @staticmethod
     async def delete_customer(db: Session, customer_id: str):
         return db.query(Customer).filter(Customer.id == customer_id).delete()
+    
+    @staticmethod
+    async def search_customer(db: Session, sql: str):        
+        result = db.execute(sql)
+        result_as_dict = result.mappings().all()
+        return result_as_dict
 
     def create(self, db: Session, *, obj_in: CustomerCreate) -> Customer:
         logger.info("CRUDCustomer: create called.")

@@ -1,7 +1,7 @@
 import logging
 
-from typing import Any
-from fastapi import APIRouter, Depends
+from typing import Any, Optional
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from pydantic import UUID4
 
@@ -65,4 +65,15 @@ async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> An
     logger.info("Endpoints: delete_customer called.")
     msg, customer_response = await customer_service.delete_customer(customer_id)
     logger.info("Endpoints: delete_customer called successfully.")
+    return make_response_object(customer_response, msg)
+
+@router.get("customers/search")
+async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)
+) -> Any:
+    customer_service = CustomerService(db=db)
+    
+    logger.info("Endpoints: search_customer called.")
+    msg, customer_response = await customer_service.search_customer(condition)
+    logger.info("Endpoints: search_customer called successfully.")
+    
     return make_response_object(customer_response, msg)
