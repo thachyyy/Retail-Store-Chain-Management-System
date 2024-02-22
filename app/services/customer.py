@@ -39,7 +39,6 @@ class CustomerService:
         logger.info("CustomerService: get_all_customers called.")
         result = await crud.customer.get_all_customers(db=self.db)
         logger.info("CustomerService: get_all_customers called successfully.")
-        # print(type(result))
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
         
