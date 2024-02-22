@@ -49,7 +49,7 @@ class CustomerService:
         
         logger.info("CustomerService: get_customer_by_email called.")
         current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email)
-        logger.info("CustomerService: get_customer_by_phone called successfully.")
+        logger.info("CustomerService: get_customer_by_email called successfully.")
         
         if current_phone_number:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
@@ -72,9 +72,9 @@ class CustomerService:
             note=obj_in.note,
         )
         
-        logger.info("CustomerService: get_customer_by_phone called.")
+        logger.info("CustomerService: create called.")
         result = crud.customer.create(db=self.db, obj_in=customer_create)
-        logger.info("CustomerService: get_customer_by_phone called successfully.")
+        logger.info("CustomerService: create called successfully.")
         
         self.db.commit()
         logger.info("Service: create_customer success.")
