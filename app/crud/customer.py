@@ -54,7 +54,8 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         result = db.execute(sql)
         result_as_dict = result.mappings().all()
         return result_as_dict
-
+    
+    @staticmethod
     def create(self, db: Session, *, obj_in: CustomerCreate) -> Customer:
         logger.info("CRUDCustomer: create called.")
         logger.debug("With: CustomerCreate - %s", obj_in.dict())
