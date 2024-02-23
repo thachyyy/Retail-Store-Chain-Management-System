@@ -65,3 +65,53 @@ class VendorService:
         self.db.commit()
         logger.info("Service: create_vendor success.")
         return dict(message_code=AppStatus.SUCCESS.message)
+    
+    async def update_vendor(self, vendor_id: str, obj_in):
+        logger.info("VendorService: get_vendor_by_id called.")
+        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
+        logger.info("VendorService: get_vendor_by_id called successfully.")
+        
+        if not isValidVendor:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+        
+        logger.info("VendorService: update_vendor called.")
+        result = await crud.vendor.update_vendor(db=self.db, vendor_id=vendor_id, vendor_update=obj_in)
+        logger.info("VendorService: update_vendor called successfully.")
+        self.db.commit()
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        
+    async def delete_vendor(self, vendor_id: str):
+        logger.info("VendorService: get_vendor_by_id called.")
+        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
+        logger.info("VendorService: get_vendor_by_id called successfully.")
+        
+        if not isValidVendor:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+        
+        logger.info("VendorService: delete_vendor called.")
+        result = await crud.vendor.delete_vendor(self.db, vendor_id)
+        logger.info("VendorService: delete_vendor called successfully.")
+        
+        self.db.commit()
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+    
+    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"vendor_name ilike '%{condition}%'")
+        conditions.append(f"phone_number ilike '%{condition}%'")
+        conditions.append(f"email ilike '%{condition}%'")
+        conditions.append(f"address ilike '%{condition}%'")
+            
+        whereCondition = "WHERE " + ' OR '.join(conditions)
+        return whereCondition
+    
+    async def search_vendor(self, condition: str = None):
+        whereCondition = await self.whereConditionBuilderForSearch(condition)
+        sql = f"SELECT * FROM public.vendors {whereCondition};"
+        
+        logger.info("VendorService: search_vendor called.")
+        result = await crud.vendor.search_vendor(self.db, sql)
+        logger.info("VendorService: search_vendor called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)

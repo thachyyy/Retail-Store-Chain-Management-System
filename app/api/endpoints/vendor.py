@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import Any
+from typing import Any, Optional
 
 from app.db.database import get_db
 from app.services.vendor import VendorService
@@ -43,3 +43,31 @@ async def create_vendor(
     vendor_response = await vendor_service.create_vendor(vendor_create)
     logger.info("Endpoints: create_vendor called successfully.")
     return make_response_object(vendor_response)
+
+@router.put("/vendors/{vendor_id}")
+async def update_vendor(vendor_id: str, vendor_update: VendorUpdate, db: Session = Depends(get_db)) -> Any:
+    vendor_service = VendorService(db=db)
+    
+    logger.info("Endpoints: update_vendor called.")
+    msg, vendor_response = await vendor_service.update_vendor(vendor_id, vendor_update)
+    logger.info("Endpoints: update_vendor called successfully.")
+    return make_response_object(vendor_response, msg)
+
+@router.delete("/vendors/{vendor_id}")
+async def delete_vendor(vendor_id: str, db: Session = Depends(get_db)) -> Any:
+    vendor_service = VendorService(db=db)
+    
+    logger.info("Endpoints: delete_vendor called.")
+    msg, vendor_response = await vendor_service.delete_vendor(vendor_id)
+    logger.info("Endpoints: delete_vendor called successfully.")
+    return make_response_object(vendor_response, msg)
+
+@router.get("vendors/search")
+async def search_vendor(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+    vendor_service = VendorService(db=db)
+    
+    logger.info("Endpoints: search_vendor called.")
+    msg, vendor_response = await vendor_service.search_vendor(condition)
+    logger.info("Endpoints: search_vendor called successfully.")
+    
+    return make_response_object(vendor_response, msg)

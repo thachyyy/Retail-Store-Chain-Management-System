@@ -39,5 +39,20 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
         logger.info("CRUDVendor: create called successfully.")
         return db_obj
     
+    @staticmethod
+    async def update_vendor(db: Session, vendor_id: str, vendor_update: VendorUpdate):
+        update_data = vendor_update.dict(exclude_none=True)
+        return db.query(Vendor).filter(Vendor.id == vendor_id).update(update_data)
+    
+    @staticmethod
+    async def delete_vendor(db: Session, vendor_id: str):
+        return db.query(Vendor).filter(Vendor.id == vendor_id).delete()
+    
+    @staticmethod
+    async def search_vendor(db: Session, sql: str):        
+        result = db.execute(sql)
+        result_as_dict = result.mappings().all()
+        return result_as_dict
+    
     
 vendor = CRUDVendor(Vendor)
