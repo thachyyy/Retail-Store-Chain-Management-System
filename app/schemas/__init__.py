@@ -1,1 +1,2 @@
-# from .user import *
+from .user import *
+from .customer import *
