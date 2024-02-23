@@ -26,7 +26,7 @@ class VendorCreate(BaseModel):
 
 class VendorUpdate(BaseModel):
     company_name: Optional[str] = None
-    address: str
+    address: Optional[str] = None
     district : Optional[str] = None
     province: Optional[str] = None
     status: Optional[str] = None
