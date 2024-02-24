@@ -9,7 +9,7 @@ from app.core.settings import settings
 from app.models.base import Base
 #Import all models
 from app.models.customer import *
-from app.models.customer import *
+from app.models.product import *
 
 config = context.config
 
