@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, Integer
+from sqlalchemy import Column
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
