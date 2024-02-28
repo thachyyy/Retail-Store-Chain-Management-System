@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 class Employee(Base):
-    __tablename__ = "contract_for_product"
+    __tablename__ = "employee"
     
     id = Column(UUID(as_uuid=True), primary_key=True)
     full_name = Column(String(255), unique = False, nullable = False)
@@ -18,4 +18,3 @@ class Employee(Base):
     province = Column(String(255), unique = False, nullable = False)
     status = Column(String(255), unique = False, nullable = False)
     note = Column(String, unique = False, nullable = True)
-    

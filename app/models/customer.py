@@ -15,4 +15,4 @@ class Customer(Base):
     district = Column(String(64), unique=False, nullable=True)
     province = Column(String(64), unique=False, nullable=True)
     reward_point = Column(String, unique=False, nullable=False)
-    note = Column(String, unique=False, nullable=True)
+    note = Column(String, unique=False, nullable=True)    
