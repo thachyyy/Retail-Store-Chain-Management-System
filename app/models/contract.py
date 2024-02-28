@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Float, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from .base import Base  # Assuming .base is the correct import path for your Base
@@ -13,8 +13,6 @@ class Contract(Base):
     minimum_order_quantity = Column(Integer, unique = False, nullable = True)
     ordering_cycle_amount = Column(Integer, unique = False, nullable = True)
     ordering_cycle_quantity = Column(Integer, unique = False, nullable = True)
-    # belong_to_vendor = Column(UUID(as_uuid=True),  unique = False, nullable = False)
-
     belong_to_vendor = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
     
     vendor = relationship('Vendor')

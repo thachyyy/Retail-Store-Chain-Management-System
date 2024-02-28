@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, String,Integer,Enum,Boolean
 from sqlalchemy.orm import relationship
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
-class ProductStatus(str,enum.Enum):
+class Status(str,enum.Enum):
     ACTIVE = "ACTIVE" #Đang kinh doanh
     INACTIVE = "INACTIVE" #Tạm ngừng kinh doanh
     PENDING = "PENDING" #Hết hàng
@@ -20,12 +20,8 @@ class Product(Base):
     unit = Column(String(255),nullable=True)
     last_purchase_price = Column(Integer,nullable=False,index = True)
     sale_price = Column(Integer,nullable=False,index = True)
-    status = Column(Enum(ProductStatus),nullable=False,default=ProductStatus.EMPTY)
+    status = Column(Enum(Status),nullable=False,default=Status.EMPTY)
     note = Column(String(255),nullable=True)
-    # contract_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
-    # batch_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
-    # promotion_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
-    
     contract_id = Column(UUID(as_uuid=True),ForeignKey('contract.id'),unique=False,nullable=True,index = True)
     promotion_id = Column(UUID(as_uuid=True),ForeignKey('promotion.id'),unique=False,nullable=True,index = True)
     batch_id = Column(UUID(as_uuid=True),ForeignKey('batch.id'),unique=False,nullable=True,index = True)

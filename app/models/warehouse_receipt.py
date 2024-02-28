@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String, Date, Boolean, Float
+from sqlalchemy import Column, String, Date, Boolean, Float, ForeignKey
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -14,12 +14,6 @@ class WarehouseReceipt(Base):
     subtotal = Column(Float, unique = False, nullable = False)
     promotion = Column(Float, unique = False, nullable = True)
     total = Column(Float, unique = False, nullable = False)
-    
-    # created_by = Column(UUID(as_uuid=True),  unique = False, nullable = False)
-    # belong_to_vendor = Column(UUID(as_uuid=True),unique = False, nullable = False)
-    # belong_to_contract = Column(UUID(as_uuid=True), unique = False, nullable = False)
-    # belong_to_invoice = Column(UUID(as_uuid=True), unique = False, nullable = True)
-    
     created_by = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = False, nullable = False)
     belong_to_vendor = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
     belong_to_contract = Column(UUID(as_uuid=True), ForeignKey('contract.id'), unique = False, nullable = False)

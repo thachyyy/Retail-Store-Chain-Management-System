@@ -8,26 +8,8 @@ from sqlalchemy import create_engine
 from app.core.settings import settings
 from app.models.base import Base
 #Import all models
-from app.models.batch import *
-from app.models.branch import *
-from app.models.categories import *
-# from app.models.contract_for_product import *
-from app.models.contract import *
 from app.models.customer import *
-from app.models.employee import *
-from app.models.import_order import *
-from app.models.invoice_for_customer import *
-from app.models.invoice_from_vendor import *
-from app.models.order_of_batch import *
-from app.models.product_of_warehouse_receipt import *
 from app.models.product import *
-from app.models.promotion_belong_to_branch import *
-from app.models.promotion_for_order import *
-from app.models.promotion import *
-from app.models.purchase_order import *
-from app.models.user import *
-from app.models.vendor import *
-from app.models.warehouse_receipt import * 
 
 config = context.config
 
