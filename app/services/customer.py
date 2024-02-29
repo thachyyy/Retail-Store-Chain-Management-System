@@ -125,7 +125,7 @@ class CustomerService:
     
     async def search_customer(self, condition: str = None):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
-        sql = f"SELECT * FROM public.customers {whereCondition};"
+        sql = f"SELECT * FROM public.customer {whereCondition};"
         
         logger.info("CustomerService: search_customer called.")
         result = await crud.customer.search_customer(self.db, sql)
@@ -142,7 +142,6 @@ class CustomerService:
         district: str = None,
 ):
         conditions = dict()
-        logger.info("CODE IS HERE", gender)
         if gender:
             conditions['gender'] = gender
         if start_date:
@@ -155,7 +154,7 @@ class CustomerService:
             conditions['district'] = district
         
         whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        sql = f"SELECT * FROM public.customers {whereConditions};"
+        sql = f"SELECT * FROM public.customer {whereConditions};"
         
         logger.info("CustomerService: filter_customer called.")
         result = await crud.customer.filter_customer(self.db, sql)
