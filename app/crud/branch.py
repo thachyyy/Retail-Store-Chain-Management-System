@@ -24,8 +24,8 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return db.query(Branch).filter(Branch.address == address).first()
     
     @staticmethod
-    async def get_branch_by_phone(db: Session, number_phone: str) -> Optional[Branch]:
-        return db.query(Branch).filter(Branch.number_phone == number_phone).first()
+    async def get_branch_by_phone(db: Session, phone_number: str) -> Optional[Branch]:
+        return db.query(Branch).filter(Branch.phone_number == phone_number).first()
     
     @staticmethod
     async def get_branch_by_email(db: Session, email: str) -> Optional[Branch]:

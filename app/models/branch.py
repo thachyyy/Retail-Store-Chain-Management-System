@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -24,6 +24,7 @@ class Branch(Base):
     email = Column(String(255), unique = True, nullable = True)
     status = Column(String(16), unique = False, nullable = False, default = 'COMMING SOON')
     note = Column(String(255), unique = False, nullable = True)
-    manager_id = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = True, nullable = True)
+    manager_id = Column(UUID(as_uuid=True), unique = True, nullable = True)
+    # manager_id = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = True, nullable = True)
     
-    employee = relationship('Employee')
+    # employee = relationship('Employee')
