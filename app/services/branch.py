@@ -42,16 +42,23 @@ class BranchService:
         current_branch_email = await crud.branch.get_branch_by_email(self.db, obj_in.email)
         logger.info("BranchService: get_branch_by_email called successfully.")
         
+        logger.info("BranchService: get_branch_by_name_detail called.")
+        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.email)
+        logger.info("BranchService: get_branch_by_name_detail called successfully.")
+        
         if current_branch_address:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
         if current_branch_phone:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_ALREADY_EXIST)
         if current_branch_email:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
+        if current_branch_name_detail:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
         branch_create = BranchCreate(
             id=uuid.uuid4(),
-            name=obj_in.name,
+            name_display=obj_in.name_display,
+            name_detail=obj_in.name_detail,
             address=obj_in.address,
             district=obj_in.district,
             province=obj_in.province,

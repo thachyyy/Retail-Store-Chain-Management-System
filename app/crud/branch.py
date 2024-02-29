@@ -32,6 +32,10 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return db.query(Branch).filter(Branch.email == email).first()
     
     @staticmethod
+    async def get_branch_by_name_detail(db: Session, name_detail: str) -> Optional[Branch]:
+        return db.query(Branch).filter(Branch.name_detail == name_detail).first()
+    
+    @staticmethod
     async def get_manager_id_by_name(db: Session, sql: str):
         result = db.execute(sql)
         result_as_dict = result.mappings().all()

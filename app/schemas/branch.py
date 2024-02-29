@@ -2,7 +2,8 @@ from typing import Optional, Literal
 from pydantic import BaseModel, UUID4, EmailStr
 
 class BranchCreateParams(BaseModel):
-    name: str
+    name_display: str
+    name_detail: str
     address: str
     district: Optional[str] = None
     province: Optional[str] = None
@@ -14,6 +15,8 @@ class BranchCreateParams(BaseModel):
     
 class BranchCreate(BaseModel):
     id: UUID4
+    name_display: str
+    name_detail: str
     address: str
     district: Optional[str] = None
     province: Optional[str] = None
@@ -24,7 +27,8 @@ class BranchCreate(BaseModel):
     manager_id: Optional[UUID4] = None
     
 class BranchUpdate(BaseModel):
-    name: Optional[str] = None
+    name_display: Optional[str] = None
+    name_detail: Optional[str] = None
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     address: Optional[str] = None

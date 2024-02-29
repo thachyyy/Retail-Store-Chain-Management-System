@@ -15,7 +15,8 @@ class Branch(Base):
     __tablename__ = "branch"
     
     id = Column(UUID(as_uuid=True), primary_key=True)
-    name = Column(String(255), unique = False, nullable = False)
+    name_display = Column(String(255), unique = False, nullable = False) # Tên hiện thị (vd: Circle K,...)
+    name_detail = Column(String(255), unique = True, nullable = False) # Tên chi tiết (vd: Circle K Thành Thái - Q10,...)
     address = Column(String(255), unique = True, nullable = False)
     district = Column(String(255), unique = False, nullable = True)
     province = Column(String(255), unique = False, nullable = True)
