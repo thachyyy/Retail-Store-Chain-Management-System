@@ -7,7 +7,7 @@ class Vendor(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True)
     company_name = Column(String(255), unique=False, nullable=True)
-    vendor_name = Column(String(255), unique=False, nullable=False)
+    vendor_name = Column(String(255), unique=True, nullable=False)
     phone_number = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     address = Column(String(255), unique=False, nullable=False)
