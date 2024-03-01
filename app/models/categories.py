@@ -11,6 +11,6 @@ class Categories(Base):
     __tablename__ = 'categories'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
-    name = Column(String(255),nullable=False)
+    name = Column(String(255),nullable=False,unique=True)
     description = Column(String(255),nullable=True)
     # has_promotion = Column(Boolean, nullable=False,default="No")

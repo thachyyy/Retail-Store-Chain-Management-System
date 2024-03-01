@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 class PromotionBelongToBranch(Base):
-    __tablename__ = "pomotion_belong_to_branch"
+    __tablename__ = "promotion_belong_to_branch"
     
     id = Column(UUID(as_uuid=True), primary_key=True)
     promotion_id = Column(UUID(as_uuid=True), ForeignKey('promotion.id'), unique = False, nullable = False)
