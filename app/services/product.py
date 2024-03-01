@@ -115,7 +115,7 @@ class ProductService:
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATED_SUCCESSFULLY.message), dict(data=result)
         
     async def delete_product(self, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
