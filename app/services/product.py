@@ -1,6 +1,6 @@
 import logging
 import uuid
-
+import random
 from datetime import date
 from sqlalchemy.orm import Session
 from pydantic import UUID4
@@ -49,18 +49,33 @@ class ProductService:
         logger.info("ProductService: get_all_products called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
-        
+  
+    
+    # Generate and display a random number between 7 and 10 digits long
+    async def generate_random_number(self):
+        num_digits = random.randint(7, 10)
+        # Ensure the first digit is not zero
+        first_digit = random.randint(1, 9)
+        # Generate the rest of the digits, which can include zero
+        other_digits = [str(random.randint(0, 9)) for _ in range(num_digits - 1)]
+        # Combine the digits into a single number
+        return str(first_digit) + ''.join(other_digits)
+
+ 
+
+    
     async def create_product(self, obj_in: ProductCreateParams):
         logger.info("ProductService: get_product_by_barcode called.")
-        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode)
+        random_barcode = await self.generate_random_number()
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, random_barcode)
         logger.info("ProductService: get_product_by_barcode called successfully.")
-    
+
         if current_bar_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
-
+        
         product_create = ProductCreate(
             id=uuid.uuid4(),
-            barcode=obj_in.barcode,
+            barcode=random_barcode,
             product_name=obj_in.product_name,
             description=obj_in.description,
             categories=obj_in.categories,
@@ -92,9 +107,11 @@ class ProductService:
         logger.info("ProductService: get_product_by_id called successfully.")
         
         if not isValidProduct:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
         logger.info("ProductService: update_product called.")
+        barcode_path = await self.generate_barcode(bar_code=obj_in.barcode)
+        os.path.join(BARCODE_DIR, barcode_path)
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()

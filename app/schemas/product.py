@@ -8,7 +8,6 @@ class Status(str,enum.Enum):
     PENDING = "PENDING" #Hết hàng
     EMPTY = "EMPTY" #Trống
 class ProductCreateParams(BaseModel):
-    barcode: Optional[str] = Field(None, max_length=255)
     product_name: str = Field(..., max_length=255)
     description: Optional[str] = Field(None, max_length=255)
     categories: Optional[str] = Field(None, max_length=255)
