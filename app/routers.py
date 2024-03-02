@@ -11,7 +11,7 @@ from app.api.endpoints import product
 from app.api.endpoints import employee
 from app.api.endpoints import promotion
 from app.api.endpoints import vendor
-
+from app.api.endpoints import invoice_for_customer
 
 
 
@@ -27,3 +27,4 @@ router.include_router(product.router, prefix="", tags=["product"])
 router.include_router(employee.router, prefix="", tags=["employees"])
 router.include_router(promotion.router, prefix="", tags=["promotions"])
 router.include_router(vendor.router, prefix="", tags=["vendors"])
+router.include_router(invoice_for_customer.router, prefix="", tags=["invoice_for_customer"])

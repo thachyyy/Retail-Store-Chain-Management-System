@@ -7,4 +7,4 @@ from .product import *
 from .promotion import *
 from .vendor import *
 from .categories import *
-
+from .invoice_for_customer import *
