@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, String, DateTime, ForeignKey
+from sqlalchemy import Column, Float, Integer, String, DateTime, ForeignKey
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -8,7 +8,7 @@ class InvoiceForCustomer(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True)
     created_at = Column(DateTime, unique = False, nullable = False)
-    total = Column(Float, unique = False, nullable = False)
+    total = Column(Integer, unique = False, nullable = False)
     status = Column(String, unique = False, nullable = False)
     payment_method = Column(String, unique = False, nullable = False)
     belong_to_order = Column(UUID(as_uuid=True), ForeignKey('purchase_order.id'), unique = True, nullable = False)
