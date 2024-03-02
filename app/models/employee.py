@@ -1,7 +1,12 @@
-from sqlalchemy import Column, String, Date
+from sqlalchemy import Column, String, Date, ForeignKey
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
+'''
+    "ACTIVE" # Đang làm việc
+    "INACTIVE" # Nghỉ việc
+'''
 
 class Employee(Base):
     __tablename__ = "employee"
@@ -16,5 +21,6 @@ class Employee(Base):
     address = Column(String(255), unique = False, nullable = False)
     district = Column(String(255), unique = False, nullable = False)
     province = Column(String(255), unique = False, nullable = False)
-    status = Column(String(255), unique = False, nullable = False)
+    status = Column(String(255), unique = False, nullable = False, default = 'ACTIVE')
     note = Column(String, unique = False, nullable = True)
+    branch_name = Column(String(255), ForeignKey('branch.name_detail'), unique = False, nullable = False)
