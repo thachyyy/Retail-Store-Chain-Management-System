@@ -1,7 +1,9 @@
 #Run Back-end Step-by-step
 
 ## Clone project on Github
+```
 git clone https://github.com/thachyyy/Retail-Store-Chain-Management-System.git
+```
 ## Move to project
 ```
 cd Retail-Store-Chain-Management-System
