@@ -87,8 +87,35 @@ TIME_CANCEL_TASK=24
 6. Nhấn save để lưu lại, các bảng bạn cần tạo hoặc đã tạo nó sẽ ở đường dẫn sau (server\postgres\database\posgres\Schemas\table)
 
    ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/905466cc-0e99-4670-948b-b74347228d1f)
+7. Thêm config cho postgresql. Nhấn chuột phải vào tên Database chọn Query Tool
 
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/b43d0372-628d-4ed3-8c17-b495b3b98061)
+8. Chạy lệnh:
+   ```
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+   ```
 
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/0b0ce870-9881-4cdb-b140-7137fe2e632f)
+
+9. Mở command line chạy trong VS code chạy lệnh để migration database:
+   ```
+   alembic upgrade head
+   ```
+10. Quay lại giao diện Query Tool chạy lệnh:
+    ```
+    insert into system_settings (id, is_maintain) values (uuid_generate_v4(), false);
+    ```
+
+    ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/33e49c19-18a7-4cca-b661-0295ca41af89)
+
+11. Chạy server backend
+    ```
+    uvicorn app.main:app --reload
+    ```
+12. Mở trình duyệt web và truy cập vào
+```
+    http://localhost:8000/docs
+```
 
 
 
