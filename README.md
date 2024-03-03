@@ -1,128 +1,85 @@
-# dop_be
+#Run Back-end Step-by-step
 
+## Clone project on Github
+git clone https://github.com/thachyyy/Retail-Store-Chain-Management-System.git
+## Move to project
+```
+cd Retail-Store-Chain-Management-System
+```
 ## Creating an Environment
-With a basic understanding of what the environment is, we can create one using alembic init. This will create an environment using the “generic” template:
-```commandline
-cd /path/to/yourproject
-source /path/to/yourproject/.venv/bin/activate   # assuming a local virtualenv
-alembic init alembic
 ```
-Where above, the init command was called to generate a migrations directory called alembic:
-```commandline
-Creating directory /path/to/yourproject/alembic...done
-Creating directory /path/to/yourproject/alembic/versions...done
-Generating /path/to/yourproject/alembic.ini...done
-Generating /path/to/yourproject/alembic/env.py...done
-Generating /path/to/yourproject/alembic/README...done
-Generating /path/to/yourproject/alembic/script.py.mako...done
-Please edit configuration/connection/logging settings in
-'/path/to/yourproject/alembic.ini' before proceeding.
+python -m venv venv
 ```
-
-Alembic also includes other environment templates. These can be listed out using the list_templates command:
-```commandline
-alembic list_templates
-Available templates:
-
-async - Generic single-database configuration with an async dbapi.
-multidb - Rudimentary multi-database configuration.
-generic - Generic single-database configuration.
-
-Templates are used via the 'init' command, e.g.:
-
-  alembic init --template generic ./scripts
+## Activate *venv* Virtual Environment
 ```
-
-For starting up with just a single database and the generic configuration, setting up the SQLAlchemy URL is all that’s needed:
-```commandline
-sqlalchemy.url = postgresql://scott:tiger@localhost/test
+source ./venv/Scripts/activate
 ```
-
-## Create a Migration Script
-```commandline
-$ alembic revision -m "create account table"
-Generating /path/to/yourproject/alembic/versions/1975ea83b712_create_accoun
-t_table.py...done
+## Instal *poetry* to manage packages and dependencies
 ```
-A new file 1975ea83b712_create_account_table.py is generated. Looking inside the file:
-```doctest
-"""create account table
-
-Revision ID: 1975ea83b712
-Revises:
-Create Date: 2011-11-08 11:40:27.089406
-
-"""
-
-# revision identifiers, used by Alembic.
-revision = '1975ea83b712'
-down_revision = None
-branch_labels = None
-
-from alembic import op
-import sqlalchemy as sa
-
-def upgrade():
-    pass
-
-def downgrade():
-    pass
+pip install poetry
 ```
-
-## Running our First Migration
-```commandline
-$ alembic upgrade head
-INFO  [alembic.context] Context class PostgresqlContext.
-INFO  [alembic.context] Will assume transactional DDL.
-INFO  [alembic.context] Running upgrade None -> 1975ea83b712
+## Create .env file in the root folder
 ```
+DEBUG=true
+SQLALCHEMY_DEBUG=True
+VERSION=0.1-SNAPSHOT
+API_PREFIX=/api
+PROJECT_NAME=Retail Chain Management System
 
-## Getting Information
-With a few revisions present we can get some information about the state of things.
-First we can view the current revision:
-```commandline
-$ alembic current
-INFO  [alembic.context] Context class PostgresqlContext.
-INFO  [alembic.context] Will assume transactional DDL.
-Current revision for postgresql://scott:XXXXX@localhost/test: 1975ea83b712 -> ae1027a6acf (head), Add a column
+
+POSTGRES_SERVER=localhost
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=1234
+POSTGRES_DB=postgres
+POSTGRES_SCHEMA=public
+POSTGRES_PORT=5432
+PROJECT_BUILD_TYPE=DEV
+
+PUSHER_APP_ID=
+PUSHER_KEY=
+PUSHER_SECRET=
+PUSHER_CLUSTER=
+PUSHER_SSL=True
+
+ACCESS_TOKEN_EXPIRES_IN_MINUTES=30
+REFRESH_TOKEN_EXPIRES_IN_DAYS=30
+JWT_ALGORITHM=HS256
+JWT_SECRET_KEY=
+
+S3_BUCKET_NAME=
+S3_IMAGE_PREFIX=
+S3_ENDPOINT_URL=
+AWS_ACCESS_KEY=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION_NAME=
+
+EMAIL_HOST=smtp.mailtrap.io
+EMAIL_PORT=587
+EMAIL_ADDRESS=nvdluan@gmail.com
+EMAIL_PASSWORD=nlhzaiwefcqyoibm
+
+# Channels
+GENERAL_CHANNEL=general-channel
+ALL_CHANNEL=all-channel
+
+CROWD_BOT_API_KEY=
+TIME_CANCEL_TASK=24
+
 ```
-head is displayed only if the revision identifier for this database matches the head revision.
-We can also view history with alembic history; the --verbose option (accepted by several commands, including history, current, heads and branches) will show us full information about each revision:
-```commandline
-$ alembic history --verbose
+  
+## Quản lý database bằng PgAdmin4 
+1. Tải PgAdmin4 tại link:  [Download](https://www.pgadmin.org/download/)https://www.pgadmin.org/download/
+2. Tạo server
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/8f275444-fa07-46b0-b1b6-ff5c887ef4d8)
+3. Viết tên server (tùy ý)
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/64364b81-f507-479f-9e2f-1afa043a8ba7)
+4. Chuyển tab sang connection cài host name, username, password
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/99b7d602-0509-4808-bab5-63ce301e9a35)
+5. Nhấn save để lưu lại, các bảng bạn cần tạo hoặc đã tạo nó sẽ ở đường dẫn sau (server\postgres\database\posgres\Schemas\table)
+   ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/905466cc-0e99-4670-948b-b74347228d1f)
 
-Rev: ae1027a6acf (head)
-Parent: 1975ea83b712
-Path: /path/to/yourproject/alembic/versions/ae1027a6acf_add_a_column.py
 
-    add a column
 
-    Revision ID: ae1027a6acf
-    Revises: 1975ea83b712
-    Create Date: 2014-11-20 13:02:54.849677
 
-Rev: 1975ea83b712
-Parent: <base>
-Path: /path/to/yourproject/alembic/versions/1975ea83b712_add_account_table.py
-
-    create account table
-
-    Revision ID: 1975ea83b712
-    Revises:
-    Create Date: 2014-11-20 13:02:46.257104
-```
-- reference: 
-  - https://alembic.sqlalchemy.org/en/latest/tutorial.html
-  - https://blog.jerrycodes.com/multiple-heads-in-alembic-migrations/
-### Create system settings table
-- Require:
-```commandline
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-```
-Init system_settings_table:
-```commandline
-insert into system_settings (id, is_maintain)
-values (uuid_generate_v4(), false)
-```
 
 
