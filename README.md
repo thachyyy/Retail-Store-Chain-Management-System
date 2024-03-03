@@ -77,10 +77,14 @@ TIME_CANCEL_TASK=24
 3. Viết tên server (tùy ý)
 
    ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/64364b81-f507-479f-9e2f-1afa043a8ba7)
-4. Chuyển tab sang connection cài host name, username, password
+4. Chuyển tab sang connection nhập các trường thông tin bao gồm:
+   - host name: localhost (POSTGRES_SERVER)
+   - Username: postgres (POSTGRES_USER)
+   - Password: 1234 (POSTGRES_PASSWORD)
+   - Maintenance Database: postgres (POSTGRES_DB)
 
    ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/99b7d602-0509-4808-bab5-63ce301e9a35)
-5. Nhấn save để lưu lại, các bảng bạn cần tạo hoặc đã tạo nó sẽ ở đường dẫn sau (server\postgres\database\posgres\Schemas\table)
+6. Nhấn save để lưu lại, các bảng bạn cần tạo hoặc đã tạo nó sẽ ở đường dẫn sau (server\postgres\database\posgres\Schemas\table)
 
    ![image](https://github.com/thachyyy/Retail-Store-Chain-Management-System/assets/79985864/905466cc-0e99-4670-948b-b74347228d1f)
 
