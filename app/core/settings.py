@@ -4,7 +4,7 @@ from pydantic import BaseSettings, PostgresDsn, validator
 
 class Settings(BaseSettings):
     PROJECT_NAME = "dop"
-    API_PREFIX: str = "/api"
+    API: str = "/api"
     VERSION = "0.1-SNAPSHOT"
     ALLOW_ORIGINS: list = ["http://localhost:3000", "http://localhost:50008", "http://113.160.226.174:50008",
                            "http://113.160.226.174:50003"]

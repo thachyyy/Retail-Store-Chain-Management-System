@@ -17,7 +17,7 @@ app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG, version=setting
               docs_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.DOCS,
               redoc_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.RE_DOC)
 
-app.include_router(router, prefix=settings.API_PREFIX, dependencies=[Depends(router_middleware)])
+app.include_router(router, prefix=settings.API, dependencies=[Depends(router_middleware)])
 
 
 @app.on_event("startup")

@@ -23,4 +23,6 @@ class Employee(Base):
     province = Column(String(255), unique = False, nullable = False)
     status = Column(String(255), unique = False, nullable = False, default = 'ACTIVE')
     note = Column(String, unique = False, nullable = True)
-    branch_name = Column(String(255), ForeignKey('branch.name_detail'), unique = False, nullable = False)
+    branch_name = Column(String(255), unique = False, nullable = False)
+
+ 

@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "dop-be"
+name = "be"
 version = "0.1.0"
 description = ""
-authors = ["nvdluan <nvdluan@gmail.com>"]
+authors = ["thachyyy <thachyyy@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -32,6 +32,11 @@ httpx="^0.24.1"
 gunicorn = "^21.2.0"
 openpyxl = "^3.1.2"
 boto3= "^1.28.73"
+python-barcode = "0.15.1"
+charset-normalizer = "3.3.2"
+pydantic = "1.10.13"
+dnspython = "2.6.1"
+email-validator = "2.1.1"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 

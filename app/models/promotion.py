@@ -32,6 +32,6 @@ class Promotion(Base):
     status = Column(String(16), nullable=False,default='ACTIVE')  
     min_product_value = Column(Integer, nullable=True) 
     min_product_quantity = Column(Integer, nullable=True)
-    # vendor_id = Column(UUID,ForeignKey('vendor.id'),nullable=False,unique=False)
+    vendor_id = Column(UUID,ForeignKey('vendor.id'),nullable=False,unique=False)
     
-    # vendor = relationship('Vendor')
+    vendor = relationship('Vendor')

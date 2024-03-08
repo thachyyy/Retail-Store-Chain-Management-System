@@ -22,10 +22,15 @@ class Product(Base):
     sale_price = Column(Integer,nullable=False,index = True)
     status = Column(Enum(Status),nullable=False,default=Status.EMPTY)
     note = Column(String(255),nullable=True)
+    has_promotion = Column(Boolean,nullable=False, default="No")
+    
+    # contract_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
+    # promotion_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
+    # batch_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
+    
     contract_id = Column(UUID(as_uuid=True),ForeignKey('contract.id'),unique=False,nullable=True,index = True)
     promotion_id = Column(UUID(as_uuid=True),ForeignKey('promotion.id'),unique=False,nullable=True,index = True)
     batch_id = Column(UUID(as_uuid=True),ForeignKey('batch.id'),unique=False,nullable=True,index = True)
-    has_promotion = Column(Boolean,nullable=False, default="No")
     
     promotion = relationship('Promotion')
     contract = relationship('Contract')

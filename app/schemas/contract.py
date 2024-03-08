@@ -5,7 +5,7 @@ from datetime import date
 class ContractCreateParams(BaseModel):
     start_date: date
     end_date: date
-    minimum_order_amount: float
+    minimum_order_amount: int
     minimum_order_quantity: int
     ordering_cycle_amount: int
     ordering_cycle_quantity: int
@@ -15,7 +15,7 @@ class ContractCreate(BaseModel):
     id: UUID4
     start_date: date
     end_date: date
-    minimum_order_amount: float
+    minimum_order_amount: int
     minimum_order_quantity: int
     ordering_cycle_amount: int
     ordering_cycle_quantity: int

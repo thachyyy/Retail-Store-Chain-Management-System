@@ -11,7 +11,7 @@ class PaymentMethod(str,enum.Enum):
     
 
 class InvoiceForCustomerCreateParams(BaseModel):
-    total: float
+    total: int
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
     belong_to_order: UUID4
@@ -19,13 +19,13 @@ class InvoiceForCustomerCreateParams(BaseModel):
 class InvoiceForCustomerCreate(BaseModel):
     id: UUID4
     created_at: datetime
-    total: float
+    total: int
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
     belong_to_order: UUID4
     
 class InvoiceForCustomerUpdate(BaseModel):
-    total: Optional[float] = None
+    total: Optional[int] = None
     status: Optional[str] = Field(default="Đã thanh toán")
     payment_method: Optional[PaymentMethod] = Field(default=PaymentMethod.Cash)
     belong_to_order: Optional[UUID4] = None

@@ -13,7 +13,6 @@ from .order_of_batch import OrderOfBatch
 from .product_of_warehouse_receipt import ProductOfWarehouseReceipt
 from .product import Product
 from .promotion_belong_to_branch import PromotionBelongToBranch
-from .promotion_for_categories import PromotionForCategories
 from .promotion_for_order import PromotionForOrder
 from .promotion import Promotion
 from .purchase_order import PurchaseOrder
