@@ -11,8 +11,6 @@ class InvoiceFromVendor(Base):
     payment_deadline = Column(Date, unique = False, nullable = False)
     total = Column(Integer, unique = False, nullable = False)
     status = Column(String, unique = False, nullable = False)
-    vendor_id = Column(UUID(as_uuid=True), unique = False, nullable = False)
-
-    # vendor_id = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
+    vendor_id = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
     
-    # vendor = relationship('Vendor')
+    vendor = relationship('Vendor')

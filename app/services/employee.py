@@ -1,7 +1,8 @@
 import logging
 import uuid
-
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from app.utils.response import make_response_object
 from pydantic import UUID4
 from datetime import date
 
@@ -43,7 +44,17 @@ class EmployeeService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
         if current_employee_phone:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
-        
+    
+        # Kiểm tra chi nhánh có quản lí hay chưa
+        # if obj_in.role.value == "Quản lí chi nhánh":
+             
+        #     logger.info("BranchService: get_branch_by_name_detail called.")
+        #     current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch_name)
+        #     logger.info("BranchService: get_branch_by_name_detail called successfully.")
+        #     if current_branch.manager_id:
+        #         raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
+        #     update_branch_manager = await crud.branch.update_branch(self.db,current_branch.id,branch_update=current_branch.manager_id)
+
         employee_create = EmployeeCreate(
             id=uuid.uuid4(),
             full_name=obj_in.full_name,
@@ -66,7 +77,7 @@ class EmployeeService:
         
         self.db.commit()
         logger.info("Service: create_employee success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message),employee_create
     
     async def update_employee(self, employee_id: str, obj_in: EmployeeUpdate):
         logger.info("EmployeeService: get_employee_by_id called.")
@@ -75,7 +86,13 @@ class EmployeeService:
         
         if not isValidEmployee:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
-        
+        if obj_in.role.value == "Quản lí chi nhánh":
+            logger.info("BranchService: get_branch_by_name_detail called.")
+            current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch_name)
+            logger.info("BranchService: get_branch_by_name_detail called successfully.")
+            if current_branch.manager_id:
+                raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
+             
         logger.info("EmployeeService: update_employee called.")
         result = await crud.employee.update_employee(db=self.db, employee_id=employee_id, employee_update=obj_in)
         logger.info("EmployeeService: update_employee called successfully.")
