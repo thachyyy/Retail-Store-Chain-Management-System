@@ -2,6 +2,8 @@ import logging
 
 from typing import Optional
 from sqlalchemy.orm import Session
+from app.constant.app_status import AppStatus
+from app.core.exceptions import error_exception_handler
 
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
 from app.crud.base import CRUDBase
@@ -16,7 +18,12 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
     
     @staticmethod
     async def get_employee_by_id(db: Session, employee_id: str):
-        return db.query(Employee).filter(Employee.id == employee_id).first()
+        logger.info("CRUDEmployee: get_employee_by_id called.")
+        current_employee_by_id =  db.query(Employee).filter(Employee.id == employee_id).first()
+        if not current_employee_by_id:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
+        logger.info("CRUDEmployee: get_employee_by_id called successfully.")
+        return current_employee_by_id
     
     @staticmethod
     async def get_employee_by_email(db: Session, email: str):

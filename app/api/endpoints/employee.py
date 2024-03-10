@@ -26,9 +26,9 @@ async def create_employee(
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: create_employee called.")
     
-    employee_response = await employee_service.create_employee(employee_create)
+    msg,employee_response = await employee_service.create_employee(employee_create)
     logger.info("Endpoints: create_employee called successfully.")
-    return make_response_object(employee_response)
+    return make_response_object(msg,employee_response)
 
 @router.get("/employees")
 async def get_all_employees(db: Session = Depends(get_db)) -> Any:

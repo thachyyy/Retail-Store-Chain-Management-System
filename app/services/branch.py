@@ -1,6 +1,7 @@
+
 import logging
 import uuid
-
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from pydantic import UUID4
 
@@ -43,7 +44,7 @@ class BranchService:
         logger.info("BranchService: get_branch_by_email called successfully.")
         
         logger.info("BranchService: get_branch_by_name_detail called.")
-        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.email)
+        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail)
         logger.info("BranchService: get_branch_by_name_detail called successfully.")
         
         if current_branch_address:
@@ -55,6 +56,16 @@ class BranchService:
         if current_branch_name_detail:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
+        logger.info("EmployeeService: get_employee_by_id called.")
+        current_employee_by_id = await crud.employee.get_employee_by_id(self.db, obj_in.manager_id)
+        logger.info("EmployeeService: get_employee_by_id called successfully.")
+        
+        if obj_in.manager_id:
+            if not current_employee_by_id:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
+            if current_employee_by_id.branch_name != obj_in.name_detail:
+                raise HTTPException(status_code=404, detail="Employee not found in the branch") 
+            
         branch_create = BranchCreate(
             id=uuid.uuid4(),
             name_display=obj_in.name_display,
@@ -66,7 +77,9 @@ class BranchService:
             email=obj_in.email,
             status=obj_in.status,
             note=obj_in.note,
+            manager_name=obj_in.manager_name,
             manager_id=obj_in.manager_id
+            
         )
         
         logger.info("BranchService: create called.")

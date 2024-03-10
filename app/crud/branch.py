@@ -52,7 +52,7 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         db.refresh(db_obj)
         logger.info("CRUDBranch: create called successfully.")
         return db_obj
-    
+ 
     @staticmethod
     async def update_branch(db: Session, branch_id: str, branch_update: BranchUpdate):
         update_data = branch_update.dict(exclude_none=True)
