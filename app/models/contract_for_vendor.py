@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from .base import Base  # Assuming .base is the correct import path for your Base
 
-class Contract(Base):
+class ContractForVendor(Base):
     __tablename__ = 'contract'
 
     id = Column(UUID(as_uuid=True), primary_key=True)

@@ -25,5 +25,5 @@ class Branch(Base):
     status = Column(String(16), unique = False, nullable = False, default = 'COMMING SOON')
     note = Column(String(255), unique = False, nullable = True)
     manager_name = Column(String(255), unique = True, nullable = True)
-    manager_id = Column(ARRAY(UUID(as_uuid=True)), ForeignKey('employee.id'), unique = True, nullable = True)
+    manager_id = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = True, nullable = True)
     employee = relationship('Employee')

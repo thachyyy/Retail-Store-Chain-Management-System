@@ -3,8 +3,8 @@ from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-class WarehouseReceipt(Base):
-    __tablename__ = "warehouse_receipt"
+class ImportOrder(Base):
+    __tablename__ = "import_order"
     
     id = Column(UUID(as_uuid=True), primary_key=True)
     is_contract = Column(Boolean, unique = False, nullable = False)

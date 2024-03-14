@@ -3,11 +3,7 @@ from sqlalchemy import Column, ForeignKey, String,Integer,Enum,Boolean
 from sqlalchemy.orm import relationship
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
-class Status(str,enum.Enum):
-    ACTIVE = "ACTIVE" #Đang kinh doanh
-    INACTIVE = "INACTIVE" #Tạm ngừng kinh doanh
-    PENDING = "PENDING" #Hết hàng
-    EMPTY = "EMPTY" #Trống
+
 class Product(Base):
     __tablename__ = "product"
     
@@ -20,7 +16,7 @@ class Product(Base):
     unit = Column(String(255),nullable=True)
     last_purchase_price = Column(Integer,nullable=False,index = True)
     sale_price = Column(Integer,nullable=False,index = True)
-    status = Column(Enum(Status),nullable=False,default=Status.EMPTY)
+    status = Column(String(50),nullable=False)
     note = Column(String(255),nullable=True)
     has_promotion = Column(Boolean,nullable=False, default="No")
     
