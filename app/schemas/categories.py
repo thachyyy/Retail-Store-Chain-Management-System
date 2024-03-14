@@ -1,12 +1,12 @@
 from typing import Optional
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel
 
 class CategoriesCreateParams(BaseModel):
     name: str
     description: Optional[str] = None
     
 class CategoriesCreate(BaseModel):
-    id: UUID4
+    id: str
     name: str
     description: Optional[str] = None
     
