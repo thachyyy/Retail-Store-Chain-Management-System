@@ -22,10 +22,10 @@ class CategoriesService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def get_categories_by_name(self, name: str):
-        logger.info("CategoriesService: get_categories_by_name called.")
-        result = await crud.categories.get_categories_by_name(db=self.db, name=name)
-        logger.info("CategoriesService: get_categories_by_name called successfully.")
+    async def get_categories_by_id(self, id: str):
+        logger.info("CategoriesService: get_categories_by_id called.")
+        result = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
@@ -37,8 +37,11 @@ class CategoriesService:
         if current_categories_name:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
         
+        cur_id = await crud.categories.get_last_id(self.db)
+        new_id = cur_id + 1
+        
         categories_create = CategoriesCreate(
-            id=uuid.uuid4(),
+            id="NHOM"+str(new_id),
             name=obj_in.name,
             description=obj_in.description
         )
@@ -49,33 +52,36 @@ class CategoriesService:
         
         self.db.commit()
         logger.info("Service: create_categories success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=categories_create)
     
-    async def update_categories(self, name: str, obj_in: CategoriesUpdate):
-        logger.info("CategoriesService: get_categories_by_name called.")
-        isValidCategories = await crud.categories.get_categories_by_name(db=self.db, name=name)
-        logger.info("CategoriesService: get_categories_by_name called successfully.")
+    async def update_categories(self, id: str, obj_in: CategoriesUpdate):
+        logger.info("CategoriesService: get_categories_by_id called.")
+        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         if not isValidCategories:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         
         logger.info("CategoriesService: update_categories called.")
-        result = await crud.categories.update_categories(db=self.db, name=name, categories_update=obj_in)
+        result = await crud.categories.update_categories(db=self.db, id=id, categories_update=obj_in)
         logger.info("CategoriesService: update_categories called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        obj_update = await crud.categories.get_categories_by_id(self.db, id)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=obj_update)
         
-    async def delete_categories(self, name: str):
-        logger.info("CategoriesService: get_categories_by_name called.")
-        isValidCategories = await crud.categories.get_categories_by_name(db=self.db, name=name)
-        logger.info("CategoriesService: get_categories_by_name called successfully.")
+    async def delete_categories(self, id: str):
+        logger.info("CategoriesService: get_categories_by_id called.")
+        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         if not isValidCategories:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         
+        obj_del = await crud.categories.get_categories_by_id(self.db, id)
+        
         logger.info("CategoriesService: delete_categories called.")
-        result = await crud.categories.delete_categories(self.db, name)
+        result = await crud.categories.delete_categories(self.db, id)
         logger.info("CategoriesService: delete_categories called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=obj_del)

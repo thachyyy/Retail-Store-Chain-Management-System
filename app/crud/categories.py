@@ -15,8 +15,20 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
         return db.query(Categories).all()
     
     @staticmethod
+    async def get_categories_by_id(db: Session, id: str):
+        return db.query(Categories).filter(Categories.id == id).first()
+    
+    @staticmethod
     async def get_categories_by_name(db: Session, name: str):
         return db.query(Categories).filter(Categories.name == name).first()
+    
+    @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM categories;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
     
     @staticmethod
     def create(db: Session, *, obj_in: CategoriesCreate) -> Categories:
@@ -31,12 +43,12 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
         return db_obj
     
     @staticmethod
-    async def update_categories(db: Session, name: str, categories_update: CategoriesUpdate):
+    async def update_categories(db: Session, id: str, categories_update: CategoriesUpdate):
         update_data = categories_update.dict(exclude_none=True)
-        return db.query(Categories).filter(Categories.name == name).update(update_data)
+        return db.query(Categories).filter(Categories.id == id).update(update_data)
     
     @staticmethod
-    async def delete_categories(db: Session, name: str):
-        return db.query(Categories).filter(Categories.name == name).delete()
+    async def delete_categories(db: Session, id: str):
+        return db.query(Categories).filter(Categories.id == id).delete()
     
 categories = CRUDCategories(Categories)

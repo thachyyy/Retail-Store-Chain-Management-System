@@ -39,29 +39,29 @@ async def get_all_categories(db: Session = Depends(get_db)) -> Any:
     logger.info("Endpoints: get_all_categories called successfully.")
     return make_response_object(categories_response, msg)
 
-@router.get("/categories/{name}")
-async def get_categories_by_name(name: str, db: Session = Depends(get_db)) -> Any:
+@router.get("/categories/{id}")
+async def get_categories_by_id(id: str, db: Session = Depends(get_db)) -> Any:
     categories_service = CategoriesService(db=db)
     
-    logger.info("Endpoints: get_categories_by_name called.")  
-    msg, categories_response = await categories_service.get_categories_by_name(name)
-    logger.info("Endpoints: get_categories_by_name called successfully.")
+    logger.info("Endpoints: get_categories_by_id called.")  
+    msg, categories_response = await categories_service.get_categories_by_id(id)
+    logger.info("Endpoints: get_categories_by_id called successfully.")
     return make_response_object(categories_response, msg)
 
-@router.put("/categories/{name}")
-async def update_categories(name: str, categories_update: CategoriesUpdate, db: Session = Depends(get_db)) -> Any:
+@router.put("/categories/{id}")
+async def update_categories(id: str, categories_update: CategoriesUpdate, db: Session = Depends(get_db)) -> Any:
     categories_service = CategoriesService(db=db)
     
     logger.info("Endpoints: update_categories called.")
-    msg, categories_response = await categories_service.update_categories(name, categories_update)
+    msg, categories_response = await categories_service.update_categories(id, categories_update)
     logger.info("Endpoints: update_categories called successfully.")
     return make_response_object(categories_response, msg)
 
-@router.delete("/categories/{name}")
-async def delete_categories(name: str, db: Session = Depends(get_db)) -> Any:
+@router.delete("/categories/{id}")
+async def delete_categories(id: str, db: Session = Depends(get_db)) -> Any:
     categories_service = CategoriesService(db=db)
     
     logger.info("Endpoints: delete_categories called.")
-    msg, categories_response = await categories_service.delete_categories(name)
+    msg, categories_response = await categories_service.delete_categories(id)
     logger.info("Endpoints: delete_categories called successfully.")
     return make_response_object(categories_response, msg)
