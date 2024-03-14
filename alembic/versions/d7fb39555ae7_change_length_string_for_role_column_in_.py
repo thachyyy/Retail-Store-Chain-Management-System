@@ -25,7 +25,7 @@ def upgrade() -> None:
                type_=sa.String(length=25),
                existing_nullable=False)
     op.drop_constraint('fk_employee_branch', 'employee', type_='foreignkey')
-    op.create_foreign_key(None, 'invoice_from_vendor', 'vendor', ['vendor_id'], ['id'])
+    op.create_foreign_key('fk_invoice_from_vendor', 'invoice_from_vendor', 'vendor', ['vendor_id'], ['id'])
     # ### end Alembic commands ###
 
 

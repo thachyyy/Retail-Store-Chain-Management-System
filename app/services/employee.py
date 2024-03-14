@@ -31,6 +31,12 @@ class EmployeeService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def get_employee_by_branch_name(self, branch_name: str):
+        logger.info("EmployeeService: get_employee_by_branch_name called.")
+        result = await crud.employee.get_employee_by_branch_name(db=self.db, branch_name=branch_name)
+        logger.info("EmployeeService: get_employee_by_branch_name called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     async def create_employee(self, obj_in: EmployeeCreateParams):
         logger.info("EmployeeService: get_employee_by_email called.")
         current_employee_email = await crud.employee.get_employee_by_email(self.db, obj_in.email)

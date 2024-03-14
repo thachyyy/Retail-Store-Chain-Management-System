@@ -15,7 +15,7 @@ class Batch(Base):
     # belong_to_receipt = Column(UUID(as_uuid=True),  nullable = False)
     
     belong_to_branch = Column(UUID(as_uuid=True), ForeignKey('branch.id'), unique = False, nullable = False)
-    belong_to_receipt = Column(UUID(as_uuid=True), ForeignKey('warehouse_receipt.id'), unique = False, nullable = False)
+    belong_to_receipt = Column(UUID(as_uuid=True), ForeignKey('import_order.id'), unique = False, nullable = False)
     
     branch = relationship('Branch')
-    warehouse_receipt = relationship('WarehouseReceipt')
+    import_order = relationship('ImportOrder')

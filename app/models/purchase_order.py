@@ -21,7 +21,7 @@ class PurchaseOrder(Base):
     
     
     handle_by = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = False, nullable = False)
-    belong_to_customer = Column(UUID(as_uuid=True), ForeignKey('customer.id'), unique = False, nullable = False)
+    belong_to_customer = Column(UUID(as_uuid=True), ForeignKey('customer.id'), unique = False, nullable = True)
     
     employee = relationship('Employee')
     customer = relationship('Customer')

@@ -56,15 +56,15 @@ class BranchService:
         if current_branch_name_detail:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
-        logger.info("EmployeeService: get_employee_by_id called.")
-        current_employee_by_id = await crud.employee.get_employee_by_id(self.db, obj_in.manager_id)
-        logger.info("EmployeeService: get_employee_by_id called successfully.")
+        # logger.info("EmployeeService: get_employee_by_id called.")
+        # current_employee_by_id = await crud.employee.get_employee_by_id(self.db, obj_in.manager_id)
+        # logger.info("EmployeeService: get_employee_by_id called successfully.")
         
-        if obj_in.manager_id:
-            if not current_employee_by_id:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
-            if current_employee_by_id.branch_name != obj_in.name_detail:
-                raise HTTPException(status_code=404, detail="Employee not found in the branch") 
+        # if obj_in.manager_id:
+        #     if not current_employee_by_id:
+        #         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
+        #     if current_employee_by_id.branch_name != obj_in.name_detail:
+        #         raise HTTPException(status_code=404, detail="Employee not found in the branch") 
             
         branch_create = BranchCreate(
             id=uuid.uuid4(),

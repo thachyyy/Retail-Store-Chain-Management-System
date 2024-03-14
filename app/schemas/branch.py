@@ -12,7 +12,7 @@ class BranchCreateParams(BaseModel):
     status: Optional[Literal['OPEN', 'SUSPEND', 'UNDER RENOVATION', 'CLOSED', 'COMMING SOON']] = None
     note: Optional[str] = None
     manager_name: Optional[str] = None
-    manager_id: Optional[List[UUID4]] = None
+    manager_id: Optional[UUID4]= None
     
 class BranchCreate(BaseModel):
     id: UUID4
@@ -26,7 +26,7 @@ class BranchCreate(BaseModel):
     status: Optional[Literal['OPEN', 'SUSPEND', 'UNDER RENOVATION', 'CLOSED', 'COMMING SOON']] = None
     note: Optional[str] = None
     manager_name: Optional[str] = None
-    manager_id: Optional[List[UUID4]] = None
+    manager_id: Optional[UUID4] = None
     
 class BranchUpdate(BaseModel):
     name_display: Optional[str] = None
@@ -39,4 +39,4 @@ class BranchUpdate(BaseModel):
     status: Optional[Literal['OPEN', 'SUSPEND', 'UNDER RENOVATION', 'CLOSED', 'COMMING SOON']] = None
     note: Optional[str] = None
     manager_name: Optional[str] = None
-    manager_id: Optional[List[UUID4]] = None
+    manager_id: Optional[UUID4] = None

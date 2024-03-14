@@ -1,5 +1,5 @@
 import logging
-
+from fastapi import HTTPException
 from typing import Optional
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
@@ -24,6 +24,15 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
         logger.info("CRUDEmployee: get_employee_by_id called successfully.")
         return current_employee_by_id
+    
+    @staticmethod
+    async def get_employee_by_branch_name(db: Session, branch_name: str):
+        logger.info("CRUDEmployee: get_employee_by_branch_name called.")
+        current_employee_by_branch_name =  db.query(Employee).filter(Employee.branch_name == branch_name).all()
+        if not current_employee_by_branch_name:
+                raise HTTPException(status_code =404, detail="Chi nhánh chưa có nhân viên")
+        logger.info("CRUDEmployee: get_employee_by_branch_name called successfully.")
+        return current_employee_by_branch_name
     
     @staticmethod
     async def get_employee_by_email(db: Session, email: str):

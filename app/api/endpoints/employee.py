@@ -39,6 +39,16 @@ async def get_all_employees(db: Session = Depends(get_db)) -> Any:
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)
 
+@router.get("/employees/work_on_branch")
+async def get_employee_by_branch_name(branch_name: str, db: Session = Depends(get_db)) -> Any:
+    employee_service = EmployeeService(db=db)
+    
+    logger.info("Endpoints: get_employee_by_branch_name called.")  
+    msg, employee_response = await employee_service.get_employee_by_branch_name(branch_name)
+    logger.info("Endpoints: get_employee_by_branch_name called successfully.")
+    return make_response_object(employee_response, msg)
+    
+
 @router.get("/employees/{employee_id}")
 async def get_employee_by_id(employee_id: str, db: Session = Depends(get_db)) -> Any:
     employee_service = EmployeeService(db=db)
