@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from .base import Base  # Assuming .base is the correct import path for your Base
 
 class ContractForVendor(Base):
-    __tablename__ = 'contract'
+    __tablename__ = 'contract_for_vendor'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     start_date = Column(DateTime, unique = False, nullable = False)

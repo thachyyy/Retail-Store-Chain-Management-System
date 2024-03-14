@@ -12,7 +12,7 @@ class ContractForProduct(Base):
     # contract_id = Column(UUID(as_uuid=True), unique = False, nullable = False)
     # product_id = Column(UUID(as_uuid=True), unique = False, nullable = False)
     
-    contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.id'), unique = False, nullable = False)
+    contract_for_vendor_id = Column(UUID(as_uuid=True), ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
     product_id = Column(UUID(as_uuid=True), ForeignKey('product.id'), unique = False, nullable = False)
-    contract = relationship('Contract')
+    contract_for_vendor = relationship('ContractForVendor')
     product = relationship('Product')
