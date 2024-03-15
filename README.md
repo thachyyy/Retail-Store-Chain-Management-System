@@ -11,6 +11,7 @@ cd Retail-Store-Chain-Management-System
 ## Creating an Environment
 ```
 python -m venv venv
+#python 3.10.10
 ```
 ## Activate *venv* Virtual Environment
 ```
