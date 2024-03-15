@@ -89,8 +89,9 @@ class ProductService:
         if categories:
             conditions['categories'] = categories
         
-        whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        if whereConditions:
+       
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
             logger.info("ProductService: filter_product called.")
             result = await crud.product.filter_product(self.db, sql=sql)
