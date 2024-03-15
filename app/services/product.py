@@ -59,6 +59,16 @@ class ProductService:
         
     #     return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def search_product(self, limit:int, offset:int,condition: str = None ):
+        whereCondition = await self.whereConditionBuilderForSearch(condition)
+        sql = f"SELECT * FROM public.product {whereCondition} LIMIT {limit} OFFSET {offset};"
+        
+        logger.info("productService: search_product called.")
+        result = await crud.product.search_product(self.db, sql)
+        logger.info("productService: search_product called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
     async def get_all_products(
         self,
         limit: Optional[int] = None,
@@ -80,10 +90,10 @@ class ProductService:
             conditions['categories'] = categories
         
         whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        if not whereConditions:
-            sql = f"SELECT * FROM public.product {whereConditions};"
+        if whereConditions:
+            sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
             logger.info("ProductService: filter_product called.")
-            result = await crud.product.filter_product(self.db,limit_value=limit, offset_value=offset, sql=sql)
+            result = await crud.product.filter_product(self.db, sql=sql)
 
             logger.info("ProductService: filter_product called successfully.")
         else: 
@@ -186,4 +196,13 @@ class ProductService:
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
-   
+    
+    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"product_name ilike '%{condition}%'")
+        conditions.append(f"barcode  ilike '%{condition}%'")
+            
+        whereCondition = "WHERE " + ' OR '.join(conditions)
+        return whereCondition
+    

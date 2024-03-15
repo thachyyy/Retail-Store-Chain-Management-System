@@ -122,10 +122,10 @@ class EmployeeService:
     
     async def whereConditionBuilderForSearch(self, condition: str) -> str:
         conditions = list()
-        conditions.append(f"id::text ilike '%{condition}%'")
-        conditions.append(f"full_name ilike '%{condition}%'")
-        conditions.append(f"phone_number ilike '%{condition}%'")
-        conditions.append(f"email ilike '%{condition}%'")
+        conditions.append(f"role::text ilike '%{condition}%'")
+        conditions.append(f"status ilike '%{condition}%'")
+        conditions.append(f"branch_name ilike '%{condition}%'")
+        conditions.append(f"province ilike '%{condition}%'")
         
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
