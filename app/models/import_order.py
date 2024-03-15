@@ -21,10 +21,10 @@ class ImportOrder(Base):
     
     created_by = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = False, nullable = False)
     belong_to_vendor = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
-    belong_to_contract = Column(UUID(as_uuid=True), ForeignKey('contract.id'), unique = False, nullable = False)
+    belong_to_contract = Column(UUID(as_uuid=True), ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
     belong_to_invoice = Column(UUID(as_uuid=True), ForeignKey('invoice_from_vendor.id'), unique = False, nullable = True)
     
     employee = relationship('Employee')
     vendor = relationship('Vendor')
-    contract = relationship('Contract')
+    contract_for_vendor = relationship('ContractForVendor')
     invoice_from_vendor = relationship('InvoiceFromVendor')

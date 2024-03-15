@@ -15,6 +15,9 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     @staticmethod
     async def get_all_products(db: Session) -> Optional[Product]:
         return db.query(Product).all()
+    @staticmethod
+    async def get_products_with_pagination(limit_value:int,offset_value:int,db: Session) -> Optional[Product]:
+        return db.query(Product).limit(limit_value).offset(offset_value).all()
     
     @staticmethod
     async def get_product_by_barcode(db: Session, barcode: str) -> Optional[Product]:
@@ -40,9 +43,9 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return result_as_dict
     
     @staticmethod
-    async def filter_product(db: Session, sql: str):
+    async def filter_product(db: Session,limit_value:int,offset_value:int, sql: str):
         result = db.execute(sql)
-        result_as_dict = result.mappings().all()
+        result_as_dict = result.mappings().limit(limit_value).offset(offset_value).all()
         return result_as_dict
     
     @staticmethod

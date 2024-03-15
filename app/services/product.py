@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 import uuid
 import random
 from datetime import date
@@ -7,7 +8,7 @@ from pydantic import UUID4
 from uuid import uuid4
 from app import crud
 from app.constant.app_status import AppStatus
-from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams
+from app.schemas.product import ProductResponse, ProductCreate,  ProductCreateParams
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 import barcode
@@ -43,13 +44,53 @@ class ProductService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def get_all_products(self):
-        logger.info("ProductService: get_all_products called.")
-        result = await crud.product.get_all_products(db=self.db)
-        logger.info("ProductService: get_all_products called successfully.")
+    # async def get_all_products(
+    #     self,
+    #     limit: Optional[int] = None,
+    #     offset:Optional[int] = None, 
+    #     ):
+    #     logger.info("ProductService: get_all_products called.")
+    #     if limit:
+    #         result = await crud.product.get_products_with_pagination(db=self.db, limit_value = limit, offset_value= offset)
+    #         return 
+    #     else:
+    #         result = await crud.product.get_all_products(db=self.db)
+    #     logger.info("ProductService: get_all_products called successfully.")
         
+    #     return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def get_all_products(
+        self,
+        limit: Optional[int] = None,
+        offset:Optional[int] = None, 
+        status: Optional[str] = None,
+        low_price: Optional[int] = None,
+        high_price: Optional[int] = None,
+        categories: Optional[str] = None,
+        
+    ):
+        conditions = dict()
+        if status:
+            conditions['status'] = status
+        if low_price:
+            conditions['low_price'] = low_price
+        if high_price:
+            conditions['high_price'] = high_price
+        if categories:
+            conditions['categories'] = categories
+        
+        whereConditions = await self.whereConditionBuilderForFilter(conditions)
+        if not whereConditions:
+            sql = f"SELECT * FROM public.product {whereConditions};"
+            logger.info("ProductService: filter_product called.")
+            result = await crud.product.filter_product(self.db,limit_value=limit, offset_value=offset, sql=sql)
+
+            logger.info("ProductService: filter_product called successfully.")
+        else: 
+            logger.info("ProductService: get_all_products called.")
+            result = await crud.product.get_products_with_pagination(limit_value=limit,offset_value = offset,db=self.db)
+            logger.info("ProductService: get_all_products called successfully.")
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
-  
     
     # Generate and display a random number between 7 and 10 digits long
     async def generate_random_number(self):
@@ -66,16 +107,17 @@ class ProductService:
     
     async def create_product(self, obj_in: ProductCreateParams):
         logger.info("ProductService: get_product_by_barcode called.")
-        random_barcode = await self.generate_random_number()
-        current_bar_code = await crud.product.get_product_by_barcode(self.db, random_barcode)
+        #Generate random barcode
+        # random_barcode = await self.generate_random_number()
+        # current_bar_code = await crud.product.get_product_by_barcode(self.db, random_barcode)
+        # if current_bar_code:
+        #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
+        
         logger.info("ProductService: get_product_by_barcode called successfully.")
 
-        if current_bar_code:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
-        
+       
         product_create = ProductCreate(
-            id=uuid.uuid4(),
-            barcode=random_barcode,
+            barcode=obj_in.barcode,
             product_name=obj_in.product_name,
             description=obj_in.description,
             categories=obj_in.categories,
@@ -85,13 +127,13 @@ class ProductService:
             sale_price=obj_in.sale_price,
             status=obj_in.status,
             note=obj_in.note,
-            contract_id=obj_in.contract_id,
+            contract_for_vendor_id=obj_in.contract_for_vendor_id,
             promotion_id=obj_in.promotion_id,
             batch_id=obj_in.batch_id,
             has_promotion=obj_in.has_promotion
         )
-        barcode_path = await self.generate_barcode(bar_code=product_create.barcode)
-        os.path.join(BARCODE_DIR, barcode_path)
+        # barcode_path = await self.generate_barcode(bar_code=product_create.barcode)
+        # os.path.join(BARCODE_DIR, barcode_path)
         
         logger.info("ProductService: create called.")
         result = crud.product.create(db=self.db, obj_in=product_create)
@@ -132,4 +174,16 @@ class ProductService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
     
+    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+        whereList = list()
         
+        if 'status' in conditions:
+            whereList.append(f"status = '{conditions['status']}'")
+        if 'categories' in conditions:
+            whereList.append(f"categories = '{conditions['categories']}'")
+        if 'low_price' in conditions and 'high_price' in conditions:
+            whereList.append(f"sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
+            
+        whereConditions = "WHERE " + ' AND '.join(whereList)
+        return whereConditions
+   

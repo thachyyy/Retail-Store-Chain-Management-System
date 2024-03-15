@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_table('contract',
+    op.create_table('contract_for_vendor',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('start_date', sa.DateTime(), nullable=False),
     sa.Column('end_date', sa.DateTime(), nullable=False),
@@ -41,8 +41,8 @@ def upgrade() -> None:
     op.create_table('contract_for_product',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('contract_id', postgresql.UUID(as_uuid=True), nullable=False),
-    sa.Column('product_id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('contract_for_vendor_id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('product_id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('customer',
@@ -107,7 +107,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('product',
-    sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('barcode', sa.String(length=255), nullable=True),
     sa.Column('product_name', sa.String(length=255), nullable=False),
     sa.Column('description', sa.String(length=255), nullable=True),
@@ -119,7 +119,7 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=50), nullable=False),
     sa.Column('note', sa.String(length=255), nullable=True),
     sa.Column('has_promotion', sa.Boolean(), nullable=False),
-    sa.Column('contract_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('contract_for_vendor_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('promotion_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('batch_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -127,7 +127,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_product_batch_id'), 'product', ['batch_id'], unique=False)
     op.create_index(op.f('ix_product_brand'), 'product', ['brand'], unique=False)
-    op.create_index(op.f('ix_product_contract_id'), 'product', ['contract_id'], unique=False)
+    op.create_index(op.f('ix_product_contract_for_vendor_id'), 'product', ['contract_for_vendor_id'], unique=False)
     op.create_index(op.f('ix_product_last_purchase_price'), 'product', ['last_purchase_price'], unique=False)
     op.create_index(op.f('ix_product_promotion_id'), 'product', ['promotion_id'], unique=False)
     op.create_index(op.f('ix_product_sale_price'), 'product', ['sale_price'], unique=False)
@@ -226,7 +226,7 @@ def upgrade() -> None:
     )
     op.create_table('product_of_import_order',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-    sa.Column('product_id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('product_id',sa.Integer(), nullable=False),
     sa.Column('import_order_id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('import_price', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['product_id'], ['product.id'], ),
@@ -270,7 +270,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_product_sale_price'), table_name='product')
     op.drop_index(op.f('ix_product_promotion_id'), table_name='product')
     op.drop_index(op.f('ix_product_last_purchase_price'), table_name='product')
-    op.drop_index(op.f('ix_product_contract_id'), table_name='product')
+    op.drop_index(op.f('ix_product_contract_for_vendor_id'), table_name='product')
     op.drop_index(op.f('ix_product_brand'), table_name='product')
     op.drop_index(op.f('ix_product_batch_id'), table_name='product')
     # Dropping product table with CASCADE
@@ -281,7 +281,7 @@ def downgrade() -> None:
     op.execute("DROP TABLE IF EXISTS employee CASCADE")
     op.execute("DROP TABLE IF EXISTS customer CASCADE")
     op.execute("DROP TABLE IF EXISTS contract_for_product CASCADE")
-    op.execute("DROP TABLE IF EXISTS contract CASCADE")
+    op.execute("DROP TABLE IF EXISTS contract_for_vendor CASCADE")
     op.execute("DROP TABLE IF EXISTS categories CASCADE")
     op.execute("DROP TABLE IF EXISTS branch CASCADE")
     op.execute("DROP TABLE IF EXISTS batch CASCADE")
