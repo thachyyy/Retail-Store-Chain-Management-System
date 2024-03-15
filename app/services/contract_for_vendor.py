@@ -15,29 +15,29 @@ class ContractForVendorService:
     def __init__(self, db: Session):
         self.db = db
         
-    async def get_all_contracts(self):
+    async def get_all_contract_for_vendors(self):
         logger.info("ContractForVendorService: get_all_contracts called.")
-        result = await crud.contract.get_all_contracts(db=self.db)
+        result = await crud.contract_for_vendor.get_all_contracts(db=self.db)
         logger.info("ContractForVendorService: get_all_contracts called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def get_contract_by_id(self, id: str):
+    async def get_contract_for_vendor_by_id(self, id: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        result = await crud.contract.get_contract_by_id(db=self.db, id=id)
+        result = await crud.contract_for_vendor.get_contract_by_id(db=self.db, id=id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def create_contract(self, obj_in: ContractForVendorCreateParams):
+    async def create_contract_for_vendor(self, obj_in: ContractForVendorCreateParams):
         # logger.info("ContractForVendorService: get_contract_by_name called.")
-        # current_contract_name = await crud.contract.get_contract_by_name(self.db, obj_in.name)
+        # current_contract_name = await crud.contract_for_vendor.get_contract_by_name(self.db, obj_in.name)
         # logger.info("ContractForVendorService: get_contract_by_name called successfully.")
         
         # if current_contract_name:
         #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
         
-        contract_create = ContractForVendorCreate(
+        contract_for_vendor_create = ContractForVendorCreate(
             id=uuid.uuid4(),
             start_date=obj_in.start_date,
             end_date=obj_in.end_date,
@@ -49,7 +49,7 @@ class ContractForVendorService:
         )
         
         logger.info("ContractForVendorService: create called.")
-        result = crud.contract.create(db=self.db, obj_in=contract_create)
+        result = crud.contract_for_vendor.create(db=self.db, obj_in=contract_for_vendor_create)
         logger.info("ContractForVendorService: create called successfully.")
         
         self.db.commit()
@@ -58,29 +58,29 @@ class ContractForVendorService:
     
     # async def update_contract(self, name: str, obj_in: ContractForVendorUpdate):
     #     logger.info("ContractForVendorService: get_contract_by_name called.")
-    #     isValidContractForVendor = await crud.contract.get_contract_by_name(db=self.db, name=name)
+    #     isValidContractForVendor = await crud.contract_for_vendor.get_contract_by_name(db=self.db, name=name)
     #     logger.info("ContractForVendorService: get_contract_by_name called successfully.")
         
     #     if not isValidContractForVendor:
     #         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         
     #     logger.info("ContractForVendorService: update_contract called.")
-    #     result = await crud.contract.update_contract(db=self.db, name=name, contract_update=obj_in)
+    #     result = await crud.contract_for_vendor.update_contract(db=self.db, name=name, contract_update=obj_in)
     #     logger.info("ContractForVendorService: update_contract called successfully.")
     #     self.db.commit()
     #     return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
         
-    async def delete_contract(self, name: str):
+    async def delete_contract_for_vendor(self, name: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        isValidContractForVendor = await crud.contract.get_contract_by_id(db=self.db, name=name)
+        isValidContractForVendor = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, name=name)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         if not isValidContractForVendor:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONTRACT_NOT_FOUND)
         
-        logger.info("ContractForVendorService: delete_contract called.")
-        result = await crud.contract.delete_contract(self.db, name)
-        logger.info("ContractForVendorService: delete_contract called successfully.")
+        logger.info("ContractForVendorService: delete_contract_for_vendor called.")
+        result = await crud.contract_for_vendor.delete_contract_for_vendor(self.db, name)
+        logger.info("ContractForVendorService: delete_contract_for_vendor called successfully.")
         
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)

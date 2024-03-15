@@ -7,27 +7,27 @@ from sqlalchemy.dialects.postgresql import UUID
 class Product(Base):
     __tablename__ = "product"
     
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    barcode = Column(String(255), unique=True, nullable= True)
-    product_name = Column(String(255),nullable=False)
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    barcode = Column(String(255), unique=True, nullable= False)
+    product_name = Column(String(255),nullable=True)
     description = Column(String(255),nullable=True)
     categories = Column(String(255),nullable=True)
-    brand = Column(String(255),nullable=False,index = True)
-    unit = Column(String(255),nullable=True)
-    last_purchase_price = Column(Integer,nullable=False,index = True)
+    brand = Column(String(255),nullable=True,index = True)
+    unit = Column(String(255),nullable=False)
+    last_purchase_price = Column(Integer,nullable=True,index = True)
     sale_price = Column(Integer,nullable=False,index = True)
     status = Column(String(50),nullable=False)
     note = Column(String(255),nullable=True)
-    has_promotion = Column(Boolean,nullable=False, default="No")
+    has_promotion = Column(Boolean,nullable=True, default="No")
     
-    # contract_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
+    # contract_for_vendor_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
     # promotion_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
     # batch_id = Column(UUID(as_uuid=True),unique=False,nullable=True,index = True)
     
-    contract_id = Column(UUID(as_uuid=True),ForeignKey('contract.id'),unique=False,nullable=True,index = True)
+    contract_for_vendor_id = Column(UUID(as_uuid=True),ForeignKey('contract_for_vendor.id'),unique=False,nullable=True,index = True)
     promotion_id = Column(UUID(as_uuid=True),ForeignKey('promotion.id'),unique=False,nullable=True,index = True)
     batch_id = Column(UUID(as_uuid=True),ForeignKey('batch.id'),unique=False,nullable=True,index = True)
     
     promotion = relationship('Promotion')
-    contract = relationship('Contract')
+    contract_for_vendor = relationship('ContractForVendor')
     batch = relationship('Batch')

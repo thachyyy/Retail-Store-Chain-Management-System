@@ -34,11 +34,19 @@ async def create_product(
     return make_response_object(product_response)
 
 @router.get("/products")
-async def get_all_products(db: Session = Depends(get_db)) -> Any:
+async def get_all_products(
+    limit: Optional[int] = None,
+    offset:Optional[int] = None,
+    status: Optional[str] = None,
+    low_price: Optional[int] = None,
+    high_price: Optional[int] = None,
+    categories: Optional[str] = None,
+    db: Session = Depends(get_db)
+) -> Any:
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
-    
-    msg, product_response = await product_service.get_all_products()
+    msg,product_response = await product_service.get_all_products(limit,offset,status,low_price,high_price,categories)
+
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
 
@@ -50,7 +58,15 @@ async def get_product_by_id(product_id: str, db: Session = Depends(get_db)) -> A
     msg, product_response = await product_service.get_product_by_id(product_id)
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
+@router.get("/products/barcode/{barcode}")
+async def get_product_by_barcode(barcode: str, db: Session = Depends(get_db)) -> Any:
+    product_service = ProductService(db=db)
     
+    logger.info("Endpoints: get_product_by_id called.")  
+    msg, product_response = await product_service.get_product_by_barcode(barcode)
+    logger.info("Endpoints: get_all_products called successfully.")
+    return make_response_object(product_response, msg)
+     
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, product_update: ProductUpdate, db: Session = Depends(get_db)) -> Any:
     product_service = ProductService(db=db)
@@ -68,3 +84,14 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)) -> Any:
     msg, product_response = await product_service.delete_product(product_id)
     logger.info("Endpoints: delete_product called successfully.")
     return make_response_object(product_response, msg)
+
+
+@router.get("customers/search")
+async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+    customer_service = CustomerService(db=db)
+    
+    logger.info("Endpoints: search_customer called.")
+    msg, customer_response = await customer_service.search_customer(condition)
+    logger.info("Endpoints: search_customer called successfully.")
+    
+    return make_response_object(customer_response, msg)
