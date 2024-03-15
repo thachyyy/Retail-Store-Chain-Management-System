@@ -86,12 +86,12 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)) -> Any:
     return make_response_object(product_response, msg)
 
 
-@router.get("customers/search")
-async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
-    customer_service = CustomerService(db=db)
+@router.get("product/search")
+async def search_product(limit:int,offset:int,db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+    product_service = ProductService(db=db)
     
-    logger.info("Endpoints: search_customer called.")
-    msg, customer_response = await customer_service.search_customer(condition)
-    logger.info("Endpoints: search_customer called successfully.")
+    logger.info("Endpoints: search_product called.")
+    msg, product_response = await product_service.search_product(limit,offset,condition)
+    logger.info("Endpoints: search_product called successfully.")
     
-    return make_response_object(customer_response, msg)
+    return make_response_object(product_response, msg)

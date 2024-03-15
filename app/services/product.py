@@ -58,11 +58,19 @@ class ProductService:
     #     logger.info("ProductService: get_all_products called successfully.")
         
     #     return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
-    
+    async def search_product(self, limit:int ,offset:int, condition: str = None):
+        whereCondition = await self.whereConditionBuilderForSearch(condition)
+        sql = f"SELECT * FROM public.product {whereCondition} LIMIT {limit} OFFSET {offset};"
+        
+        logger.info("ProductService: search_product called.")
+        result = await crud.product.search_product(self.db, sql)
+        logger.info("ProductService: search_product called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     async def get_all_products(
         self,
-        limit: Optional[int] = None,
-        offset:Optional[int] = None, 
+        limit: Optional[int] = 0,
+        offset:Optional[int] = 0, 
         status: Optional[str] = None,
         low_price: Optional[int] = None,
         high_price: Optional[int] = None,
@@ -79,11 +87,12 @@ class ProductService:
         if categories:
             conditions['categories'] = categories
         
-        whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        if not whereConditions:
-            sql = f"SELECT * FROM public.product {whereConditions};"
+        
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
             logger.info("ProductService: filter_product called.")
-            result = await crud.product.filter_product(self.db,limit_value=limit, offset_value=offset, sql=sql)
+            result = await crud.product.filter_product(self.db, sql=sql)
 
             logger.info("ProductService: filter_product called successfully.")
         else: 
@@ -174,6 +183,16 @@ class ProductService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
     
+    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"product_name ilike '%{condition}%'")
+        conditions.append(f"barcode  ilike '%{condition}%'")
+
+            
+        whereCondition = "WHERE " + ' OR '.join(conditions)
+        return whereCondition
+    
     async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
         whereList = list()
         
@@ -186,4 +205,5 @@ class ProductService:
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
+   
    
