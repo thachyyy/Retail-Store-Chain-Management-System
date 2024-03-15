@@ -5,7 +5,7 @@ import enum
 class Status(str,enum.Enum):
     ACTIVE = "ACTIVE" #Đang kinh doanh
     INACTIVE = "INACTIVE" #Tạm ngừng kinh doanh
-
+    EMPTY= "EMPTY"
 class ProductCreateParams(BaseModel):
     barcode: str = Field(..., max_length=255)
     product_name: str = Field(..., max_length=255)
@@ -53,6 +53,7 @@ class ProductUpdate(BaseModel):
     promotion_id: Optional[UUID4]
     batch_id: Optional[UUID4]
     has_promotion: Optional[bool]
+
 
 
 class ProductResponse(ProductCreate):
