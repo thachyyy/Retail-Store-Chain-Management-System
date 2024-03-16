@@ -62,6 +62,15 @@ class CategoriesService:
         if not isValidCategories:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         
+        if obj_in.name:
+            logger.info("CategoriesService: get_categories_by_name called.")
+            isNameValid = await crud.categories.get_categories_by_name(self.db, obj_in.name)
+            logger.info("CategoriesService: get_categories_by_name called successfully.")
+            
+            if isNameValid:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
+            
+        
         logger.info("CategoriesService: update_categories called.")
         result = await crud.categories.update_categories(db=self.db, id=id, categories_update=obj_in)
         logger.info("CategoriesService: update_categories called successfully.")
