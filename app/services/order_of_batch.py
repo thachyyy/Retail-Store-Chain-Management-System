@@ -53,7 +53,7 @@ class OrderOfBatchService:
         logger.info("OrderOfBatchService: get_order_of_batch_by_id called successfully.")
         
         if not isValidOrderOfBatch:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BATCH_NOT_FOUND)
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ORDER_OF_BATCH_NOT_FOUND)
         
         logger.info("OrderOfBatchService: update_order_of_batch called.")
         result = await crud.order_of_batch.update_order_of_batch(db=self.db, order_of_batch_id=order_of_batch_id, order_of_batch_update=obj_in)
@@ -67,7 +67,7 @@ class OrderOfBatchService:
         logger.info("OrderOfBatchService: get_order_of_batch_by_id called successfully.")
         
         if not isValidOrderOfBatch:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BATCH_NOT_FOUND)
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ORDER_OF_BATCH_NOT_FOUND)
         
         logger.info("OrderOfBatchService: delete_order_of_batch called.")
         result = await crud.order_of_batch.delete_order_of_batch(self.db, order_of_batch_id)

@@ -11,3 +11,4 @@ from .invoice_for_customer import *
 from .import_order import *
 from .batch import *
 from .order_of_batch import *
+from .product_of_import_order import *
