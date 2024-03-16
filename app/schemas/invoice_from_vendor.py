@@ -5,25 +5,26 @@ from datetime import datetime
 import enum
 
 
-class InvoiceForVendorCreateParams(BaseModel):
+class InvoiceFromVendorCreateParams(BaseModel):
     payment_deadline: date
     total: int
     status: str
     vendor_id: UUID4
 
-class InvoiceForVendorCreate(BaseModel):
+class InvoiceFromVendorCreate(BaseModel):
     id: UUID4
+    created_at: datetime
     payment_deadline: date
     total: int
     status: str
     vendor_id: UUID4
     
-class InvoiceForVendorUpdate(BaseModel):
+class InvoiceFromVendorUpdate(BaseModel):
     payment_deadline: Optional[date] = None
     total: Optional[int] = None
     status: Optional[str] = None
 
-class InvoiceForVendorResponse(InvoiceForVendorCreate):
+class InvoiceFromVendorResponse(InvoiceFromVendorCreate):
     class Config:
         orm_mode = True
         

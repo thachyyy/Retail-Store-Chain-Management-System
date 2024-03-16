@@ -10,3 +10,4 @@ from .employee import *
 from .promotion import *
 from .vendor import *
 from .invoice_for_customer import *
+from .invoice_from_vendor import *
