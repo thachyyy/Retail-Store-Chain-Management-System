@@ -9,3 +9,4 @@ from .vendor import *
 from .categories import *
 from .invoice_for_customer import *
 from .import_order import *
+from .batch import *

@@ -14,6 +14,7 @@ from app.api.endpoints import vendor
 from app.api.endpoints import invoice_for_customer
 from app.api.endpoints import invoice_from_vendor
 from app.api.endpoints import import_order
+from app.api.endpoints import batch
 
 
 
@@ -32,4 +33,4 @@ router.include_router(promotion.router, prefix="", tags=["promotions"])
 router.include_router(vendor.router, prefix="", tags=["vendors"])
 router.include_router(invoice_for_customer.router, prefix="", tags=["invoice_for_customer"])
 router.include_router(invoice_from_vendor.router, prefix="", tags=["invoice_from_vendor"])
-router.include_router(import_order.router, prefix="", tags=["import_order"])
+router.include_router(batch.router, prefix="", tags=["batch"])
