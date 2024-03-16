@@ -62,12 +62,12 @@ class ProductService:
     async def search_product(self, limit:int, offset:int,condition: str = None ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.product {whereCondition} LIMIT {limit} OFFSET {offset};"
-        
+        total = f"SELECT COUNT(*) FROM public.product {whereCondition};"
         logger.info("productService: search_product called.")
-        result = await crud.product.search_product(self.db, sql)
+        result,total = await crud.product.search_product(self.db, sql,total)
         logger.info("productService: search_product called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result),total
     
     async def get_all_products(
         self,
@@ -93,15 +93,19 @@ class ProductService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+
             logger.info("ProductService: filter_product called.")
-            result = await crud.product.filter_product(self.db, sql=sql)
+            result,total = await crud.product.filter_product(self.db, sql=sql,total = total)
 
             logger.info("ProductService: filter_product called successfully.")
         else: 
             logger.info("ProductService: get_all_products called.")
-            result = await crud.product.get_products_with_pagination(limit_value=limit,offset_value = offset,db=self.db)
+            total = f"SELECT COUNT(*) FROM public.product;"
+            result, total= await crud.product.get_products_with_pagination(limit_value=limit, offset_value = offset, total=total, db=self.db)
             logger.info("ProductService: get_all_products called successfully.")
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result), total
     
     # Generate and display a random number between 7 and 10 digits long
     async def generate_random_number(self):
