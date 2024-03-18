@@ -62,12 +62,12 @@ class ProductService:
     async def search_product(self, limit:int, offset:int,condition: str = None ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.product {whereCondition} LIMIT {limit} OFFSET {offset};"
-        
+        total = f"SELECT COUNT(*) FROM public.product {whereCondition};"
         logger.info("productService: search_product called.")
-        result = await crud.product.search_product(self.db, sql)
+        result,total = await crud.product.search_product(self.db, sql,total)
         logger.info("productService: search_product called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result),total
     
     async def get_all_products(
         self,
@@ -93,15 +93,19 @@ class ProductService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+
             logger.info("ProductService: filter_product called.")
-            result = await crud.product.filter_product(self.db, sql=sql)
+            result,total = await crud.product.filter_product(self.db, sql=sql,total = total)
 
             logger.info("ProductService: filter_product called successfully.")
         else: 
             logger.info("ProductService: get_all_products called.")
-            result = await crud.product.get_products_with_pagination(limit_value=limit,offset_value = offset,db=self.db)
+            total = f"SELECT COUNT(*) FROM public.product;"
+            result, total= await crud.product.get_products_with_pagination(limit_value=limit, offset_value = offset, total=total, db=self.db)
             logger.info("ProductService: get_all_products called successfully.")
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+
+        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result), total
     
     # Generate and display a random number between 7 and 10 digits long
     async def generate_random_number(self):
@@ -163,12 +167,12 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
         logger.info("ProductService: update_product called.")
-        barcode_path = await self.generate_barcode(bar_code=obj_in.barcode)
-        os.path.join(BARCODE_DIR, barcode_path)
+        # barcode_path = await self.generate_barcode(bar_code=obj_in.barcode)
+        # os.path.join(BARCODE_DIR, barcode_path)
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
         
     async def delete_product(self, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
