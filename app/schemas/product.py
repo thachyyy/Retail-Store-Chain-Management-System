@@ -39,16 +39,16 @@ class ProductCreate(BaseModel):
     has_promotion: Optional[bool] = None 
     
 class ProductUpdate(BaseModel):
-    barcode: Optional[str] = Field(None, max_length=255)
-    product_name: Optional[str] = Field(None, max_length=255)
-    description: Optional[str] = Field(None, max_length=255)
-    categories: Optional[str] = Field(None, max_length=255)
-    brand: Optional[str] = Field(None, max_length=255)
-    unit: Optional[str] = Field(None, max_length=255)
+    barcode: Optional[str] 
+    product_name: Optional[str] 
+    description: Optional[str] 
+    categories: Optional[str] 
+    brand: Optional[str] 
+    unit: Optional[str] 
     last_purchase_price: Optional[int]
     sale_price: Optional[int]
     status: Optional[Status]
-    note: Optional[str] = Field(None, max_length=255)
+    note: Optional[str] 
     contract_for_vendor_id: Optional[UUID4]
     promotion_id: Optional[UUID4]
     batch_id: Optional[UUID4]
