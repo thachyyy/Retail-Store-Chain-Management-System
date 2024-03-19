@@ -14,3 +14,4 @@ from .order_of_batch import *
 from .product_of_import_order import *
 from .promotion_belong_to_branch import *
 from .promotion_for_order import *
+from .purchase_order import *
