@@ -8,9 +8,9 @@ class PromotionBelongToBranchCreateParams(BaseModel):
     
 class PromotionBelongToBranchCreate(BaseModel):
     id: UUID4
-    prmotion_id: UUID4
+    promotion_id: UUID4
     branch_id: UUID4
     
 class PromotionBelongToBranchUpdate(BaseModel):
-    prmotion_id: Optional[UUID4]
+    promotion_id: Optional[UUID4]
     branch_id: Optional[UUID4]

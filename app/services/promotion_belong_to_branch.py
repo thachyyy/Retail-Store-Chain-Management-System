@@ -40,7 +40,7 @@ class PromotionBelongToBranchService:
         
         promotion_belong_to_branch_create = PromotionBelongToBranchCreate(
             id=uuid.uuid4(),
-            prmotion_id=obj_in.prmotion_id,
+            promotion_id=obj_in.promotion_id,
             branch_id=obj_in.branch_id
         )
         
