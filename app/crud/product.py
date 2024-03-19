@@ -26,6 +26,10 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return result, sum
     
     @staticmethod
+    async def check_product_by_barcode(db: Session, barcode: str) -> Optional[Product]:
+        return db.query(Product).filter(Product.barcode == barcode).first()
+    
+    @staticmethod
     async def get_product_by_barcode(db: Session, barcode: str) -> Optional[Product]:
         return db.query(Product).filter(Product.barcode == barcode).first()
     

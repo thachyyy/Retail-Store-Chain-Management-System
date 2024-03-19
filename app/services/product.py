@@ -35,29 +35,22 @@ class ProductService:
         result = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
         logger.info("ProductService: get_product_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_product_by_barcode(self, barcode: str):
         logger.info("ProductService: get_product_by_barcode called.")
-        result = await crud.product.get(db=self.db, barcode=barcode)
+        
+        current_product = await crud.product.check_product_by_barcode(db=self.db, barcode=barcode)
+        if not current_product:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_NOT_FOUND)
+      
+        result = await crud.product.get_product_by_barcode(db=self.db, barcode=barcode)
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST) 
+        
         logger.info("ProductService: get_product_by_barcode called successfully.")
-        
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
-    
-    # async def get_all_products(
-    #     self,
-    #     limit: Optional[int] = None,
-    #     offset:Optional[int] = None, 
-    #     ):
-    #     logger.info("ProductService: get_all_products called.")
-    #     if limit:
-    #         result = await crud.product.get_products_with_pagination(db=self.db, limit_value = limit, offset_value= offset)
-    #         return 
-    #     else:
-    #         result = await crud.product.get_all_products(db=self.db)
-    #     logger.info("ProductService: get_all_products called successfully.")
-        
-    #     return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def search_product(self, limit:int, offset:int,condition: str = None ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
@@ -67,7 +60,7 @@ class ProductService:
         result,total = await crud.product.search_product(self.db, sql,total)
         logger.info("productService: search_product called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result),total
+        return dict(message_code=AppStatus.SUCCESS.message,total=total[0]['count']),result
     
     async def get_all_products(
         self,
@@ -101,32 +94,18 @@ class ProductService:
             logger.info("ProductService: filter_product called successfully.")
         else: 
             logger.info("ProductService: get_all_products called.")
-            total = f"SELECT COUNT(*) FROM public.product;"
-            result, total= await crud.product.get_products_with_pagination(limit_value=limit, offset_value = offset, total=total, db=self.db)
+            result,total =  crud.product.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("ProductService: get_all_products called successfully.")
 
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result), total
-    
-    # Generate and display a random number between 7 and 10 digits long
-    async def generate_random_number(self):
-        num_digits = random.randint(7, 10)
-        # Ensure the first digit is not zero
-        first_digit = random.randint(1, 9)
-        # Generate the rest of the digits, which can include zero
-        other_digits = [str(random.randint(0, 9)) for _ in range(num_digits - 1)]
-        # Combine the digits into a single number
-        return str(first_digit) + ''.join(other_digits)
-
- 
-
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result 
     
     async def create_product(self, obj_in: ProductCreateParams):
         logger.info("ProductService: get_product_by_barcode called.")
         #Generate random barcode
         # random_barcode = await self.generate_random_number()
-        # current_bar_code = await crud.product.get_product_by_barcode(self.db, random_barcode)
-        # if current_bar_code:
-        #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode)
+        if current_bar_code:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
         
         logger.info("ProductService: get_product_by_barcode called successfully.")
 
@@ -166,13 +145,19 @@ class ProductService:
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode)
+        if current_bar_code:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
+        
         logger.info("ProductService: update_product called.")
         # barcode_path = await self.generate_barcode(bar_code=obj_in.barcode)
         # os.path.join(BARCODE_DIR, barcode_path)
+        
+        
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
     async def delete_product(self, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
@@ -187,7 +172,7 @@ class ProductService:
         logger.info("ProductService: delete_product called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), result
     
     async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
         whereList = list()
@@ -198,7 +183,10 @@ class ProductService:
             whereList.append(f"categories = '{conditions['categories']}'")
         if 'low_price' in conditions and 'high_price' in conditions:
             whereList.append(f"sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
-            
+        elif 'low_price' in conditions:
+            whereList.append(f"sale_price >= '{conditions['low_price']}' ")
+        elif 'high_price' in conditions:
+            whereList.append(f"sale_price <= '{conditions['high_price']}' ")
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     
@@ -210,4 +198,15 @@ class ProductService:
             
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
-    
+        
+    # Generate and display a random number between 7 and 10 digits long
+    async def generate_random_number(self):
+        num_digits = random.randint(7, 10)
+        # Ensure the first digit is not zero
+        first_digit = random.randint(1, 9)
+        # Generate the rest of the digits, which can include zero
+        other_digits = [str(random.randint(0, 9)) for _ in range(num_digits - 1)]
+        # Combine the digits into a single number
+        return str(first_digit) + ''.join(other_digits)
+
+ 
