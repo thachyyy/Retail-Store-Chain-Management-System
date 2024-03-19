@@ -31,7 +31,7 @@ async def create_product(
     
     msg, product_response = await product_service.create_product(product_create)
     logger.info("Endpoints: create_product called successfully.")
-    return make_response_object(product_response)
+    return make_response_object(product_response,msg)
 
 @router.get("/products")
 async def get_all_products(
@@ -45,10 +45,10 @@ async def get_all_products(
 ) -> Any:
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
-    msg,product_response,total = await product_service.get_all_products(limit,offset,status,low_price,high_price,categories)
-
+    msg,product_response= await product_service.get_all_products(limit,offset,status,low_price,high_price,categories)
+    
     logger.info("Endpoints: get_all_products called successfully.")
-    return make_response_object(product_response, msg),total
+    return make_response_object(product_response, msg)
 
 @router.get("/products/{product_id}")
 async def get_product_by_id(product_id: str, db: Session = Depends(get_db)) -> Any:
@@ -58,6 +58,7 @@ async def get_product_by_id(product_id: str, db: Session = Depends(get_db)) -> A
     msg, product_response = await product_service.get_product_by_id(product_id)
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
+
 @router.get("/products/barcode/{barcode}")
 async def get_product_by_barcode(barcode: str, db: Session = Depends(get_db)) -> Any:
     product_service = ProductService(db=db)
@@ -96,7 +97,7 @@ async def search_product(
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: search_product called.")
-    msg, product_response,total = await product_service.search_product(limit,offset,condition)
+    msg, product_response = await product_service.search_product(limit,offset,condition)
     logger.info("Endpoints: search_product called successfully.")
     
-    return make_response_object(product_response, msg),total
+    return make_response_object(product_response, msg)
