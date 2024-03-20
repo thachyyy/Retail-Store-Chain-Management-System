@@ -17,14 +17,14 @@ class ContractForVendorService:
         
     async def get_all_contract_for_vendors(self):
         logger.info("ContractForVendorService: get_all_contracts called.")
-        result = await crud.contract_for_vendor.get_all_contracts(db=self.db)
+        result = await crud.contract_for_vendor.get_all_contract_for_vendors(db=self.db)
         logger.info("ContractForVendorService: get_all_contracts called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
     async def get_contract_for_vendor_by_id(self, id: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        result = await crud.contract_for_vendor.get_contract_by_id(db=self.db, id=id)
+        result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, id=id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
