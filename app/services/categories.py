@@ -29,6 +29,21 @@ class CategoriesService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.categories.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'NHOM' + newID
+    
     async def create_categories(self, obj_in: CategoriesCreateParams):
         logger.info("CategoriesService: get_categories_by_name called.")
         current_categories_name = await crud.categories.get_categories_by_name(self.db, obj_in.name)
@@ -37,11 +52,10 @@ class CategoriesService:
         if current_categories_name:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
         
-        cur_id = await crud.categories.get_last_id(self.db)
-        new_id = cur_id + 1
+        newID = await self.gen_id()
         
         categories_create = CategoriesCreate(
-            id="NHOM"+str(new_id),
+            id=newID,
             name=obj_in.name,
             description=obj_in.description
         )

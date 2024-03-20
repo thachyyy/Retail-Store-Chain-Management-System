@@ -37,6 +37,22 @@ class EmployeeService:
         logger.info("EmployeeService: get_employee_by_branch_name called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.employee.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'EMP' + newID
+    
     async def create_employee(self, obj_in: EmployeeCreateParams):
         logger.info("EmployeeService: get_employee_by_email called.")
         current_employee_email = await crud.employee.get_employee_by_email(self.db, obj_in.email)
@@ -60,9 +76,11 @@ class EmployeeService:
         #     if current_branch.manager_id:
         #         raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
         #     update_branch_manager = await crud.branch.update_branch(self.db,current_branch.id,branch_update=current_branch.manager_id)
+        
+        newID = await self.gen_id()
 
         employee_create = EmployeeCreate(
-            id=uuid.uuid4(),
+            id=newID,
             full_name=obj_in.full_name,
             date_of_birth=obj_in.date_of_birth,
             gender=obj_in.gender,

@@ -15,7 +15,7 @@ class PromotionCreateParams(BaseModel):
     min_product_quantity: Optional[int] = None
     
 class PromotionCreate(BaseModel):
-    id: UUID4
+    id: str
     promotion_code: str
     promotion_name: str
     promotion_type: str

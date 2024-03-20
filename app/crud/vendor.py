@@ -28,6 +28,14 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
         return db.query(Vendor).filter(Vendor.email == email).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM vendor;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: VendorCreate) -> Vendor:
         logger.info("CRUDVendor: create called.")
         logger.debug("With: VendorCreate - %s", obj_in.dict())

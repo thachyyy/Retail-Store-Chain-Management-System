@@ -24,6 +24,14 @@ class CRUDPromotionBelongToBranch(CRUDBase[PromotionBelongToBranch, PromotionBel
         return db.query(PromotionBelongToBranch).filter(PromotionBelongToBranch.promotion_id == promotion_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM promotion_belong_to_branch;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: PromotionBelongToBranchCreate) -> PromotionBelongToBranch:
         logger.info("CRUDPromotionBelongToBranch: create called.")
         logger.debug("With: PromotionBelongToBranchCreate - %s", obj_in.dict())

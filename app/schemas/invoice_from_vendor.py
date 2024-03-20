@@ -9,15 +9,15 @@ class InvoiceFromVendorCreateParams(BaseModel):
     payment_deadline: date
     total: int
     status: str
-    vendor_id: UUID4
+    vendor_id: str
 
 class InvoiceFromVendorCreate(BaseModel):
-    id: UUID4
+    id: str
     created_at: datetime
     payment_deadline: date
     total: int
     status: str
-    vendor_id: UUID4
+    vendor_id: str
     
 class InvoiceFromVendorUpdate(BaseModel):
     payment_deadline: Optional[date] = None

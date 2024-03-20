@@ -30,6 +30,21 @@ class PromotionService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.promotion.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'PROMO' + newID
+    
     async def create_promotion(self, obj_in: PromotionCreateParams):
         logger.info("PromotionService: get_promotion_by_code called.")
         current_promotion_code = await crud.promotion.get_promotion_by_code(self.db, obj_in.promotion_code)
@@ -38,8 +53,10 @@ class PromotionService:
         if current_promotion_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PROMOTION_CODE_ALREADY_EXIST)
         
+        newID = await self.gen_id()
+        
         promotion_create = PromotionCreate(
-            id=uuid.uuid4(),
+            id=newID,
             promotion_code=obj_in.promotion_code,
             promotion_name=obj_in.promotion_name,
             promotion_type=obj_in.promotion_type,

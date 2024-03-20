@@ -3,16 +3,16 @@ from pydantic import BaseModel, EmailStr, UUID4
 
 class ProductOfImportOrderCreateParams(BaseModel):
     import_price: int
-    product_id: UUID4
-    import_order_id: UUID4
+    product_id: str
+    import_order_id: str
     
 class ProductOfImportOrderCreate(BaseModel):
-    id: UUID4
+    id: str
     import_price: int
-    product_id: UUID4
-    import_order_id: UUID4
+    product_id: str
+    import_order_id: str
     
 class ProductOfImportOrderUpdate(BaseModel):
     import_price: Optional[int]
-    product_id: Optional[UUID4]
-    import_order_id: Optional[UUID4]
+    product_id: Optional[str]
+    import_order_id: Optional[str]

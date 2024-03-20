@@ -29,11 +29,26 @@ class BatchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.batch.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'LO' + newID
+    
     async def create_batch(self, obj_in: BatchCreateParams):
-        
+        newID = await self.gen_id()
         
         batch_create = BatchCreate(
-            id=uuid.uuid4(),
+            id=newID,
             quantity=obj_in.quantity,
             import_price=obj_in.import_price,
             manufacturing_date=obj_in.manufacturing_date,

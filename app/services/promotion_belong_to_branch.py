@@ -30,6 +30,21 @@ class PromotionBelongToBranchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.promotion_belong_to_branch.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'PROMOSTORE' + newID
+    
     async def create_promotion_belong_to_branch(self, obj_in: PromotionBelongToBranchCreateParams):
         logger.info("PromotionBelongToBranchService: get_promotion_belong_to_branch_by_promotion_id called.")
         current_promotion_id = await crud.promotion_belong_to_branch.get_promotion_belong_to_branch_by_promotion_id(self.db, obj_in.prmotion_id)
@@ -38,8 +53,10 @@ class PromotionBelongToBranchService:
         if current_promotion_id:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PROMOTION_ID_ALREADY_EXIST)
         
+        newID = await self.gen_id()
+        
         promotion_belong_to_branch_create = PromotionBelongToBranchCreate(
-            id=uuid.uuid4(),
+            id=newID,
             promotion_id=obj_in.promotion_id,
             branch_id=obj_in.branch_id
         )

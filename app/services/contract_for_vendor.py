@@ -29,6 +29,21 @@ class ContractForVendorService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.contract_for_vendor.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'CONTVENDOR' + newID
+    
     async def create_contract_for_vendor(self, obj_in: ContractForVendorCreateParams):
         # logger.info("ContractForVendorService: get_contract_by_name called.")
         # current_contract_name = await crud.contract_for_vendor.get_contract_by_name(self.db, obj_in.name)
@@ -36,9 +51,10 @@ class ContractForVendorService:
         
         # if current_contract_name:
         #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
+        newID = await self.gen_id()
         
         contract_for_vendor_create = ContractForVendorCreate(
-            id=uuid.uuid4(),
+            id=newID,
             start_date=obj_in.start_date,
             end_date=obj_in.end_date,
             minimum_order_amount=obj_in.minimum_order_amount,

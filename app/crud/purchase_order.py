@@ -29,6 +29,14 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM purchase_order;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     async def update_purchase_order(db: Session, purchase_order_id: str, purchase_order_update: PurchaseOrderUpdate):
         update_data = purchase_order_update.dict(exclude_none=True)
         return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).update(update_data)

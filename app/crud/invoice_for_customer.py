@@ -29,6 +29,14 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         return db.query(InvoiceForCustomer).filter(InvoiceForCustomer.id == invoice_for_customer_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM invoice_for_customer;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     async def update_invoice_for_customer(db: Session, invoice_for_customer_id: str, invoice_for_customer_update: InvoiceForCustomerUpdate):
         update_data = invoice_for_customer_update.dict(exclude_none=True)
         return db.query(InvoiceForCustomer).filter(InvoiceForCustomer.id == invoice_for_customer_id).update(update_data)

@@ -21,7 +21,7 @@ class PurchaseOrderCreateParams(BaseModel):
     belong_to_customer : Optional[str] = Field(None)
     
 class PurchaseOrderCreate(BaseModel):
-    id: UUID4
+    id: str
     created_at: datetime
     estimated_delivery_date: datetime
     tax: Optional[float]
@@ -31,7 +31,7 @@ class PurchaseOrderCreate(BaseModel):
     tax_percentage: float
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str]
-    handle_by: UUID4
+    handle_by: str
     belong_to_customer: Optional[str]= Field(None)
     
 class PurchaseOrderUpdate(BaseModel):
@@ -43,7 +43,7 @@ class PurchaseOrderUpdate(BaseModel):
     tax_percentage: Optional[float] = None
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str] = None
-    handle_by: Optional[UUID4] = None
+    handle_by: Optional[str] = None
     belong_to_customer: Optional[str] = None
 
 class PurchaseOrderResponse(PurchaseOrderCreate):

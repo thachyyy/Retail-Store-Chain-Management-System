@@ -19,6 +19,14 @@ class CRUDProductOfImportOrder(CRUDBase[ProductOfImportOrder, ProductOfImportOrd
     async def get_product_of_import_order_by_id(db: Session, product_of_import_order_id: str):
         return db.query(ProductOfImportOrder).filter(ProductOfImportOrder.id == product_of_import_order_id).first()
     
+    @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM product_of_import_order;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
     
     @staticmethod
     def create(db: Session, *, obj_in: ProductOfImportOrderCreate) -> ProductOfImportOrder:

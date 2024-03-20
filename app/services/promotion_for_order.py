@@ -30,6 +30,21 @@ class PromotionForOrderService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.promotion_for_order.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'PROMOORDER' + newID
+    
     async def create_promotion_for_order(self, obj_in: PromotionForOrderCreateParams):
         logger.info("PromotionForOrderService: get_promotion_for_order_by_promotion_id called.")
         sql = f"SELECT * FROM public.promotion_for_order WHERE promotion_id = '{obj_in.promotion_id}' AND purchase_order_id = '{obj_in.purchase_order_id}';"
@@ -39,8 +54,10 @@ class PromotionForOrderService:
         if current_promotion_id:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PROMOTION_FOR_ORDER_ALREADY_EXIST)
         
+        newID = await self.gen_id()
+        
         promotion_for_order_create = PromotionForOrderCreate(
-            id=uuid.uuid4(),
+            id=newID,
             promotion_id=obj_in.promotion_id,
             purchase_order_id=obj_in.purchase_order_id
         )

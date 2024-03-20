@@ -19,6 +19,14 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     async def get_batch_by_id(db: Session, batch_id: str):
         return db.query(Batch).filter(Batch.id == batch_id).first()
     
+    @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM batch;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
     
     @staticmethod
     def create(db: Session, *, obj_in: BatchCreate) -> Batch:

@@ -1,15 +1,15 @@
 from typing import Optional
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel
 
 class ContractForProductCreateParams(BaseModel):
-    contract_id: UUID4
-    product_id: UUID4
+    contract_id: str
+    product_id: str
     price: int
     
 class ContractForProductCreate(BaseModel):
-    id: UUID4
-    contract_id: UUID4
-    product_id: UUID4
+    id: str
+    contract_id: str
+    product_id: str
     price: int
 
 class ContractForProductUpdate(BaseModel):

@@ -29,6 +29,21 @@ class VendorService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.vendor.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'VEN' + newID
+    
     async def create_vendor(self, obj_in: VendorCreateParams):
         logger.info("VendorService: get_vendor_by_phone called.")
         current_phone_number = await crud.vendor.get_vendor_by_phone(self.db, obj_in.phone_number)
@@ -45,8 +60,10 @@ class VendorService:
         
         obj_in.email = obj_in.email.lower()
         
+        newID = await self.gen_id()
+        
         vendor_create = VendorCreate(
-            id=uuid.uuid4(),
+            id=newID,
             company_name=obj_in.company_name,
             vendor_name=obj_in.vendor_name,
             phone_number=obj_in.phone_number,

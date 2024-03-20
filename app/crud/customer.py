@@ -29,6 +29,14 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return db.query(Customer).filter(Customer.id == customer_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM customer;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     async def update_customer(db: Session, customer_id: str, customer_update: CustomerUpdate):
         update_data = customer_update.dict(exclude_none=True)
         return db.query(Customer).filter(Customer.id == customer_id).update(update_data)

@@ -31,7 +31,7 @@ class EmployeeCreateParams(BaseModel):
     branch_name: str
 
 class EmployeeCreate(BaseModel):
-    id: UUID4
+    id: str
     full_name: str
     date_of_birth: Optional[date] = None
     gender: Optional[Gender] = None

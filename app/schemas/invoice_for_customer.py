@@ -14,21 +14,21 @@ class InvoiceForCustomerCreateParams(BaseModel):
     total: int
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
-    belong_to_order: UUID4
+    belong_to_order: str
 
 class InvoiceForCustomerCreate(BaseModel):
-    id: UUID4
+    id: str
     created_at: datetime
     total: int
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
-    belong_to_order: UUID4
+    belong_to_order: str
     
 class InvoiceForCustomerUpdate(BaseModel):
     total: Optional[int] = None
     status: Optional[str] = Field(default="Đã thanh toán")
     payment_method: Optional[PaymentMethod] = Field(default=PaymentMethod.Cash)
-    belong_to_order: Optional[UUID4] = None
+    belong_to_order: Optional[str] = None
 
 class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
     class Config:

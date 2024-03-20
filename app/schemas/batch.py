@@ -7,20 +7,20 @@ class BatchCreateParams(BaseModel):
     import_price: int
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: UUID4
-    belong_to_receipt: UUID4
+    belong_to_branch: str
+    belong_to_receipt: str
     
 class BatchCreate(BaseModel):
-    id: UUID4
+    id: str
     import_price: int
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: UUID4
-    belong_to_receipt: UUID4
+    belong_to_branch: str
+    belong_to_receipt: str
     
 class BatchUpdate(BaseModel):
     import_price: Optional[int]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: Optional[UUID4]
-    belong_to_receipt: Optional[UUID4]
+    belong_to_branch: Optional[str]
+    belong_to_receipt: Optional[str]

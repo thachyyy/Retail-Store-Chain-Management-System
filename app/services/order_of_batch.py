@@ -29,10 +29,26 @@ class OrderOfBatchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.order_of_batch.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'ORDBATCH' + newID
+    
     async def create_order_of_batch(self, obj_in: OrderOfBatchCreateParams):
+        newID = await self.gen_id()
         
         order_of_batch_create = OrderOfBatchCreate(
-            id=uuid.uuid4(),
+            id=newID,
             price=obj_in.price,
             quantity=obj_in.quantity,
             purchase_order_id=obj_in.purchase_order_id,

@@ -42,6 +42,14 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return result_as_dict
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM branch;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: BranchCreate) -> Branch:
         logger.info("CRUDBranch: create called.")
         logger.debug("With: BranchCreate - %s", obj_in.dict())

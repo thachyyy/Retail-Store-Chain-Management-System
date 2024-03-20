@@ -31,12 +31,27 @@ class InvoiceFromVendorService:
         logger.info("InvoiceFromVendorService: get_all_invoice_from_vendors called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.invoice_from_vendor.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'INVOICEVEN' + newID
         
     async def create_invoice_from_vendor(self, obj_in: InvoiceFromVendorCreateParams):
-     
+        newID = await self.gen_id()
               
         invoice_from_vendor_create = InvoiceFromVendorCreate(
-            id=uuid.uuid4(),
+            id=newID,
             created_at=datetime.now(),
             payment_deadline=obj_in.payment_deadline,
             total=obj_in.total,

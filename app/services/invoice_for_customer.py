@@ -31,12 +31,27 @@ class InvoiceForCustomerService:
         logger.info("InvoiceForCustomerService: get_all_invoice_for_customers called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.invoice_for_customer.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'INVOICECUS' + newID
         
     async def create_invoice_for_customer(self, obj_in: InvoiceForCustomerCreateParams):
-     
+        newID = await self.gen_id()
               
         invoice_for_customer_create = InvoiceForCustomerCreate(
-            id=uuid.uuid4(),
+            id=newID,
             created_at=datetime.now(),
             total=obj_in.total,
             status=obj_in.status,

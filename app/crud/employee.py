@@ -43,6 +43,14 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return db.query(Employee).filter(Employee.phone_number == phone_number).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM employee;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: EmployeeCreate) -> Employee:
         logger.info("CRUDEmployee: create called.")
         logger.debug("With: EmployeeCreate - %s", obj_in.dict())

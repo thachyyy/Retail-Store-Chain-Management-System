@@ -4,18 +4,18 @@ from pydantic import BaseModel, EmailStr, UUID4
 class OrderOfBatchCreateParams(BaseModel):
     price: int
     quantity: int
-    purchase_order_id: UUID4
-    batch_id: UUID4
+    purchase_order_id: str
+    batch_id: str
     
 class OrderOfBatchCreate(BaseModel):
-    id: UUID4
+    id: str
     price: int
     quantity: int
-    purchase_order_id: UUID4
-    batch_id: UUID4
+    purchase_order_id: str
+    batch_id: str
 
 class OrderOfBatchUpdate(BaseModel):
     price: Optional[int]
     quantity: Optional[int]
-    purchase_order_id: Optional[UUID4]
-    batch_id: Optional[UUID4]
+    purchase_order_id: Optional[str]
+    batch_id: Optional[str]

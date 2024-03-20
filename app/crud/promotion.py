@@ -24,6 +24,14 @@ class CRUDPromotion(CRUDBase[Promotion, PromotionCreate, PromotionUpdate]):
         return db.query(Promotion).filter(Promotion.promotion_code == promotion_code).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM promotion;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: PromotionCreate) -> Promotion:
         logger.info("CRUDPromotion: create called.")
         logger.debug("With: PromotionCreate - %s", obj_in.dict())

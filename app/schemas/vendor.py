@@ -13,7 +13,7 @@ class VendorCreateParams(BaseModel):
     note: Optional[str] = None
 
 class VendorCreate(BaseModel):
-    id: UUID4
+    id: str
     company_name: Optional[str] = None
     vendor_name: str
     phone_number: str

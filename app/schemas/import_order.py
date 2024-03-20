@@ -10,13 +10,13 @@ class ImportOrderCreateParams(BaseModel):
     subtotal: int
     promotion: Optional[int]
     total: int
-    created_by: UUID4
-    belong_to_vendor: UUID4
-    belong_to_contract: UUID4
-    belong_to_invoice: Optional[UUID4]
+    created_by: str
+    belong_to_vendor: str
+    belong_to_contract: str
+    belong_to_invoice: Optional[str]
     
 class ImportOrderCreate(BaseModel):
-    id: UUID4
+    id: str
     is_contract: bool
     estimated_date: date
     delivery_status: str
@@ -24,10 +24,10 @@ class ImportOrderCreate(BaseModel):
     subtotal: int
     promotion: Optional[int]
     total: int
-    created_by: UUID4
-    belong_to_vendor: UUID4
-    belong_to_contract: UUID4
-    belong_to_invoice: Optional[UUID4]
+    created_by: str
+    belong_to_vendor: str
+    belong_to_contract: str
+    belong_to_invoice: Optional[str]
     
 class ImportOrderUpdate(BaseModel):
     is_contract: Optional[bool]
@@ -37,8 +37,8 @@ class ImportOrderUpdate(BaseModel):
     subtotal: Optional[int]
     promotion: Optional[int]
     total: Optional[int]
-    created_by: Optional[UUID4]
-    belong_to_vendor: Optional[UUID4]
-    belong_to_contract: Optional[UUID4]
-    belong_to_invoice: Optional[UUID4]
+    created_by: Optional[str]
+    belong_to_vendor: Optional[str]
+    belong_to_contract: Optional[str]
+    belong_to_invoice: Optional[str]
     

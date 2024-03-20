@@ -3,14 +3,14 @@ from pydantic import BaseModel, UUID4
 from datetime import datetime
 
 class PromotionBelongToBranchCreateParams(BaseModel):
-    prmotion_id: UUID4
-    branch_id: UUID4
+    prmotion_id: str
+    branch_id: str
     
 class PromotionBelongToBranchCreate(BaseModel):
-    id: UUID4
-    promotion_id: UUID4
-    branch_id: UUID4
+    id: str
+    promotion_id: str
+    branch_id: str
     
 class PromotionBelongToBranchUpdate(BaseModel):
-    promotion_id: Optional[UUID4]
-    branch_id: Optional[UUID4]
+    promotion_id: Optional[str]
+    branch_id: Optional[str]

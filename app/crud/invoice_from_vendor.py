@@ -29,6 +29,14 @@ class CRUDInvoiceFromVendor(CRUDBase[InvoiceFromVendor, InvoiceFromVendorCreate,
         return db.query(InvoiceFromVendor).filter(InvoiceFromVendor.id == invoice_from_vendor_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM invoice_from_vendor;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     async def update_invoice_from_vendor(db: Session, invoice_from_vendor_id: str, invoice_from_vendor_update: InvoiceFromVendorUpdate):
         update_data = invoice_from_vendor_update.dict(exclude_none=True)
         return db.query(InvoiceFromVendor).filter(InvoiceFromVendor.id == invoice_from_vendor_id).update(update_data)

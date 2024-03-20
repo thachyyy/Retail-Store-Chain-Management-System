@@ -19,6 +19,14 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         return db.query(ContractForVendor).filter(ContractForVendor.id == id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM contract_for_vendor;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: ContractForVendorCreate) -> ContractForVendor:
         logger.info("CRUDContractForVendor: create called.")
         logger.debug("With: ContractForVendorCreate - %s", obj_in.dict())

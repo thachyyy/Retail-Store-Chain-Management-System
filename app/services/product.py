@@ -101,7 +101,22 @@ class ProductService:
             result,total =  crud.product.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("ProductService: get_all_products called successfully.")
 
-        return dict(message_code=AppStatus.SUCCESS.message,total=total),result 
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.product.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'SP' + newID
     
     async def create_product(self, obj_in: ProductCreateParams):
         logger.info("ProductService: get_product_by_barcode called.")
@@ -113,8 +128,10 @@ class ProductService:
         
         logger.info("ProductService: get_product_by_barcode called successfully.")
 
+        newID = await self.gen_id()
        
         product_create = ProductCreate(
+            id=newID,
             barcode=obj_in.barcode,
             product_name=obj_in.product_name,
             description=obj_in.description,

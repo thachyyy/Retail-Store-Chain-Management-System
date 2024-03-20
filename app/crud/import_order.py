@@ -20,6 +20,14 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         return db.query(ImportOrder).filter(ImportOrder.id == import_order_id).first()
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM import_order;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: ImportOrderCreate) -> ImportOrder:
         logger.info("CRUDImportOrder: create called.")
         logger.debug("With: ImportOrderCreate - %s", obj_in.dict())

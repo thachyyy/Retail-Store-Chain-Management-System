@@ -15,7 +15,7 @@ class CustomerCreateParams(BaseModel):
     note: Optional[str] = None
     
 class CustomerCreate(BaseModel):
-    id: UUID4
+    id: str
     full_name: str
     dob: Optional[date] = None
     gender: str

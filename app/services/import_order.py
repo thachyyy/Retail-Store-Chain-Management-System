@@ -29,10 +29,27 @@ class ImportOrderService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.import_order.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'IORDER' + newID
+    
     async def create_import_order(self, obj_in: ImportOrderCreateParams):
+        
+        newID = await self.gen_id()
                     
         import_order_create = ImportOrderCreate(
-            id=uuid.uuid4(),
+            id=newID,
             is_contract=obj_in.is_contract,
             estimated_date=obj_in.estimated_date,
             delivery_status=obj_in.delivery_status,

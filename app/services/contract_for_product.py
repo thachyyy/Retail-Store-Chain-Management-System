@@ -29,16 +29,26 @@ class ContractForProductService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.contract_for_product.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'CONTPROD' + newID
+    
     async def create_contract_for_product(self, obj_in: ContractForProductCreateParams):
-        # logger.info("ContractForProductService: get_contract_for_product_by_name called.")
-        # current_contract_for_product_name = await crud.contract_for_product.get_contract_for_product_by_name(self.db, obj_in.name)
-        # logger.info("ContractForProductService: get_contract_for_product_by_name called successfully.")
-        
-        # if current_contract_for_product_name:
-        #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
+        newID = await self.gen_id()
         
         contract_for_product_create = ContractForProductCreate(
-            id=uuid.uuid4(),
+            id=newID,
             contract_id=obj_in.contract_id,
             product_id=obj_in.product_id,
             price=obj_in.price

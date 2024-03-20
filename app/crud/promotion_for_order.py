@@ -26,6 +26,14 @@ class CRUDPromotionForOrder(CRUDBase[PromotionForOrder, PromotionForOrderCreate,
         return result_as_dict
     
     @staticmethod
+    async def get_last_id(db: Session):
+        sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM promotion_for_order;"
+        last_id = db.execute(sql).scalar_one_or_none()
+        if last_id is None:
+            return 0
+        return last_id
+    
+    @staticmethod
     def create(db: Session, *, obj_in: PromotionForOrderCreate) -> PromotionForOrder:
         logger.info("CRUDPromotionForOrder: create called.")
         logger.debug("With: PromotionForOrderCreate - %s", obj_in.dict())

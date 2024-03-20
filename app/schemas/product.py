@@ -17,12 +17,13 @@ class ProductCreateParams(BaseModel):
     categories: Optional[str] = Field(None, max_length=255)
     brand: Optional[str] = Field(None, max_length=255)
     note: Optional[str] = Field(None, max_length=255)
-    contract_for_vendor_id: Optional[UUID4] = None
-    promotion_id: Optional[UUID4] = None
-    batch_id: Optional[UUID4] = None
+    contract_for_vendor_id: Optional[str] = None
+    promotion_id: Optional[str] = None
+    batch_id: Optional[str] = None
     has_promotion: Optional[bool] = Field(default=False)
     
 class ProductCreate(BaseModel):
+    id: str
     barcode: str 
     product_name: str
     unit: str
@@ -33,9 +34,9 @@ class ProductCreate(BaseModel):
     categories: Optional[str] = None 
     brand: Optional[str] = None 
     note: Optional[str] = None 
-    contract_for_vendor_id: Optional[UUID4] = None
-    promotion_id: Optional[UUID4] = None
-    batch_id: Optional[UUID4] = None
+    contract_for_vendor_id: Optional[str] = None
+    promotion_id: Optional[str] = None
+    batch_id: Optional[str] = None
     has_promotion: Optional[bool] = None 
     
 class ProductUpdate(BaseModel):
@@ -49,9 +50,9 @@ class ProductUpdate(BaseModel):
     sale_price: Optional[int]
     status: Optional[Status]
     note: Optional[str] 
-    contract_for_vendor_id: Optional[UUID4]
-    promotion_id: Optional[UUID4]
-    batch_id: Optional[UUID4]
+    contract_for_vendor_id: Optional[str]
+    promotion_id: Optional[str]
+    batch_id: Optional[str]
     has_promotion: Optional[bool]
 
 

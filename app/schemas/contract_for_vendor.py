@@ -12,7 +12,7 @@ class ContractForVendorCreateParams(BaseModel):
     belong_to_vendor: str
     
 class ContractForVendorCreate(BaseModel):
-    id: UUID4
+    id: str
     start_date: date
     end_date: date
     minimum_order_amount: int

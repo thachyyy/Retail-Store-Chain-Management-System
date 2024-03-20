@@ -30,6 +30,21 @@ class CustomerService:
         logger.info("CustomerService: get_all_customers called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.customer.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'CUS' + newID
         
     async def create_customer(self, obj_in: CustomerCreateParams):
         logger.info("CustomerService: get_customer_by_phone called.")
@@ -47,8 +62,10 @@ class CustomerService:
         
         obj_in.email = obj_in.email.lower()
         
+        newID = await self.gen_id()
+        
         customer_create = CustomerCreate(
-            id=uuid.uuid4(),
+            id=newID,
             full_name=obj_in.full_name,
             dob=obj_in.dob,
             gender=obj_in.gender,

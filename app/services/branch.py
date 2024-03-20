@@ -30,6 +30,21 @@ class BranchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.branch.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'STORE' + newID
+    
     async def create_branch(self, obj_in: BranchCreateParams):
         logger.info("BranchService: get_branch_by_address called.")
         current_branch_address = await crud.branch.get_branch_by_address(self.db, obj_in.address)
@@ -56,18 +71,10 @@ class BranchService:
         if current_branch_name_detail:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
-        # logger.info("EmployeeService: get_employee_by_id called.")
-        # current_employee_by_id = await crud.employee.get_employee_by_id(self.db, obj_in.manager_id)
-        # logger.info("EmployeeService: get_employee_by_id called successfully.")
-        
-        # if obj_in.manager_id:
-        #     if not current_employee_by_id:
-        #         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
-        #     if current_employee_by_id.branch_name != obj_in.name_detail:
-        #         raise HTTPException(status_code=404, detail="Employee not found in the branch") 
+        newID = await self.gen_id()
             
         branch_create = BranchCreate(
-            id=uuid.uuid4(),
+            id=newID,
             name_display=obj_in.name_display,
             name_detail=obj_in.name_detail,
             address=obj_in.address,

@@ -30,12 +30,27 @@ class PurchaseOrderService:
         logger.info("PurchaseOrderService: get_all_purchase_orders called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+    
+    async def gen_id(self):
+        newID: str
+        lastID = await crud.purchase_order.get_last_id(self.db)
+        lenID = len(str(lastID))
+        if lenID >= 9:
+            return str(lastID + 1)
+        else:
+            newID = str(lastID + 1)
+            len_rest = 9 - lenID
+    
+            for i in range(len_rest):
+                newID = '0' + newID
+    
+            return 'PORDER' + newID
         
     async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams, user:str):
-     
+        newID = await self.gen_id()
         
         purchase_order_create = PurchaseOrderCreate(
-        id=uuid.uuid4(),
+        id=newID,
         created_at=datetime.now(),
         estimated_delivery_date=obj_in.estimated_delivery_date,
         tax=obj_in.tax,
