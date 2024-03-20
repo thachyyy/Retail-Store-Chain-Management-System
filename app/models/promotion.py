@@ -21,7 +21,7 @@ from .base import Base  # Assuming .base is the correct import path for your Bas
 class Promotion(Base):
     __tablename__ = 'promotion'
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     promotion_code = Column(String(20), nullable=False, unique=True)
     promotion_name = Column(String(255), nullable=False)
     promotion_type = Column(String(255), nullable=False)  

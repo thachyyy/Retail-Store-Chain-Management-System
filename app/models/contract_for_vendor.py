@@ -6,7 +6,7 @@ from .base import Base  # Assuming .base is the correct import path for your Bas
 class ContractForVendor(Base):
     __tablename__ = 'contract_for_vendor'
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     start_date = Column(DateTime, unique = False, nullable = False)
     end_date = Column(DateTime, unique = False, nullable = False)
     minimum_order_amount = Column(Integer, unique = False, nullable = True)

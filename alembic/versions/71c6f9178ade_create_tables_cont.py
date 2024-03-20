@@ -30,7 +30,7 @@ def upgrade() -> None:
     op.create_foreign_key('fk_product_promotion', 'product', 'promotion', ['promotion_id'], ['id'])
     op.create_foreign_key('fk_product_contract_vendor', 'product', 'contract_for_vendor', ['contract_for_vendor_id'], ['id'])
     op.create_foreign_key('fk_product_batch', 'product', 'batch', ['batch_id'], ['id'])
-    op.add_column('promotion', sa.Column('vendor_id', postgresql.UUID(), nullable=False))
+    op.add_column('promotion', sa.Column('vendor_id', sa.String, nullable=False))
     op.create_foreign_key('fk_promotion_vendor', 'promotion', 'vendor', ['vendor_id'], ['id'])
     op.create_foreign_key('fk_promotion_for_order_purchase_order', 'promotion_for_order', 'purchase_order', ['purchase_order_id'], ['id'])
     op.create_foreign_key('fk_promotion_for_order_promotion', 'promotion_for_order', 'promotion', ['promotion_id'], ['id'])

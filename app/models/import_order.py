@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 class ImportOrder(Base):
     __tablename__ = "import_order"
     
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     is_contract = Column(Boolean, unique = False, nullable = False)
     estimated_date = Column(Date, unique = False, nullable = False)
     delivery_status = Column(String, unique = False, nullable = False)
@@ -14,15 +14,15 @@ class ImportOrder(Base):
     subtotal = Column(Integer, unique = False, nullable = False)
     promotion = Column(Integer, unique = False, nullable = True)
     total = Column(Integer, unique = False, nullable = False)
-    # created_by = Column(UUID(as_uuid=True), unique = False, nullable = False)
-    # belong_to_vendor = Column(UUID(as_uuid=True), unique = False, nullable = False)
-    # belong_to_contract = Column(UUID(as_uuid=True), unique = False, nullable = False)
-    # belong_to_invoice = Column(UUID(as_uuid=True), unique = False, nullable = True)
+    # created_by = Column(String, unique = False, nullable = False)
+    # belong_to_vendor = Column(String, unique = False, nullable = False)
+    # belong_to_contract = Column(String, unique = False, nullable = False)
+    # belong_to_invoice = Column(String, unique = False, nullable = True)
     
-    created_by = Column(UUID(as_uuid=True), ForeignKey('employee.id'), unique = False, nullable = False)
-    belong_to_vendor = Column(UUID(as_uuid=True), ForeignKey('vendor.id'), unique = False, nullable = False)
-    belong_to_contract = Column(UUID(as_uuid=True), ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
-    belong_to_invoice = Column(UUID(as_uuid=True), ForeignKey('invoice_from_vendor.id'), unique = False, nullable = True)
+    created_by = Column(String, ForeignKey('employee.id'), unique = False, nullable = False)
+    belong_to_vendor = Column(String, ForeignKey('vendor.id'), unique = False, nullable = False)
+    belong_to_contract = Column(String, ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
+    belong_to_invoice = Column(String, ForeignKey('invoice_from_vendor.id'), unique = False, nullable = True)
     
     employee = relationship('Employee')
     vendor = relationship('Vendor')

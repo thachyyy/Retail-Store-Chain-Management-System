@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship
 class Employee(Base):
     __tablename__ = "employee"
     
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     full_name = Column(String(255), unique = True, nullable = False)
     date_of_birth = Column(Date, unique = False, nullable = True)
     gender = Column(String(16), unique = False, nullable = True)

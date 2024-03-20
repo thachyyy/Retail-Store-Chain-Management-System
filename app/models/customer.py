@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 class Customer(Base):
     __tablename__ = "customer"
     
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     full_name = Column(String(255), unique=False, nullable=False)
     dob = Column(String(255), unique=False, nullable=True)
     gender = Column(String(8), unique=False, nullable=False)

@@ -5,7 +5,7 @@ from .base import Base
 class Vendor(Base):
     __tablename__ = "vendor"
     
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(String, primary_key=True)
     company_name = Column(String(255), unique=False, nullable=True)
     vendor_name = Column(String(255), unique=True, nullable=False)
     phone_number = Column(String(255), unique=True, nullable=False)
