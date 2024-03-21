@@ -1,5 +1,6 @@
 import logging
 import uuid
+from typing import Optional
 
 from sqlalchemy.orm import Session
 from pydantic import UUID4
@@ -15,19 +16,25 @@ class CategoriesService:
     def __init__(self, db: Session):
         self.db = db
         
-    async def get_all_categories(self):
+    async def get_all_categories(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None
+        ):
+        
         logger.info("CategoriesService: get_all_categories called.")
-        result = await crud.categories.get_all_categories(db=self.db)
+        # result = await crud.categories.get_all_categories(db=self.db)
+        result, total = crud.categories.get_multi(db=self.db, skip=offset, limit=limit)
         logger.info("CategoriesService: get_all_categories called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def get_categories_by_id(self, id: str):
         logger.info("CategoriesService: get_categories_by_id called.")
         result = await crud.categories.get_categories_by_id(db=self.db, id=id)
         logger.info("CategoriesService: get_categories_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def gen_id(self):
         newID: str
@@ -66,7 +73,7 @@ class CategoriesService:
         
         self.db.commit()
         logger.info("Service: create_categories success.")
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=categories_create)
+        return dict(message_code=AppStatus.SUCCESS.message), categories_create
     
     async def update_categories(self, id: str, obj_in: CategoriesUpdate):
         logger.info("CategoriesService: get_categories_by_id called.")
@@ -90,7 +97,7 @@ class CategoriesService:
         logger.info("CategoriesService: update_categories called successfully.")
         self.db.commit()
         obj_update = await crud.categories.get_categories_by_id(self.db, id)
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=obj_update)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_categories(self, id: str):
         logger.info("CategoriesService: get_categories_by_id called.")
@@ -107,4 +114,4 @@ class CategoriesService:
         logger.info("CategoriesService: delete_categories called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=obj_del)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del

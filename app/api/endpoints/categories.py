@@ -31,11 +31,15 @@ async def create_categories(
     return make_response_object(categories_response)
 
 @router.get("/categories")
-async def get_all_categories(db: Session = Depends(get_db)) -> Any:
+async def get_all_categories(
+    db: Session = Depends(get_db),
+    limit: Optional[int] = None,
+    offset:Optional[int] = None
+    ) -> Any:
     categories_service = CategoriesService(db=db)
     logger.info("Endpoints: get_all_categories called.")
     
-    msg, categories_response = await categories_service.get_all_categories()
+    msg, categories_response = await categories_service.get_all_categories(limit=limit, offset=offset)
     logger.info("Endpoints: get_all_categories called successfully.")
     return make_response_object(categories_response, msg)
 
