@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 class Product(Base):
     __tablename__ = "product"
     
-    id = Column(Integer, primary_key=True,autoincrement=True)
+    id = Column(String, primary_key=True)
     barcode = Column(String(255), unique=True, nullable= False)
     product_name = Column(String(255),nullable=True)
     description = Column(String(255),nullable=True)
