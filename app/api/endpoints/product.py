@@ -51,7 +51,7 @@ async def get_all_products(
     return make_response_object(product_response, msg)
 
 @router.get("/products/{product_id}")
-async def get_product_by_id(product_id: int, db: Session = Depends(get_db)) -> Any:
+async def get_product_by_id(product_id: str, db: Session = Depends(get_db)) -> Any:
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: get_product_by_id called.")  
