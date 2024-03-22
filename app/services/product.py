@@ -135,7 +135,7 @@ class ProductService:
             barcode=obj_in.barcode,
             product_name=obj_in.product_name,
             description=obj_in.description,
-            categories=obj_in.categories,
+            categories_id=obj_in.categories_id,
             brand=obj_in.brand,
             unit=obj_in.unit,
             last_purchase_price=obj_in.last_purchase_price,
@@ -166,7 +166,7 @@ class ProductService:
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
-        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode)
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode,product_id)
         if current_bar_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
         

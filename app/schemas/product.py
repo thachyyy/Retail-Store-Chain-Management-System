@@ -14,9 +14,9 @@ class ProductCreateParams(BaseModel):
     status: Status = Status.EMPTY
     last_purchase_price: Optional[int]
     description: Optional[str] = Field(None, max_length=255)
-    categories: Optional[str] = Field(None, max_length=255)
     brand: Optional[str] = Field(None, max_length=255)
     note: Optional[str] = Field(None, max_length=255)
+    categories_id: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
     batch_id: Optional[str] = None
@@ -31,9 +31,9 @@ class ProductCreate(BaseModel):
     status: Status
     last_purchase_price: Optional[int] = None
     description: Optional[str] = None
-    categories: Optional[str] = None 
     brand: Optional[str] = None 
     note: Optional[str] = None 
+    categories_id: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
     batch_id: Optional[str] = None
@@ -43,13 +43,13 @@ class ProductUpdate(BaseModel):
     barcode: Optional[str] 
     product_name: Optional[str] 
     description: Optional[str] 
-    categories: Optional[str] 
     brand: Optional[str] 
     unit: Optional[str] 
     last_purchase_price: Optional[int]
     sale_price: Optional[int]
     status: Optional[Status]
     note: Optional[str] 
+    categories_id: Optional[str] 
     contract_for_vendor_id: Optional[str]
     promotion_id: Optional[str]
     batch_id: Optional[str]
