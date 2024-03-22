@@ -6,6 +6,11 @@ from sqlalchemy.orm import Session
 from app.schemas.categories import CategoriesCreate, CategoriesUpdate
 from app.crud.base import CRUDBase
 from ..models import Categories
+from app.constant.app_status import AppStatus
+
+
+from app.core.exceptions import error_exception_handler
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +54,9 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
     
     @staticmethod
     async def delete_categories(db: Session, id: str):
-        return db.query(Categories).filter(Categories.id == id).delete()
+        try:
+            return db.query(Categories).filter(Categories.id == id).delete()
+        except:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
 categories = CRUDCategories(Categories)
