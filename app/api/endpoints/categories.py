@@ -26,9 +26,9 @@ async def create_categories(
     categories_service = CategoriesService(db=db)
     logger.info("Endpoints: create_categories called.")
     
-    categories_response = await categories_service.create_categories(categories_create)
+    msg, categories_response = await categories_service.create_categories(categories_create)
     logger.info("Endpoints: create_categories called successfully.")
-    return make_response_object(categories_response)
+    return make_response_object(categories_response, msg)
 
 @router.get("/categories")
 async def get_all_categories(
