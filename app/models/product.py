@@ -11,7 +11,7 @@ class Product(Base):
     barcode = Column(String(255), unique=True, nullable= False)
     product_name = Column(String(255),nullable=True)
     description = Column(String(255),nullable=True)
-    categories = Column(String(255),nullable=True)
+    
     brand = Column(String(255),nullable=True,index = True)
     unit = Column(String(255),nullable=False)
     last_purchase_price = Column(Integer,nullable=True,index = True)
@@ -19,15 +19,17 @@ class Product(Base):
     status = Column(String(50),nullable=False)
     note = Column(String(255),nullable=True)
     has_promotion = Column(Boolean,nullable=True, default="No")
-    
+    # categories = Column(String(255),nullable=True)
     # contract_for_vendor_id = Column(String,unique=False,nullable=True,index = True)
     # promotion_id = Column(String,unique=False,nullable=True,index = True)
     # batch_id = Column(String,unique=False,nullable=True,index = True)
     
+    categories_id = Column(String,ForeignKey('categories.id'),nullable=True,index = True)
     contract_for_vendor_id = Column(String,ForeignKey('contract_for_vendor.id'),unique=False,nullable=True,index = True)
     promotion_id = Column(String,ForeignKey('promotion.id'),unique=False,nullable=True,index = True)
     batch_id = Column(String,ForeignKey('batch.id'),unique=False,nullable=True,index = True)
     
+    categories = relationship('Categories')
     promotion = relationship('Promotion')
     contract_for_vendor = relationship('ContractForVendor')
     batch = relationship('Batch')
