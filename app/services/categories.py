@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Optional
+from typing import Optional, Literal
 
 from sqlalchemy.orm import Session
 from pydantic import UUID4
@@ -19,12 +19,13 @@ class CategoriesService:
     async def get_all_categories(
         self,
         limit: Optional[int] = None,
-        offset: Optional[int] = None
+        offset: Optional[int] = None,
+        sort: Literal['asc', 'desc'] = None
         ):
         
         logger.info("CategoriesService: get_all_categories called.")
-        # result = await crud.categories.get_all_categories(db=self.db)
-        result, total = crud.categories.get_multi(db=self.db, skip=offset, limit=limit)
+        result, total = await crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset, limit=limit)
+        # result, total = crud.categories.get_multi(db=self.db, skip=offset, limit=limit)
         logger.info("CategoriesService: get_all_categories called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
@@ -85,7 +86,7 @@ class CategoriesService:
         
         if obj_in.name:
             logger.info("CategoriesService: get_categories_by_name called.")
-            isNameValid = await crud.categories.get_categories_by_name(self.db, obj_in.name)
+            isNameValid = await crud.categories.get_categories_by_name(self.db, obj_in.name, id)
             logger.info("CategoriesService: get_categories_by_name called successfully.")
             
             if isNameValid:
