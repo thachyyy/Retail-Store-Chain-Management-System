@@ -1,6 +1,5 @@
 import enum
-from sqlalchemy import Column, String, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from .base import Base  # Assuming .base is the correct import path for your Base
 class Status(str,enum.Enum):
@@ -10,6 +9,8 @@ class Categories(Base):
     __tablename__ = 'categories'
 
     id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
     name = Column(String(255),nullable=False,unique=True)
     description = Column(String(255),nullable=True)
- 
+    

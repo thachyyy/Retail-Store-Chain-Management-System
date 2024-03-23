@@ -2,6 +2,7 @@ import logging
 
 from typing import Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import desc, asc
 
 from app.schemas.categories import CategoriesCreate, CategoriesUpdate
 from app.crud.base import CRUDBase
@@ -16,16 +17,35 @@ logger = logging.getLogger(__name__)
 
 class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
     @staticmethod
-    async def get_all_categories(db: Session) -> Optional[Categories]:
-        return db.query(Categories).all()
+    async def get_all_categories(
+        db: Session,
+        sort: str = None,
+        offset: int = None,
+        limit: int = None
+    ) -> Optional[Categories]:
+        result = db.query(Categories)
+        total = result.count()
+        
+        if sort is not None:
+            if sort == 'desc':
+                result.order_by(desc(Categories.created_at))
+            else:
+                result.order_by(asc(Categories.created_at))
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+            
+        return result.all(), total
     
     @staticmethod
     async def get_categories_by_id(db: Session, id: str):
         return db.query(Categories).filter(Categories.id == id).first()
     
     @staticmethod
-    async def get_categories_by_name(db: Session, name: str):
-        return db.query(Categories).filter(Categories.name == name).first()
+    async def get_categories_by_name(db: Session, name: str, id: str = None):
+        if id is None:
+            return db.query(Categories).filter(Categories.name == name).first()
+        return db.query(Categories).filter(Categories.name == name, Categories.id != id).first()
     
     @staticmethod
     async def get_last_id(db: Session):

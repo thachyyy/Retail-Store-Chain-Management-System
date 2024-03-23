@@ -1,6 +1,6 @@
 import logging
 
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from pydantic import UUID4
@@ -34,12 +34,13 @@ async def create_categories(
 async def get_all_categories(
     db: Session = Depends(get_db),
     limit: Optional[int] = None,
-    offset:Optional[int] = None
+    offset:Optional[int] = None,
+    sort: Literal['asc', 'desc'] = None
     ) -> Any:
     categories_service = CategoriesService(db=db)
     logger.info("Endpoints: get_all_categories called.")
     
-    msg, categories_response = await categories_service.get_all_categories(limit=limit, offset=offset)
+    msg, categories_response = await categories_service.get_all_categories(limit=limit, offset=offset, sort=sort)
     logger.info("Endpoints: get_all_categories called successfully.")
     return make_response_object(categories_response, msg)
 
