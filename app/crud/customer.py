@@ -13,8 +13,18 @@ logger = logging.getLogger(__name__)
 
 class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):    
     @staticmethod
-    async def get_all_customers(db: Session) -> Optional[Customer]:
-        return db.query(Customer).all()
+    async def get_all_customers(
+        db: Session,
+        offset: int = None,
+        limit: int = None
+    ) -> Optional[Customer]:
+        result = db.query(Customer)
+        total = result.count()
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+            
+        return result.all(), total
     
     @staticmethod
     async def get_customer_by_phone(db: Session, phone_number: str) -> Optional[Customer]:
@@ -52,10 +62,13 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return result_as_dict
     
     @staticmethod
-    async def filter_customer(db: Session, sql: str):
+    async def filter_customer(db: Session, sql: str, count: str):
         result = db.execute(sql)
+        sum = db.execute(count)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict,sum
+        
     
     @staticmethod
     def create(db: Session, *, obj_in: CustomerCreate) -> Customer:

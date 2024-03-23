@@ -1,5 +1,6 @@
 import logging
 import uuid
+from typing import Optional
 
 from datetime import date
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from pydantic import UUID4
 
 from app import crud
 from app.constant.app_status import AppStatus
-from app.schemas.customer import CustomerResponse, CustomerCreate, CustomerCreateParams
+from app.schemas.customer import CustomerResponse, CustomerCreate, CustomerCreateParams, CustomerUpdate
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 
@@ -24,12 +25,48 @@ class CustomerService:
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def get_all_customers(self):
-        logger.info("CustomerService: get_all_customers called.")
-        result = await crud.customer.get_all_customers(db=self.db)
-        logger.info("CustomerService: get_all_customers called successfully.")
+    async def get_all_customers(
+        self,
+        limit: Optional[int] = None,
+        offset:Optional[int] = None, 
+        gender: Optional[str] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+        province: Optional[str] = None,
+        district: Optional[str] = None,
+    ):
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        
+        conditions = dict()
+        if gender:
+            conditions['gender'] = gender
+        if start_date:
+            conditions['start_date'] = start_date
+        if end_date:
+            conditions['end_date'] = end_date
+        if province:
+            conditions['province'] = province
+        if district:
+            conditions['district'] = district
+            
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            sql = f"SELECT * FROM public.customer {whereConditions};"
+            count = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
+            
+            if offset is not None and limit is not None:
+                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
+
+            logger.info("CustomerService: filter_customer called.")
+            result,total = await crud.customer.filter_customer(self.db, sql=sql, count=count)
+
+            logger.info("CustomerService: filter_customer called successfully.")
+        else: 
+            logger.info("CustomerService: get_all_customers called.")
+            result,total =  crud.customer.get_multi(db=self.db, skip=offset,limit=limit)
+            logger.info("CustomerService: get_all_customers called successfully.")
+
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):
         newID: str
@@ -60,9 +97,12 @@ class CustomerService:
         if current_email:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
         
-        obj_in.email = obj_in.email.lower()
+        if obj_in.email:
+            obj_in.email = obj_in.email.lower()
         
         newID = await self.gen_id()
+        
+        if obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
         
         customer_create = CustomerCreate(
             id=newID,
@@ -84,15 +124,17 @@ class CustomerService:
         
         self.db.commit()
         logger.info("Service: create_customer success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message),customer_create
     
-    async def update_customer(self, customer_id: str, obj_in):
+    async def update_customer(self, customer_id: str, obj_in: CustomerUpdate):
         logger.info("CustomerService: get_customer_by_id called.")
         isValidCustomer = await crud.customer.get_customer_by_id(db=self.db, customer_id=customer_id)
         logger.info("CustomerService: get_customer_by_id called successfully.")
         
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+        
+        if obj_in.reward_point is not None and obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
         
         logger.info("CustomerService: update_customer called.")
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
@@ -157,7 +199,7 @@ class CustomerService:
         end_date: date = None,
         province: str = None,
         district: str = None,
-):
+    ):
         conditions = dict()
         if gender:
             conditions['gender'] = gender

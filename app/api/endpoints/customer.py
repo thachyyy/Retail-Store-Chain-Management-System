@@ -28,16 +28,25 @@ async def create_customer(
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: create_customer called.")
     
-    customer_response = await customer_service.create_customer(customer_create)
+    msg, customer_response = await customer_service.create_customer(customer_create)
     logger.info("Endpoints: create_customer called successfully.")
-    return make_response_object(customer_response)
+    return make_response_object(customer_response, msg)
 
 @router.get("/customers")
-async def get_all_customers(db: Session = Depends(get_db)) -> Any:
+async def get_all_customers(
+    db: Session = Depends(get_db),
+    limit: int = None,
+    offset: int = None,
+    gender: str = None,
+    start_date: date = None,
+    end_date: date = None,
+    province: str = None,
+    district: str = None,
+) -> Any:
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: get_all_customers called.")
     
-    msg, customer_response = await customer_service.get_all_customers()
+    msg, customer_response = await customer_service.get_all_customers(limit,offset, gender, start_date, end_date, province, district)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
 
