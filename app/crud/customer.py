@@ -66,8 +66,9 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         result = db.execute(sql)
         sum = db.execute(count)
         sum = sum.mappings().all()
+        total = sum[0]['count']
         result_as_dict = result.mappings().all()
-        return result_as_dict,sum
+        return result_as_dict,total
         
     
     @staticmethod

@@ -52,7 +52,7 @@ class CustomerService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.customer {whereConditions};"
-            count = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
+            count = f"SELECT COUNT(*)::INT FROM public.customer {whereConditions};"
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
@@ -176,8 +176,10 @@ class CustomerService:
             whereList.append(f"province = '{conditions['province']}'")
         if 'district' in conditions:
             whereList.append(f"district = '{conditions['district']}'")
-        if 'start_date' in conditions and 'end_date' in conditions:
-            whereList.append(f"dob between '{conditions['start_date']}' and '{conditions['end_date']}'")
+        if 'start_date' in conditions:
+            whereList.append(f"dob >= '{conditions['start_date']}'")
+        if 'end_date' in conditions:
+            whereList.append(f"dob <= '{conditions['end_date']}'")
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
