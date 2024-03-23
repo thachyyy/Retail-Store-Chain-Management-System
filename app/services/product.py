@@ -32,13 +32,10 @@ class ProductService:
 
     async def get_product_by_id(self, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
-        current_product = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
-        if not current_product:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
-      
         result = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
         logger.info("ProductService: get_product_by_id called successfully.")
-        
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_product_by_barcode(self, barcode: str):
