@@ -24,7 +24,7 @@ class CategoriesService:
         ):
         
         logger.info("CategoriesService: get_all_categories called.")
-        result, total = await crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset, limit=limit)
+        result, total = await crud.categories.get_all_categories(db=self.db,     sort=sort, offset=offset, limit=limit)
         # result, total = crud.categories.get_multi(db=self.db, skip=offset, limit=limit)
         logger.info("CategoriesService: get_all_categories called successfully.")
         
@@ -33,6 +33,8 @@ class CategoriesService:
     async def get_categories_by_id(self, id: str):
         logger.info("CategoriesService: get_categories_by_id called.")
         result = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result

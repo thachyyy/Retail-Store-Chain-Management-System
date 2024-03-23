@@ -22,7 +22,8 @@ class CustomerService:
         logger.info("CustomerService: get_customer_by_id called.")
         result = await crud.customer.get_customer_by_id(db=self.db, customer_id=customer_id)
         logger.info("CustomerService: get_customer_by_id called successfully.")
-        
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
     async def get_all_customers(
