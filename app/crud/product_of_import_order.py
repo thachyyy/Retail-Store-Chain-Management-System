@@ -42,7 +42,7 @@ class CRUDProductOfImportOrder(CRUDBase[ProductOfImportOrder, ProductOfImportOrd
     
     @staticmethod
     async def update_product_of_import_order(db: Session, product_of_import_order_id: str, product_of_import_order_update: ProductOfImportOrderUpdate):
-        update_data = product_of_import_order_update.dict(exclude_none=True)
+        update_data = product_of_import_order_update.dict(exclude_unset=True)
         return db.query(ProductOfImportOrder).filter(ProductOfImportOrder.id == product_of_import_order_id).update(update_data)
     
     @staticmethod

@@ -42,7 +42,7 @@ class CRUDOrderOfBatch(CRUDBase[OrderOfBatch, OrderOfBatchCreate, OrderOfBatchUp
     
     @staticmethod
     async def update_order_of_batch(db: Session, order_of_batch_id: str, order_of_batch_update: OrderOfBatchUpdate):
-        update_data = order_of_batch_update.dict(exclude_none=True)
+        update_data = order_of_batch_update.dict(exclude_unset=True)
         return db.query(OrderOfBatch).filter(OrderOfBatch.id == order_of_batch_id).update(update_data)
     
     @staticmethod

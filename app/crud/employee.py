@@ -64,7 +64,7 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
     
     @staticmethod
     async def update_employee(db: Session, employee_id: str, employee_update: EmployeeUpdate):
-        update_data = employee_update.dict(exclude_none=True)
+        update_data = employee_update.dict(exclude_unset=True)
         return db.query(Employee).filter(Employee.id == employee_id).update(update_data)
     
     @staticmethod

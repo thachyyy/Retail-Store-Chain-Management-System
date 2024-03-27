@@ -38,7 +38,7 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
     
     @staticmethod
     async def update_invoice_for_customer(db: Session, invoice_for_customer_id: str, invoice_for_customer_update: InvoiceForCustomerUpdate):
-        update_data = invoice_for_customer_update.dict(exclude_none=True)
+        update_data = invoice_for_customer_update.dict(exclude_unset=True)
         return db.query(InvoiceForCustomer).filter(InvoiceForCustomer.id == invoice_for_customer_id).update(update_data)
     
     @staticmethod

@@ -48,7 +48,7 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
     
     @staticmethod
     async def update_customer(db: Session, customer_id: str, customer_update: CustomerUpdate):
-        update_data = customer_update.dict(exclude_none=True)
+        update_data = customer_update.dict(exclude_unset=True)
         return db.query(Customer).filter(Customer.id == customer_id).update(update_data)
     
     @staticmethod

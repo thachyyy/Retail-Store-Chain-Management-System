@@ -41,7 +41,7 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
  
     @staticmethod
     async def update_import_order(db: Session, import_order_id: str, import_order_update: ImportOrderUpdate):
-        update_data = import_order_update.dict(exclude_none=True)
+        update_data = import_order_update.dict(exclude_unset=True)
         return db.query(ImportOrder).filter(ImportOrder.id == import_order_id).update(update_data)
     
     @staticmethod

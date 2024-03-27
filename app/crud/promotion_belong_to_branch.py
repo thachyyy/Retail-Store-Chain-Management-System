@@ -45,7 +45,7 @@ class CRUDPromotionBelongToBranch(CRUDBase[PromotionBelongToBranch, PromotionBel
     
     @staticmethod
     async def update_promotion_belong_to_branch(db: Session, promotion_belong_to_branch_id: str, promotion_belong_to_branch_update: PromotionBelongToBranchUpdate):
-        update_data = promotion_belong_to_branch_update.dict(exclude_none=True)
+        update_data = promotion_belong_to_branch_update.dict(exclude_unset=True)
         return db.query(PromotionBelongToBranch).filter(PromotionBelongToBranch.id == promotion_belong_to_branch_id).update(update_data)
     
     @staticmethod

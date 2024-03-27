@@ -38,7 +38,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
     
     @staticmethod
     async def update_purchase_order(db: Session, purchase_order_id: str, purchase_order_update: PurchaseOrderUpdate):
-        update_data = purchase_order_update.dict(exclude_none=True)
+        update_data = purchase_order_update.dict(exclude_unset=True)
         return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).update(update_data)
     
     @staticmethod

@@ -47,7 +47,7 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     
     @staticmethod
     async def update_product(db: Session, product_id: str, product_update: ProductUpdate):
-        update_data = product_update.dict(exclude_none=True)
+        update_data = product_update.dict(exclude_unset=True)
         return db.query(Product).filter(Product.id == product_id).update(update_data)
     
     @staticmethod

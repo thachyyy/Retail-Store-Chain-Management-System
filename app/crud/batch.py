@@ -42,7 +42,7 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     
     @staticmethod
     async def update_batch(db: Session, batch_id: str, batch_update: BatchUpdate):
-        update_data = batch_update.dict(exclude_none=True)
+        update_data = batch_update.dict(exclude_unset=True)
         return db.query(Batch).filter(Batch.id == batch_id).update(update_data)
     
     @staticmethod

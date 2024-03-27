@@ -47,7 +47,7 @@ class CRUDPromotionForOrder(CRUDBase[PromotionForOrder, PromotionForOrderCreate,
     
     @staticmethod
     async def update_promotion_for_order(db: Session, promotion_for_order_id: str, promotion_for_order_update: PromotionForOrderUpdate):
-        update_data = promotion_for_order_update.dict(exclude_none=True)
+        update_data = promotion_for_order_update.dict(exclude_unset=True)
         return db.query(PromotionForOrder).filter(PromotionForOrder.id == promotion_for_order_id).update(update_data)
     
     @staticmethod

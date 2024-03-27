@@ -45,7 +45,7 @@ class CRUDPromotion(CRUDBase[Promotion, PromotionCreate, PromotionUpdate]):
     
     @staticmethod
     async def update_promotion(db: Session, promotion_id: str, promotion_update: PromotionUpdate):
-        update_data = promotion_update.dict(exclude_none=True)
+        update_data = promotion_update.dict(exclude_unset=True)
         return db.query(Promotion).filter(Promotion.id == promotion_id).update(update_data)
     
     @staticmethod

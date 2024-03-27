@@ -63,7 +63,7 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
  
     @staticmethod
     async def update_branch(db: Session, branch_id: str, branch_update: BranchUpdate):
-        update_data = branch_update.dict(exclude_none=True)
+        update_data = branch_update.dict(exclude_unset=True)
         return db.query(Branch).filter(Branch.id == branch_id).update(update_data)
     
     @staticmethod

@@ -38,7 +38,7 @@ class CRUDInvoiceFromVendor(CRUDBase[InvoiceFromVendor, InvoiceFromVendorCreate,
     
     @staticmethod
     async def update_invoice_from_vendor(db: Session, invoice_from_vendor_id: str, invoice_from_vendor_update: InvoiceFromVendorUpdate):
-        update_data = invoice_from_vendor_update.dict(exclude_none=True)
+        update_data = invoice_from_vendor_update.dict(exclude_unset=True)
         return db.query(InvoiceFromVendor).filter(InvoiceFromVendor.id == invoice_from_vendor_id).update(update_data)
     
     @staticmethod

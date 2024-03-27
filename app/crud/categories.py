@@ -69,7 +69,7 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
     
     @staticmethod
     async def update_categories(db: Session, id: str, categories_update: CategoriesUpdate):
-        update_data = categories_update.dict(exclude_none=True)
+        update_data = categories_update.dict(exclude_unset=True)
         return db.query(Categories).filter(Categories.id == id).update(update_data)
     
     @staticmethod

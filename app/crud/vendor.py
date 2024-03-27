@@ -49,7 +49,7 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
     
     @staticmethod
     async def update_vendor(db: Session, vendor_id: str, vendor_update: VendorUpdate):
-        update_data = vendor_update.dict(exclude_none=True)
+        update_data = vendor_update.dict(exclude_unset=True)
         return db.query(Vendor).filter(Vendor.id == vendor_id).update(update_data)
     
     @staticmethod
