@@ -89,14 +89,17 @@ class CustomerService:
         current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number)
         logger.info("CustomerService: get_customer_by_phone called successfully.")
         
-        logger.info("CustomerService: get_customer_by_email called.")
-        current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email)
-        logger.info("CustomerService: get_customer_by_email called successfully.")
+        if obj_in.email is not None:
+            logger.info("CustomerService: get_customer_by_email called.")
+            current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email)
+            logger.info("CustomerService: get_customer_by_email called successfully.")
+            if current_email:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
+        
         
         if current_phone_number:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
-        if current_email:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
+        
         
         if obj_in.email:
             obj_in.email = obj_in.email.lower()
