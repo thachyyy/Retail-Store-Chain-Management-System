@@ -77,7 +77,7 @@ async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> An
     logger.info("Endpoints: delete_customer called successfully.")
     return make_response_object(customer_response, msg)
 
-@router.get("customers/search")
+@router.get("/customers/search")
 async def search_customer(
     db: Session = Depends(get_db), 
     condition: Optional[str] = Query(None),
@@ -92,7 +92,7 @@ async def search_customer(
     
     return make_response_object(customer_response, msg)
 
-@router.get("customers/filter")
+@router.get("/customers/filter")
 async def filter_customer(
     db: Session = Depends(get_db),
     gender: str = None,
