@@ -78,11 +78,16 @@ async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> An
     return make_response_object(customer_response, msg)
 
 @router.get("customers/search")
-async def search_customer(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+async def search_customer(
+    db: Session = Depends(get_db), 
+    condition: Optional[str] = Query(None),
+    limit: Optional[int] = None,
+    offset:Optional[int] = None
+) -> Any:
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: search_customer called.")
-    msg, customer_response = await customer_service.search_customer(condition)
+    msg, customer_response = await customer_service.search_customer(condition, limit, offset)
     logger.info("Endpoints: search_customer called successfully.")
     
     return make_response_object(customer_response, msg)

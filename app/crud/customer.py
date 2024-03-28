@@ -27,12 +27,14 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return result.all(), total
     
     @staticmethod
-    async def get_customer_by_phone(db: Session, phone_number: str) -> Optional[Customer]:
-        return db.query(Customer).filter(Customer.phone_number == phone_number).first()
+    async def get_customer_by_phone(db: Session, phone_number: str, id: str = None) -> Optional[Customer]:
+        if id is not None: return db.query(Customer).filter(Customer.phone_number == phone_number, Customer.id != id).first()
+        else: return db.query(Customer).filter(Customer.phone_number == phone_number).first()
     
     @staticmethod
-    async def get_customer_by_email(db: Session, email: EmailStr) -> Optional[Customer]:
-        return db.query(Customer).filter(Customer.email == email).first()
+    async def get_customer_by_email(db: Session, email: EmailStr, id: str = None) -> Optional[Customer]:
+        if id is not None: return db.query(Customer).filter(Customer.email == email, Customer.id != id).first()
+        else: return db.query(Customer).filter(Customer.email == email).first()
     
     @staticmethod
     async def get_customer_by_id(db: Session, customer_id: str):
@@ -56,10 +58,12 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return db.query(Customer).filter(Customer.id == customer_id).delete()
     
     @staticmethod
-    async def search_customer(db: Session, sql: str):        
+    async def search_customer(db: Session, sql: str, total:str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
     @staticmethod
     async def filter_customer(db: Session, sql: str, count: str):

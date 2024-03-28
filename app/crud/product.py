@@ -55,13 +55,12 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.id == product_id).delete()
     
     @staticmethod
-    async def search_product(db: Session, sql: str,total:str):        
+    async def search_product(db: Session, sql: str, total:str):        
         result = db.execute(sql)
-
         sum = db.execute(total)
         sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict,sum
+        return result_as_dict, sum
     
     @staticmethod
     async def filter_product(db: Session, sql: str,total:str):

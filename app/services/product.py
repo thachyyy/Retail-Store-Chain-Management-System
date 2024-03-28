@@ -53,15 +53,17 @@ class ProductService:
 
         return dict(message_code=AppStatus.SUCCESS.message), result
     
-    async def search_product(self, limit:int, offset:int,condition: str = None ):
+    async def search_product(self, limit: Optional[int] = None, offset: Optional[int] = None,condition: str = None ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
-        sql = f"SELECT * FROM public.product {whereCondition} LIMIT {limit} OFFSET {offset};"
+        sql = f"SELECT * FROM public.product {whereCondition};"
+        if limit is not None and offset is not None:
+            sql = f"SELECT * FROM public.customer {whereCondition} LIMIT {limit} OFFSET {offset};"
         total = f"SELECT COUNT(*) FROM public.product {whereCondition};"
         logger.info("productService: search_product called.")
-        result,total = await crud.product.search_product(self.db, sql,total)
+        result, total = await crud.product.search_product(self.db, sql,total)
         logger.info("productService: search_product called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message,total=total[0]['count']),result
+        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']),result
     
     async def get_all_products(
         self,

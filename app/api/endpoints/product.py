@@ -89,8 +89,8 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)) -> Any:
 
 @router.get("/product/search")
 async def search_product(
-    limit:int,
-    offset:int,
+    limit: Optional[int] = None,
+    offset: Optional[int] = None,
     db: Session = Depends(get_db), 
     condition: Optional[str] = Query(None)) -> Any:
     

@@ -89,16 +89,15 @@ class CustomerService:
         current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number)
         logger.info("CustomerService: get_customer_by_phone called successfully.")
         
+        if current_phone_number:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        
         if obj_in.email is not None:
             logger.info("CustomerService: get_customer_by_email called.")
             current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email)
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCOUNT_ALREADY_EXIST)
-        
-        
-        if current_phone_number:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
         
         
         if obj_in.email:
@@ -138,7 +137,24 @@ class CustomerService:
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         
+        logger.info("CustomerService: get_customer_by_phone called.")
+        current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number, customer_id)
+        logger.info("CustomerService: get_customer_by_phone called successfully.")
+        
+        if current_phone_number:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        
+        if obj_in.email is not None:
+            logger.info("CustomerService: get_customer_by_email called.")
+            current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email, customer_id)
+            logger.info("CustomerService: get_customer_by_email called successfully.")
+            if current_email:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+        
         if obj_in.reward_point is not None and obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
+        
+        if obj_in.full_name or obj_in.gender or obj_in.phone_number or obj_in.reward_point is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_CANNOT_NULL_ERROR)
         
         logger.info("CustomerService: update_customer called.")
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
@@ -188,15 +204,24 @@ class CustomerService:
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     
-    async def search_customer(self, condition: str = None):
+    async def search_customer(
+        self, 
+        condition: str = None,
+        limit: Optional[int] = None,
+        offset:Optional[int] = None
+    ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.customer {whereCondition};"
         
+        if limit is not None and offset is not None:
+            sql = f"SELECT * FROM public.customer {whereCondition} LIMIT {limit} OFFSET {offset};"
+        
+        total = f"SELECT COUNT(*) FROM public.customer {whereCondition};"
         logger.info("CustomerService: search_customer called.")
-        result = await crud.customer.search_customer(self.db, sql)
+        result, total = await crud.customer.search_customer(self.db, sql, total)
         logger.info("CustomerService: search_customer called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']), result
     
     async def filter_customer(
         self,
