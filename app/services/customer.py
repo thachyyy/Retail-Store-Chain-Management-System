@@ -24,7 +24,7 @@ class CustomerService:
         logger.info("CustomerService: get_customer_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_all_customers(
         self,
@@ -127,7 +127,7 @@ class CustomerService:
         
         self.db.commit()
         logger.info("Service: create_customer success.")
-        return dict(message_code=AppStatus.SUCCESS.message),customer_create
+        return dict(message_code=AppStatus.SUCCESS.message), customer_create
     
     async def update_customer(self, customer_id: str, obj_in: CustomerUpdate):
         logger.info("CustomerService: get_customer_by_id called.")
@@ -153,14 +153,11 @@ class CustomerService:
         
         if obj_in.reward_point is not None and obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
         
-        if obj_in.full_name or obj_in.gender or obj_in.phone_number or obj_in.reward_point is None:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_CANNOT_NULL_ERROR)
-        
         logger.info("CustomerService: update_customer called.")
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
         logger.info("CustomerService: update_customer called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
     async def delete_customer(self, customer_id: str):
         logger.info("CustomerService: get_customer_by_id called.")
@@ -170,12 +167,14 @@ class CustomerService:
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         
+        obj_del = await crud.customer.get_customer_by_id(self.db, id)
+        
         logger.info("CustomerService: delete_customer called.")
         result = await crud.customer.delete_customer(self.db, customer_id)
         logger.info("CustomerService: delete_customer called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
     async def whereConditionBuilderForSearch(self, condition: str) -> str:
         conditions = list()
@@ -250,5 +249,5 @@ class CustomerService:
         result = await crud.customer.filter_customer(self.db, sql)
         logger.info("CustomerService: filter_customer called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
         
