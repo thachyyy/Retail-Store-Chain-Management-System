@@ -3,14 +3,6 @@ from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-'''
-    "OPEN" # Đang hoạt động
-    "SUSPEND" # Tạm ngưng hoạt động
-    "UNDER RENOVATION" # Đang sửa chữa
-    "CLOSED" # Đóng cửa
-    "COMMING SOON" # Sắp mở bán
-'''
-
 class Branch(Base):
     __tablename__ = "branch"
     
@@ -22,7 +14,7 @@ class Branch(Base):
     province = Column(String(255), unique = False, nullable = True)
     phone_number = Column(String(255), unique = True, nullable = True)
     email = Column(String(255), unique = True, nullable = True)
-    status = Column(String(16), unique = False, nullable = False, default = 'COMMING SOON')
+    status = Column(String(16), unique = False, nullable = False, default = "ACTIVE")
     note = Column(String(255), unique = False, nullable = True)
     manager_name = Column(String(255), unique = True, nullable = True)
     manager_id = Column(String, ForeignKey('employee.id'), unique = True, nullable = True)
