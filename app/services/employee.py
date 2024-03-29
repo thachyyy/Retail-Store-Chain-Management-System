@@ -148,8 +148,6 @@ class EmployeeService:
         isValidEmployee = await crud.employee.get_employee_by_id(db=self.db, employee_id=employee_id)
         logger.info("EmployeeService: get_employee_by_id called successfully.")
         
-        print("CODE IS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-        
         if not isValidEmployee:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
         if obj_in.role is not None and obj_in.role.value == "Quản lí chi nhánh":

@@ -31,11 +31,21 @@ async def create_employee(
     return make_response_object(msg,employee_response)
 
 @router.get("/employees")
-async def get_all_employees(db: Session = Depends(get_db)) -> Any:
+async def get_all_employees(
+    db: Session = Depends(get_db),
+    limit: int = None,
+    offset: int = None,
+    status: str = None,
+    role: str = None,
+    branch_name: str = None,
+    province: str = None,
+    district: str = None
+    
+) -> Any:
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: get_all_employees called.")
     
-    msg, employee_response = await employee_service.get_all_employees()
+    msg, employee_response = await employee_service.get_all_employees(limit, offset, status, role, branch_name, province, district)
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)
 
@@ -77,11 +87,16 @@ async def delete_employee(employee_id: str, db: Session = Depends(get_db)) -> An
     return make_response_object(employee_response, msg)
 
 @router.get("employees/search")
-async def search_employee(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+async def search_employee(
+    db: Session = Depends(get_db), 
+    condition: Optional[str] = Query(None),
+    limit: int = None,
+    offset: int = None
+) -> Any:
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: search_employee called.")
-    msg, employee_response = await employee_service.search_employee(condition)
+    msg, employee_response = await employee_service.search_employee(condition, limit, offset)
     logger.info("Endpoints: search_employee called successfully.")
     
     return make_response_object(employee_response, msg)
