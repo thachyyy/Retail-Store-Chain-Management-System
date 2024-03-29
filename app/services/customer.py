@@ -215,7 +215,7 @@ class CustomerService:
         
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.customer {whereCondition} LIMIT {limit} OFFSET {offset};"
-        
+            
         total = f"SELECT COUNT(*) FROM public.customer {whereCondition};"
         logger.info("CustomerService: search_customer called.")
         result, total = await crud.customer.search_customer(self.db, sql, total)

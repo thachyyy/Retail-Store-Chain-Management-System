@@ -50,12 +50,12 @@ async def get_all_customers(
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
 
-@router.get("/customers/{customer_id}")
-async def get_customer_by_id(customer_id: str, db: Session = Depends(get_db)) -> Any:
+@router.get("/customers/{id}")
+async def get_customer_by_id(id: str, db: Session = Depends(get_db)) -> Any:
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: get_customer_by_id called.")  
-    msg, customer_response = await customer_service.get_customer_by_id(customer_id)
+    msg, customer_response = await customer_service.get_customer_by_id(id)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
     
@@ -77,7 +77,7 @@ async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> An
     logger.info("Endpoints: delete_customer called successfully.")
     return make_response_object(customer_response, msg)
 
-@router.get("/customers/search")
+@router.get("/customer/search")
 async def search_customer(
     db: Session = Depends(get_db), 
     condition: Optional[str] = Query(None),
