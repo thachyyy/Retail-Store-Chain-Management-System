@@ -21,14 +21,15 @@ class BranchService:
         result = await crud.branch.get_all_branches(db=self.db)
         logger.info("BranchService: get_all_branches called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_branch_by_id(self, branch_id: str):
         logger.info("BranchService: get_branch_by_id called.")
         result = await crud.branch.get_branch_by_id(db=self.db, branch_id=branch_id)
         logger.info("BranchService: get_branch_by_id called successfully.")
-        
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def gen_id(self):
         newID: str
@@ -46,30 +47,35 @@ class BranchService:
             return 'STORE' + newID
     
     async def create_branch(self, obj_in: BranchCreateParams):
+        logger.info("BranchService: get_branch_by_name_detail called.")
+        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail)
+        logger.info("BranchService: get_branch_by_name_detail called successfully.")
+        
         logger.info("BranchService: get_branch_by_address called.")
         current_branch_address = await crud.branch.get_branch_by_address(self.db, obj_in.address)
         logger.info("BranchService: get_branch_by_address called successfully.")
         
-        logger.info("BranchService: get_branch_by_phone called.")
-        current_branch_phone = await crud.branch.get_branch_by_phone(self.db, obj_in.phone_number)
-        logger.info("BranchService: get_branch_by_phone called successfully.")
+        logger.info("BranchService: get_branch_by_phone_number called.")
+        current_branch_phone_number = await crud.branch.get_branch_by_phone_number(self.db, obj_in.phone_number)
+        logger.info("BranchService: get_branch_by_phone_number called successfully.")
         
         logger.info("BranchService: get_branch_by_email called.")
         current_branch_email = await crud.branch.get_branch_by_email(self.db, obj_in.email)
         logger.info("BranchService: get_branch_by_email called successfully.")
         
-        logger.info("BranchService: get_branch_by_name_detail called.")
-        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail)
-        logger.info("BranchService: get_branch_by_name_detail called successfully.")
-        
+        if current_branch_name_detail:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_DETAIL_ALREADY_EXIST)
         if current_branch_address:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
-        if current_branch_phone:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_ALREADY_EXIST)
+        
+        if current_branch_phone_number:
+            if current_branch_phone_number.phone_number:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST) 
+             
         if current_branch_email:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
-        if current_branch_name_detail:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
+            if current_branch_email.email:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
+        
         
         newID = await self.gen_id()
             
@@ -104,12 +110,41 @@ class BranchService:
         
         if not isValidBranch:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)
+
+        # if isValidBranch.phone_number != "null":  #null 
+            
+        logger.info("BranchService: get_branch_by_name_detail called.")
+        current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail,branch_id)
+        logger.info("BranchService: get_branch_by_name_detail called successfully.")
         
+        logger.info("BranchService: get_branch_by_address called.")
+        current_branch_address = await crud.branch.get_branch_by_address(self.db, obj_in.address,branch_id)
+        logger.info("BranchService: get_branch_by_address called successfully.")
+        
+        logger.info("BranchService: get_branch_by_phone_number called.")
+        current_branch_phone_number = await crud.branch.get_branch_by_phone_number(self.db, obj_in.phone_number,branch_id)     
+        logger.info("BranchService: get_branch_by_phone_number called successfully.")
+        
+        logger.info("BranchService: get_branch_by_email called.")
+        current_branch_email = await crud.branch.get_branch_by_email(self.db, obj_in.email,branch_id)
+        logger.info("BranchService: get_branch_by_email called successfully.")
+        
+        if current_branch_name_detail:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_DETAIL_ALREADY_EXIST)
+        if current_branch_address:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
+        if current_branch_phone_number:
+            if current_branch_phone_number.phone_number:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST)
+        if current_branch_email:
+            if current_branch_email.email:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         logger.info("BranchService: update_branch called.")
+        
         result = await crud.branch.update_branch(db=self.db, branch_id=branch_id, branch_update=obj_in)
         logger.info("BranchService: update_branch called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
     async def delete_branch(self, branch_id: str):
         logger.info("BranchService: get_branch_by_id called.")
@@ -174,7 +209,7 @@ class BranchService:
         result = await crud.branch.search_branch(self.db, sql)
         logger.info("BranchService: search_branch called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def filter_branch(
         self,

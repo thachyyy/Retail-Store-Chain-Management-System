@@ -1,6 +1,7 @@
 import logging
 
 from typing import Optional
+from sqlalchemy import null
 from sqlalchemy.orm import Session
 from pydantic import UUID4
 
@@ -20,19 +21,28 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return db.query(Branch).filter(Branch.id == branch_id).first()
     
     @staticmethod
-    async def get_branch_by_address(db: Session, address: str) -> Optional[Branch]:
+    async def get_branch_by_address(db: Session, address: str, id:str=None) -> Optional[Branch]:
+        if id:
+            return db.query(Branch).filter(Branch.address == address,Branch.id != id).first()
         return db.query(Branch).filter(Branch.address == address).first()
     
     @staticmethod
-    async def get_branch_by_phone(db: Session, phone_number: str) -> Optional[Branch]:
+    async def get_branch_by_phone_number(db: Session, phone_number: str,id:str = None) -> Optional[Branch]:
+        if id:
+            return db.query(Branch).filter(Branch.phone_number == phone_number,Branch.id != id).first()
         return db.query(Branch).filter(Branch.phone_number == phone_number).first()
+
     
     @staticmethod
-    async def get_branch_by_email(db: Session, email: str) -> Optional[Branch]:
+    async def get_branch_by_email(db: Session, email: str, id:str= None) -> Optional[Branch]:
+        if id:
+            return db.query(Branch).filter(Branch.email == email,Branch.id != id).first()
         return db.query(Branch).filter(Branch.email == email).first()
     
     @staticmethod
-    async def get_branch_by_name_detail(db: Session, name_detail: str) -> Optional[Branch]:
+    async def get_branch_by_name_detail(db: Session, name_detail: str,id :str = None) -> Optional[Branch]:
+        if id:
+            return db.query(Branch).filter(Branch.name_detail == name_detail,Branch.id != id).first()
         return db.query(Branch).filter(Branch.name_detail == name_detail).first()
     
     @staticmethod
