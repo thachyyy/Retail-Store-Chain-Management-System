@@ -14,7 +14,7 @@ class Status(str,enum.Enum):
     SUSPENDED ="Tạm ngưng làm việc"
 class Gender(str,enum.Enum):
     MALE = "Nam"
-    FEMAIL = "Nữ"
+    FEMALE = "Nữ"
         
 class EmployeeCreateParams(BaseModel):
     full_name: str
