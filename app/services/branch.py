@@ -1,5 +1,6 @@
 
 import logging
+from typing import Optional
 import uuid
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -16,12 +17,39 @@ class BranchService:
     def __init__(self, db: Session):
         self.db = db
         
-    async def get_all_branches(self):
-        logger.info("BranchService: get_all_branches called.")
-        result = await crud.branch.get_all_branches(db=self.db)
-        logger.info("BranchService: get_all_branches called successfully.")
+    async def get_all_branches(
+        self,
+        limit: Optional[int] = None,
+        offset:Optional[int] = None,
+        status: Optional[str] = None,
+        province: Optional[str] = None,
+        district: Optional[str] = None 
+        ):
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        conditions = dict()
+        if status:
+            conditions['status'] = status
+        if province:
+            conditions['province'] = province
+        if district:
+            conditions['district'] = district
+       
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
+            total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
+
+            logger.info("BranchService: filter_branch called.")
+            result,total = await crud.branch.filter_branch(self.db, sql=sql,total = total)
+            total = total[0]['count']
+            logger.info("BranchService: filter_branch called successfully.")
+        else: 
+            logger.info("BranchService: get_all_branchs called.")
+            result,total =  crud.branch.get_multi(db=self.db, skip=offset,limit=limit)
+            logger.info("BranchService: get_all_branchs called successfully.")
+
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
+    
     
     async def get_branch_by_id(self, branch_id: str):
         logger.info("BranchService: get_branch_by_id called.")
@@ -144,7 +172,7 @@ class BranchService:
         result = await crud.branch.update_branch(db=self.db, branch_id=branch_id, branch_update=obj_in)
         logger.info("BranchService: update_branch called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_in
         
     async def delete_branch(self, branch_id: str):
         logger.info("BranchService: get_branch_by_id called.")
@@ -159,7 +187,7 @@ class BranchService:
         logger.info("BranchService: delete_branch called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message),isValidBranch
     
     async def get_manager_id_by_name(self, manager_name: str):
         sql = f"SELECT id FROM public.employee WHERE full_name = '{manager_name}';"
@@ -211,31 +239,4 @@ class BranchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), result
     
-    async def filter_branch(
-        self,
-        status: str = None,
-        manager_name_list: list = None,
-        province: str = None,
-        district: str = None
-):
-        conditions = dict()
-        
-        if status:
-            status = status.upper()
-            conditions['status'] = status
-        if manager_name_list:
-            for name in manager_name_list:
-                conditions['manager_name_list'] = name
-        if province:
-            conditions['province'] = province
-        if district:
-            conditions['district'] = district
-        
-        whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        sql = f"SELECT * FROM public.branch {whereConditions};"
-        
-        logger.info("BranchService: filter_branch called.")
-        result = await crud.branch.filter_branch(self.db, sql)
-        logger.info("BranchService: filter_branch called successfully.")
-        
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+  
