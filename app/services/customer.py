@@ -157,7 +157,7 @@ class CustomerService:
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
         logger.info("CustomerService: update_customer called successfully.")
         self.db.commit()
-        obj_update = await crud.customer.get_customer_by_id(self.db, id)
+        obj_update = await crud.customer.get_customer_by_id(self.db, customer_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_customer(self, customer_id: str):
@@ -168,7 +168,7 @@ class CustomerService:
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         
-        obj_del = await crud.customer.get_customer_by_id(self.db, id)
+        obj_del = await crud.customer.get_customer_by_id(self.db, customer_id)
         
         logger.info("CustomerService: delete_customer called.")
         result = await crud.customer.delete_customer(self.db, customer_id)
