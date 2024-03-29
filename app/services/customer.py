@@ -157,7 +157,8 @@ class CustomerService:
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
         logger.info("CustomerService: update_customer called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
+        obj_update = await crud.customer.get_customer_by_id(self.db, id)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_customer(self, customer_id: str):
         logger.info("CustomerService: get_customer_by_id called.")

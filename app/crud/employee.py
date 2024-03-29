@@ -20,8 +20,6 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
     async def get_employee_by_id(db: Session, employee_id: str):
         logger.info("CRUDEmployee: get_employee_by_id called.")
         current_employee_by_id =  db.query(Employee).filter(Employee.id == employee_id).first()
-        if not current_employee_by_id:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
         logger.info("CRUDEmployee: get_employee_by_id called successfully.")
         return current_employee_by_id
     
@@ -29,8 +27,6 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
     async def get_employee_by_branch_name(db: Session, branch_name: str):
         logger.info("CRUDEmployee: get_employee_by_branch_name called.")
         current_employee_by_branch_name =  db.query(Employee).filter(Employee.branch_name == branch_name).all()
-        if not current_employee_by_branch_name:
-                raise HTTPException(status_code =404, detail="Chi nhánh chưa có nhân viên")
         logger.info("CRUDEmployee: get_employee_by_branch_name called successfully.")
         return current_employee_by_branch_name
     
@@ -72,15 +68,20 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return db.query(Employee).filter(Employee.id == employee_id).delete()
     
     @staticmethod
-    async def search_employee(db: Session, sql: str):        
+    async def search_employee(db: Session, sql: str, total:str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
     @staticmethod
-    async def filter_employee(db: Session, sql: str):
+    async def filter_employee(db: Session, sql: str, count: str):
         result = db.execute(sql)
+        sum = db.execute(count)
+        sum = sum.mappings().all()
+        total = sum[0]['count']
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, total
     
 employee = CRUDEmployee(Employee)

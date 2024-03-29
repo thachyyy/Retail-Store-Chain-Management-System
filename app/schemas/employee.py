@@ -1,5 +1,5 @@
 from typing import Optional, Literal
-from pydantic import BaseModel, UUID4, EmailStr
+from pydantic import BaseModel, UUID4, EmailStr, validator
 from datetime import date
 import enum
 class Role(str,enum.Enum):
@@ -13,8 +13,8 @@ class Status(str,enum.Enum):
     FULL_TIME ="Toàn thời gian"
     SUSPENDED ="Tạm ngưng làm việc"
 class Gender(str,enum.Enum):
-    MALE = "Nam"
-    FEMALE = "Nữ"
+    MALE = "MALE"
+    FEMALE = "FEMALE"
         
 class EmployeeCreateParams(BaseModel):
     full_name: str
@@ -46,13 +46,19 @@ class EmployeeCreate(BaseModel):
     branch_name: str
     
 class EmployeeUpdate(BaseModel):
-    full_name: Optional[str] = None
+    full_name: Optional[str]
     date_of_birth: Optional[date] = None
     gender: Optional[Gender] = None
-    email: Optional[EmailStr] = None
-    phone_number: Optional[str] = None
+    email: Optional[EmailStr]
+    phone_number: Optional[str]
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
-    role: Optional[Role] = None
-    branch_name: Optional[str] = None
+    role: Optional[Role]
+    branch_name: Optional[str]
+    
+    @validator('full_name', 'email', 'phone_number', 'role', 'branch_name', pre=True, always=False)
+    def check_not_null(cls, value, field):
+        if value is None:
+            raise ValueError(f"{field.name} cannot be null")
+        return value
