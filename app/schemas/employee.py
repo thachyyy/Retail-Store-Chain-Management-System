@@ -8,13 +8,10 @@ class Role(str,enum.Enum):
     BRANCH_MANAGER = "Quản lí chi nhánh"
 class Status(str,enum.Enum):
     ACTIVE = "Đang làm việc"
-    ONBOARDING = "Thử việc"
-    PART_TIME = "Bán thời gian"
-    FULL_TIME ="Toàn thời gian"
-    SUSPENDED ="Tạm ngưng làm việc"
+    INACTIVE = "Nghỉ việc"
 class Gender(str,enum.Enum):
-    MALE = "MALE"
-    FEMALE = "FEMALE"
+    MALE = "Nam"
+    FEMALE = "Nữ"
         
 class EmployeeCreateParams(BaseModel):
     full_name: str

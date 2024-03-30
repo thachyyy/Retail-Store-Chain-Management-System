@@ -2,8 +2,8 @@ from typing import List, Optional, Literal
 from pydantic import BaseModel, UUID4, EmailStr
 import enum
 class Status(str,enum.Enum):
-    ACTIVE= "ACTIVE"
-    INACTIVE="INACTIVE"
+    ACTIVE= "Đang hoạt động"
+    INACTIVE="Dừng hoạt động"
 class BranchCreateParams(BaseModel):
     name_display:  str
     name_detail:  str

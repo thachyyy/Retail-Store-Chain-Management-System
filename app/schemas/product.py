@@ -3,15 +3,14 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4, Field
 import enum
 class Status(str,enum.Enum):
-    ACTIVE = "ACTIVE" #Đang kinh doanh
-    INACTIVE = "INACTIVE" #Tạm ngừng kinh doanh
-    EMPTY= "EMPTY"
+    ACTIVE = "Đang kinh doanh" #Đang kinh doanh
+    INACTIVE = "Tạm ngừng kinh doanh" #Tạm ngừng kinh doanh
 class ProductCreateParams(BaseModel):
     barcode: str = Field(..., max_length=255)
     product_name: str = Field(..., max_length=255)
     unit: str = Field(..., max_length=255)
     sale_price: int
-    status: Status = Status.EMPTY
+    status: Status = Status.ACTIVE
     last_purchase_price: Optional[int]
     description: Optional[str] = Field(None, max_length=255)
     brand: Optional[str] = Field(None, max_length=255)
