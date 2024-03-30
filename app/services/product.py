@@ -61,9 +61,10 @@ class ProductService:
         total = f"SELECT COUNT(*) FROM public.product {whereCondition};"
         logger.info("productService: search_product called.")
         result, total = await crud.product.search_product(self.db, sql,total)
+        total = total[0]['count']
         logger.info("productService: search_product called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']),result
+        return dict(message_code=AppStatus.SUCCESS.message, total=total),result
     
     async def get_all_products(
         self,
@@ -92,8 +93,8 @@ class ProductService:
             total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
 
             logger.info("ProductService: filter_product called.")
-            result,total = await crud.product.filter_product(self.db, sql=sql,total = total)
-
+            result,total= await crud.product.filter_product(self.db, sql=sql,total = total)
+            total = total[0]['count']
             logger.info("ProductService: filter_product called successfully.")
         else: 
             logger.info("ProductService: get_all_products called.")
@@ -219,14 +220,5 @@ class ProductService:
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
         
-    # Generate and display a random number between 7 and 10 digits long
-    async def generate_random_number(self):
-        num_digits = random.randint(7, 10)
-        # Ensure the first digit is not zero
-        first_digit = random.randint(1, 9)
-        # Generate the rest of the digits, which can include zero
-        other_digits = [str(random.randint(0, 9)) for _ in range(num_digits - 1)]
-        # Combine the digits into a single number
-        return str(first_digit) + ''.join(other_digits)
-
+  
  

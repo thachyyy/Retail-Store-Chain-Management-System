@@ -32,11 +32,17 @@ async def create_branch(
 
 
 @router.get("/branches")
-async def get_all_branches(db: Session = Depends(get_db)) -> Any:
+async def get_all_branches(
+    limit: Optional[int] = None,
+    offset:Optional[int] = None,
+    status: Optional[str] = None,
+    province: Optional[str] = None,
+    district: Optional[str] = None,
+    db: Session = Depends(get_db)) -> Any:
     branch_service = BranchService(db=db)
     logger.info("Endpoints: get_all_branches called.")
     
-    msg, branch_response = await branch_service.get_all_branches()
+    msg, branch_response = await branch_service.get_all_branches(limit,offset,status,province,district)
     logger.info("Endpoints: get_all_branches called successfully.")
     return make_response_object(branch_response, msg)
 
