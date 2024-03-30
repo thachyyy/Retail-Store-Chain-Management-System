@@ -1,5 +1,5 @@
 from typing import List, Optional, Literal
-from pydantic import BaseModel, UUID4, EmailStr
+from pydantic import BaseModel, UUID4, EmailStr, validator
 import enum
 class Status(str,enum.Enum):
     ACTIVE= "Đang hoạt động"
@@ -40,3 +40,9 @@ class BranchUpdate(BaseModel):
     province: Optional[str] = None
     status: Optional[Status] = None
     note: Optional[str] = None
+    
+    @validator('name_display', 'name_detail', 'address', 'status', pre=True, always=False)
+    def check_not_null(cls, value, field):
+        if value is None:
+            raise ValueError(f"{field.name} cannot be null")
+        return value

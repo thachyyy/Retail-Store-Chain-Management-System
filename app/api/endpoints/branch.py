@@ -26,9 +26,9 @@ async def create_branch(
     branch_service = BranchService(db=db)
     logger.info("Endpoints: create_branch called.")
     
-    branch_response = await branch_service.create_branch(branch_create)
+    msg, branch_response = await branch_service.create_branch(branch_create)
     logger.info("Endpoints: create_branch called successfully.")
-    return make_response_object(branch_response)
+    return make_response_object(branch_response, msg)
 
 
 @router.get("/branches")
@@ -73,12 +73,17 @@ async def delete_branch(branch_id: str, db: Session = Depends(get_db)) -> Any:
     logger.info("Endpoints: delete_branch called successfully.")
     return make_response_object(branch_response, msg)
 
-@router.get("/branches/search")
-async def search_branch(db: Session = Depends(get_db), condition: Optional[str] = Query(None)) -> Any:
+@router.get("/branch/search")
+async def search_branch(
+    db: Session = Depends(get_db), 
+    condition: Optional[str] = Query(None),
+    limit: Optional[int] = None,
+    offset:Optional[int] = None
+    ) -> Any:
     branch_service = BranchService(db=db)
     
     logger.info("Endpoints: search_branch called.")
-    msg, branch_response = await branch_service.search_branch(condition)
+    msg, branch_response = await branch_service.search_branch(condition, limit, offset)
     logger.info("Endpoints: search_branch called successfully.")
     
     return make_response_object(branch_response, msg)

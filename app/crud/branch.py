@@ -89,11 +89,12 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return result_as_dict, sum
     
     @staticmethod
-    async def filter_branch(db: Session, sql: str,total:str):
+    async def filter_branch(db: Session, sql: str, count: str):
         result = db.execute(sql)
-        sum = db.execute(total)
+        sum = db.execute(count)
         sum = sum.mappings().all()
+        total = sum[0]['count']
         result_as_dict = result.mappings().all()
-        return result_as_dict,sum
+        return result_as_dict,total
     
 branch = CRUDBranch(Branch)
