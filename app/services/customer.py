@@ -137,12 +137,12 @@ class CustomerService:
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         
-        logger.info("CustomerService: get_customer_by_phone called.")
-        current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number, customer_id)
-        logger.info("CustomerService: get_customer_by_phone called successfully.")
-        
-        if current_phone_number:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        if obj_in.phone_number is not None:
+            logger.info("CustomerService: get_customer_by_phone called.")
+            current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number, customer_id)
+            logger.info("CustomerService: get_customer_by_phone called successfully.")
+            if current_phone_number:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         
         if obj_in.email is not None:
             logger.info("CustomerService: get_customer_by_email called.")
