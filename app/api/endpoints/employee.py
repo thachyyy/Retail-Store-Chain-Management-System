@@ -28,7 +28,7 @@ async def create_employee(
     
     msg,employee_response = await employee_service.create_employee(employee_create)
     logger.info("Endpoints: create_employee called successfully.")
-    return make_response_object(msg,employee_response)
+    return make_response_object(employee_response,msg)
 
 @router.get("/employees")
 async def get_all_employees(
