@@ -31,12 +31,18 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return current_employee_by_branch_name
     
     @staticmethod
-    async def get_employee_by_email(db: Session, email: str):
-        return db.query(Employee).filter(Employee.email == email).first()
+    async def get_employee_by_email(db: Session, email: str, id: str = None):
+        if id is not None:
+            return db.query(Employee).filter(Employee.email == email, Employee.id != id).first()
+        else:
+            return db.query(Employee).filter(Employee.email == email).first()
     
     @staticmethod
-    async def get_employee_by_phone(db: Session, phone_number: str):
-        return db.query(Employee).filter(Employee.phone_number == phone_number).first()
+    async def get_employee_by_phone(db: Session, phone_number: str, id: str = None):
+        if id is not None:
+            return db.query(Employee).filter(Employee.phone_number == phone_number, Employee.id != id).first()
+        else:
+            return db.query(Employee).filter(Employee.phone_number == phone_number).first()
     
     @staticmethod
     async def get_last_id(db: Session):

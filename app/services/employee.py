@@ -155,7 +155,17 @@ class EmployeeService:
             current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch_name)
             logger.info("BranchService: get_branch_by_name_detail called successfully.")
             if current_branch.manager_id:
-                raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
+                raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.")
+            
+        if obj_in.phone_number:
+            isExistPhoneNumber = await crud.employee.get_employee_by_phone(self.db, obj_in.phone_number, employee_id)
+            if isExistPhoneNumber:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        
+        if obj_in.email:
+            isExistEmail = await crud.employee.get_employee_by_email(self.db, obj_in.email, employee_id)
+            if isExistEmail:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
              
         logger.info("EmployeeService: update_employee called.")
         result = await crud.employee.update_employee(db=self.db, employee_id=employee_id, employee_update=obj_in)
