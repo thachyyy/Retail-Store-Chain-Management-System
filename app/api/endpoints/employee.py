@@ -86,7 +86,7 @@ async def delete_employee(employee_id: str, db: Session = Depends(get_db)) -> An
     logger.info("Endpoints: delete_employee called successfully.")
     return make_response_object(employee_response, msg)
 
-@router.get("employees/search")
+@router.get("/employees/search")
 async def search_employee(
     db: Session = Depends(get_db), 
     condition: Optional[str] = Query(None),
@@ -101,7 +101,7 @@ async def search_employee(
     
     return make_response_object(employee_response, msg)
 
-@router.get("employees/filter")
+@router.get("/employees/filter")
 async def filter_employee(
     db: Session = Depends(get_db),
     status: str = None,

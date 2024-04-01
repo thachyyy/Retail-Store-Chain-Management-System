@@ -40,7 +40,7 @@ class EmployeeCreate(BaseModel):
     province: str
     status: Optional[Status] = None
     note: Optional[str] = None
-    branch_name: str
+    branch_name: Optional[str] = None
     
 class EmployeeUpdate(BaseModel):
     full_name: Optional[str]
