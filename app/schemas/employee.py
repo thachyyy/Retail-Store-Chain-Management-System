@@ -20,12 +20,12 @@ class EmployeeCreateParams(BaseModel):
     email: EmailStr
     phone_number: str
     role: Role
-    address: str
-    district: str
-    province: str
-    status: Optional[Status] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    status: Status
     note: Optional[str] = None
-    branch_name: str
+    branch_name: Optional[str] = None
 
 class EmployeeCreate(BaseModel):
     id: str
@@ -35,10 +35,10 @@ class EmployeeCreate(BaseModel):
     email: EmailStr
     phone_number: str
     role: Role
-    address: str
-    district: str
-    province: str
-    status: Optional[Status] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    status: Status
     note: Optional[str] = None
     branch_name: Optional[str] = None
     
