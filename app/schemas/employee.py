@@ -56,8 +56,9 @@ class EmployeeUpdate(BaseModel):
     province: Optional[str] = None
     role: Optional[Role]
     branch_name: Optional[str]
+    status: Optional[Status]
     
-    @validator('full_name', 'email', 'phone_number', 'password', 'role', pre=True, always=False)
+    @validator('full_name', 'email', 'phone_number', 'password', 'role', 'status', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")
