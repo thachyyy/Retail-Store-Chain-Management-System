@@ -4,8 +4,8 @@ from datetime import date
 import enum
 class Role(str,enum.Enum):
     STAFF = "Nhân viên"
-    MANAGER = "Quản lí"
-    BRANCH_MANAGER = "Quản lí chi nhánh"
+    MANAGER = "Quản lý"
+    BRANCH_MANAGER = "Quản lý chi nhánh"
 class Status(str,enum.Enum):
     ACTIVE = "Đang làm việc"
     INACTIVE = "Nghỉ việc"
@@ -19,6 +19,7 @@ class EmployeeCreateParams(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
+    password: str
     role: Role
     address: Optional[str] = None
     district: Optional[str] = None
@@ -34,6 +35,7 @@ class EmployeeCreate(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
+    password: str
     role: Role
     address: Optional[str] = None
     district: Optional[str] = None
@@ -48,13 +50,14 @@ class EmployeeUpdate(BaseModel):
     gender: Optional[Gender] = None
     email: Optional[EmailStr]
     phone_number: Optional[str]
+    password: Optional[str]
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
     role: Optional[Role]
     branch_name: Optional[str]
     
-    @validator('full_name', 'email', 'phone_number', 'role', 'branch_name', pre=True, always=False)
+    @validator('full_name', 'email', 'phone_number', 'password', 'role', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")

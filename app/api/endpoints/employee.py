@@ -35,17 +35,43 @@ async def get_all_employees(
     db: Session = Depends(get_db),
     limit: int = None,
     offset: int = None,
-    status: str = None,
     role: str = None,
-    branch_name: str = None,
+    status: str = None,
     province: str = None,
-    district: str = None
+    district: str = None,
+    gender: str = None,
+    start_date: date = None,
+    end_date: date = None,
+    id: str = None,
+    full_name: str = None,
+    email: str = None,
+    phone_number: str = None,
+    address: str = None,
+    note: str = None,
+    branch_name: str = None,
     
 ) -> Any:
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: get_all_employees called.")
     
-    msg, employee_response = await employee_service.get_all_employees(limit, offset, status, role, branch_name, province, district)
+    msg, employee_response = await employee_service.get_all_employees(
+        limit, 
+        offset, 
+        status, 
+        role, 
+        province, 
+        district, 
+        gender, 
+        start_date, 
+        end_date, 
+        id, 
+        full_name, 
+        email,
+        phone_number,
+        address,
+        note,
+        branch_name
+    )
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)
 
