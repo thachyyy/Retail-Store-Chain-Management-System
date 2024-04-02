@@ -57,8 +57,8 @@ async def get_all_employees(
     msg, employee_response = await employee_service.get_all_employees(
         limit, 
         offset, 
-        status, 
         role, 
+        status, 
         province, 
         district, 
         gender, 
