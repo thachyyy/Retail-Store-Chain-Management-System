@@ -13,8 +13,7 @@ class ContractForVendor(Base):
     minimum_order_quantity = Column(Integer, unique = False, nullable = True)
     ordering_cycle_amount = Column(Integer, unique = False, nullable = True)
     ordering_cycle_quantity = Column(Integer, unique = False, nullable = True)
-    # belong_to_vendor = Column(String(255), unique = False, nullable = False)
 
-    belong_to_vendor = Column(String(255), ForeignKey('vendor.vendor_name'), unique = False, nullable = False)
+    belong_to_vendor = Column(String(255), unique = False, nullable = False)
     
-    vendor = relationship('Vendor')
+    # vendor = relationship('Vendor')

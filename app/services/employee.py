@@ -194,6 +194,8 @@ class EmployeeService:
             isExistEmail = await crud.employee.get_employee_by_email(self.db, obj_in.email, employee_id)
             if isExistEmail:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+            
+            obj_in.email = obj_in.email.lower()
              
         logger.info("EmployeeService: update_employee called.")
         result = await crud.employee.update_employee(db=self.db, employee_id=employee_id, employee_update=obj_in)

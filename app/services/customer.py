@@ -150,6 +150,8 @@ class CustomerService:
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+            
+            obj_in.email = obj_in.email.lower()
         
         if obj_in.reward_point is not None and obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
         
