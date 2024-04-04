@@ -37,20 +37,20 @@ class BranchService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.branch {whereConditions};"
-            count = f"SELECT COUNT(*)::INT FROM public.branch {whereConditions};"
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("BranchService: filter_branch called.")
-            result,total = await crud.branch.filter_branch(self.db, sql=sql, count=count)
-
+            result = await crud.branch.filter_branch(self.db, sql=sql)
             logger.info("BranchService: filter_branch called successfully.")
+            
         else: 
             logger.info("BranchService: get_all_branches called.")
-            result,total =  crud.branch.get_multi(db=self.db, skip=offset,limit=limit)
+            result = await crud.branch.get_all_branches(db=self.db, offset=offset,limit=limit)
             logger.info("BranchService: get_all_branches called successfully.")
-
+            
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     
@@ -96,17 +96,15 @@ class BranchService:
         
         if current_branch_name_detail:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_DETAIL_ALREADY_EXIST)
+        
         if current_branch_address:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
         
         if current_branch_phone_number:
-            if current_branch_phone_number.phone_number:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST) 
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST)
              
         if current_branch_email:
-            if current_branch_email.email:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
-        
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
         newID = await self.gen_id()
             

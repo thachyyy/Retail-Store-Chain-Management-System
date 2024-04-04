@@ -28,6 +28,8 @@ class BranchCreate(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
+    manager_name: Optional[str] = None
+    manager_id: Optional[str]= None
 
     
 class BranchUpdate(BaseModel):
