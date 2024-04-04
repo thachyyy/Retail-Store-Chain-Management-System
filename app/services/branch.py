@@ -139,8 +139,6 @@ class BranchService:
         
         if not isValidBranch:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)
-
-        # if isValidBranch.phone_number != "null":  #null 
             
         logger.info("BranchService: get_branch_by_name_detail called.")
         current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail,branch_id)
