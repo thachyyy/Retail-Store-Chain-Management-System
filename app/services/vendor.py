@@ -60,7 +60,7 @@ class VendorService:
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
             logger.info("VendorService: filter_vendor called.")
-            result = await crud.vendor.filter_vendor(self.db, sql=sql)
+            result = await crud.vendor.get_vendor_by_conditions(self.db, sql=sql)
             logger.info("VendorService: filter_vendor called successfully.")
             
         else:
