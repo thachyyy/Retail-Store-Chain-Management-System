@@ -70,20 +70,20 @@ class EmployeeService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.employee {whereConditions};"
-            count = f"SELECT COUNT(*)::INT FROM public.employee {whereConditions};"
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("EmployeeService: filter_employee called.")
-            result,total = await crud.employee.filter_employee(self.db, sql=sql, count=count)
+            result = await crud.employee.get_employee_by_conditions(self.db, sql=sql)
 
             logger.info("EmployeeService: filter_employee called successfully.")
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result,total =  crud.employee.get_multi(db=self.db, skip=offset,limit=limit)
+            result =  crud.employee.get_all_employees(db=self.db, offset=offset,limit=limit)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
     async def get_employee_by_id(self, employee_id: str):
@@ -99,7 +99,6 @@ class EmployeeService:
         logger.info("EmployeeService: get_employee_by_branch_name called.")
         result = await crud.employee.get_employee_by_branch_name(db=self.db, branch_name=branch_name)
         if not result:
-                # raise HTTPException(status_code =404, detail="Chi nhánh chưa có nhân viên")
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_HAVE_EMPLOYEE)
         logger.info("EmployeeService: get_employee_by_branch_name called successfully.")
         
@@ -144,6 +143,7 @@ class EmployeeService:
         #         raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
         #     update_branch_manager = await crud.branch.update_branch(self.db,current_branch.id,branch_update=current_branch.manager_id)
         
+        obj_in.email = obj_in.email.lower()
         newID = await self.gen_id()
 
         employee_create = EmployeeCreate(
@@ -194,7 +194,6 @@ class EmployeeService:
             isExistEmail = await crud.employee.get_employee_by_email(self.db, obj_in.email, employee_id)
             if isExistEmail:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
-            
             obj_in.email = obj_in.email.lower()
              
         logger.info("EmployeeService: update_employee called.")
@@ -281,12 +280,12 @@ class EmployeeService:
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.employee {whereCondition} LIMIT {limit} OFFSET {offset};"
             
-        total = f"SELECT COUNT(*) FROM public.employee {whereCondition};"
         logger.info("EmployeeService: search_employee called.")
-        result, total = await crud.employee.search_employee(self.db, sql, total)
+        result = await crud.employee.get_employee_by_conditions(self.db, sql)
         logger.info("EmployeeService: search_employee called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']), result
+        total = len(result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
 #     async def filter_employee(
 #         self,
