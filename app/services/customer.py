@@ -29,15 +29,13 @@ class CustomerService:
     async def get_all_customers(
         self,
         limit: Optional[int] = None,
-        offset:Optional[int] = None, 
+        offset:Optional[int] = None,
         gender: Optional[str] = None,
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
         province: Optional[str] = None,
         district: Optional[str] = None,
     ):
-        
-        
         conditions = dict()
         if gender:
             conditions['gender'] = gender
@@ -53,20 +51,20 @@ class CustomerService:
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.customer {whereConditions};"
-            count = f"SELECT COUNT(*)::INT FROM public.customer {whereConditions};"
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("CustomerService: filter_customer called.")
-            result,total = await crud.customer.filter_customer(self.db, sql=sql, count=count)
-
+            result = await crud.customer.get_customer_by_conditions(self.db, sql=sql)
             logger.info("CustomerService: filter_customer called successfully.")
+        
         else: 
             logger.info("CustomerService: get_all_customers called.")
-            result,total =  crud.customer.get_multi(db=self.db, skip=offset,limit=limit)
+            result =  crud.customer.get_all_customers(db=self.db, offset=offset,limit=limit)
             logger.info("CustomerService: get_all_customers called successfully.")
 
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):
@@ -98,11 +96,8 @@ class CustomerService:
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
-        
-        
-        if obj_in.email:
             obj_in.email = obj_in.email.lower()
-        
+                  
         newID = await self.gen_id()
         
         if obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
@@ -150,7 +145,6 @@ class CustomerService:
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
-            
             obj_in.email = obj_in.email.lower()
         
         if obj_in.reward_point is not None and obj_in.reward_point < 0: obj_in.reward_point = 0 # check constrain reward point
@@ -218,12 +212,12 @@ class CustomerService:
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.customer {whereCondition} LIMIT {limit} OFFSET {offset};"
             
-        total = f"SELECT COUNT(*) FROM public.customer {whereCondition};"
         logger.info("CustomerService: search_customer called.")
-        result, total = await crud.customer.search_customer(self.db, sql, total)
+        result = await crud.customer.get_customer_by_conditions(self.db, sql)
         logger.info("CustomerService: search_customer called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']), result
+        total = len(result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def filter_customer(
         self,

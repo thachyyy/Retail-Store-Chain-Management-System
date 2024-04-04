@@ -242,10 +242,10 @@ class BranchService:
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.branch {whereCondition} LIMIT {limit} OFFSET {offset};"
             
-        total = f"SELECT COUNT(*) FROM public.branch {whereCondition};"
         logger.info("BranchService: search_branch called.")
-        result, total = await crud.branch.search_branch(self.db, sql, total)
+        result = await crud.branch.get_branch_by_conditions(self.db, sql)
         logger.info("BranchService: search_branch called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']), result
+        total = len(result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     

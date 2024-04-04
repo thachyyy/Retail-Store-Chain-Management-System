@@ -19,12 +19,11 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         limit: int = None
     ) -> Optional[Customer]:
         result = db.query(Customer)
-        total = result.count()
         
         if offset is not None and limit is not None:
             result = result.offset(offset).limit(limit)
             
-        return result.all(), total
+        return result.all()
     
     @staticmethod
     async def get_customer_by_phone(db: Session, phone_number: str, id: str = None) -> Optional[Customer]:
@@ -58,22 +57,10 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return db.query(Customer).filter(Customer.id == customer_id).delete()
     
     @staticmethod
-    async def search_customer(db: Session, sql: str, total:str):        
+    async def get_customer_by_conditions(db: Session, sql: str):        
         result = db.execute(sql)
-        sum = db.execute(total)
-        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict, sum
-    
-    @staticmethod
-    async def filter_customer(db: Session, sql: str, count: str):
-        result = db.execute(sql)
-        sum = db.execute(count)
-        sum = sum.mappings().all()
-        total = sum[0]['count']
-        result_as_dict = result.mappings().all()
-        return result_as_dict,total
-        
+        return result_as_dict    
     
     @staticmethod
     def create(db: Session, *, obj_in: CustomerCreate) -> Customer:
