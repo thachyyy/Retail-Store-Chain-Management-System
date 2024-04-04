@@ -14,8 +14,12 @@ logger = logging.getLogger(__name__)
 class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
     @staticmethod
     async def get_all_branches(db: Session, offset: int = None, limit: int = None) -> Optional[Branch]:
-        if offset is not None and limit is not None: return db.query(Branch).offset(offset).limit(limit).all()
-        else: return db.query(Branch).all()
+        result = db.query(Branch)
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+        
+        return result.all()
     
     @staticmethod
     async def get_branch_by_id(db: Session, branch_id: str):
