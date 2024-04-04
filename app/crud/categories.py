@@ -24,7 +24,6 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
         limit: int = None
     ) -> Optional[Categories]:
         result = db.query(Categories)
-        total = result.count()
         
         if sort is not None:
             if sort == 'desc':
@@ -35,7 +34,7 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
         if offset is not None and limit is not None:
             result = result.offset(offset).limit(limit)
             
-        return result.all(), total
+        return result.all()
     
     @staticmethod
     async def get_categories_by_id(db: Session, id: str):
