@@ -14,12 +14,11 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
     @staticmethod
     async def get_all_vendors(db: Session, offset: int = None, limit: int = None) -> Optional[Vendor]:
         result = db.query(Vendor)
-        total = result.count()
         
         if offset is not None and limit is not None:
             result = result.offset(offset).limit(limit)
             
-        return result.all(), total
+        return result.all()
     
     @staticmethod
     async def get_vendor_by_id(db: Session, vendor_id: str):
@@ -65,16 +64,9 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
         return db.query(Vendor).filter(Vendor.id == vendor_id).delete()
     
     @staticmethod
-    async def search_vendor(db: Session, sql: str):        
+    async def get_vendor_by_conditions(db: Session, sql: str):        
         result = db.execute(sql)
         result_as_dict = result.mappings().all()
-        return result_as_dict
-    
-    @staticmethod
-    async def filter_vendor(db: Session, sql: str):
-        result = db.execute(sql)
-        result_as_dict = result.mappings().all()
-        return result_as_dict
-    
+        return result_as_dict    
     
 vendor = CRUDVendor(Vendor)

@@ -61,20 +61,22 @@ class VendorService:
                 sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
             logger.info("VendorService: filter_vendor called.")
             result = await crud.vendor.filter_vendor(self.db, sql=sql)
-            total = len(result)
             logger.info("VendorService: filter_vendor called successfully.")
             
         else:
             logger.info("VendorService: get_all_vendors called.")
-            result,total = await crud.vendor.get_all_vendors(self.db, offset, limit)
+            result = await crud.vendor.get_all_vendors(self.db, offset, limit)
             logger.info("VendorService: get_all_vendors called successfully.")
         
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def get_vendor_by_id(self, vendor_id: str):
         logger.info("VendorService: get_vendor_by_id called.")
         result = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
         logger.info("VendorService: get_vendor_by_id called successfully.")
+        if not result:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_VENDOR_NOT_FOUND)
         
         return dict(message_code=AppStatus.SUCCESS.message), result
     
@@ -107,9 +109,7 @@ class VendorService:
             logger.info("VendorService: get_vendor_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
-        
-        if obj_in.email:
-            obj_in.email = obj_in.email.lower()
+            obj_in.email = obj_in.email.lower()            
         
         newID = await self.gen_id()
         
@@ -140,7 +140,7 @@ class VendorService:
         logger.info("VendorService: get_vendor_by_id called successfully.")
         
         if not isValidVendor:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_VENDOR_NOT_FOUND)
         
         if obj_in.phone_number is not None:
             logger.info("VendorService: get_vendor_by_phone called.")
@@ -155,6 +155,7 @@ class VendorService:
             logger.info("VendorService: get_vendor_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+            obj_in.email = obj_in.email.lower()
         
         logger.info("VendorService: update_vendor called.")
         result = await crud.vendor.update_vendor(db=self.db, vendor_id=vendor_id, vendor_update=obj_in)
@@ -169,7 +170,7 @@ class VendorService:
         logger.info("VendorService: get_vendor_by_id called successfully.")
         
         if not isValidVendor:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_VENDOR_NOT_FOUND)
         
         obj_del = await crud.vendor.get_vendor_by_id(self.db, vendor_id)
         
@@ -234,8 +235,8 @@ class VendorService:
             sql = f"SELECT * FROM public.vendor {whereCondition} LIMIT {limit} OFFSET {offset};"
         
         logger.info("VendorService: search_vendor called.")
-        result = await crud.vendor.search_vendor(self.db, sql)
+        result = await crud.vendor.get_vendor_by_conditions(self.db, sql)
         logger.info("VendorService: search_vendor called successfully.")
-        total = len(result)
         
+        total = len(result)        
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
