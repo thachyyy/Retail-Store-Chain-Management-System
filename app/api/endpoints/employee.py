@@ -7,11 +7,11 @@ from pydantic import UUID4
 from datetime import date
 
 from app.api.depends import oauth2
-# from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
+from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
-from app.schemas.employee import EmployeeCreateParams, EmployeeUpdate
+from app.schemas.employee import EmployeeCreateParams, EmployeeUpdate, EmployeeRegister, EmployeeLogin
 from app.services.employee import EmployeeService
 from app.utils.response import make_response_object
 
@@ -29,6 +29,26 @@ async def create_employee(
     msg,employee_response = await employee_service.create_employee(employee_create)
     logger.info("Endpoints: create_employee called successfully.")
     return make_response_object(employee_response,msg)
+
+@router.post("/employee/auth/register")
+async def register(emp_register: EmployeeRegister, db: Session = Depends(get_db)) -> Any:
+    employee_service = EmployeeService(db=db)
+    logger.info("Endpoints: register called.")
+    msg, employee_response = await employee_service.register(emp_register)
+    logger.info("Endpoints: register called successfully.")
+    return make_response_object(employee_response, msg)
+
+@router.post("/employee/auth/login")
+async def login(emp_login: EmployeeLogin, db: Session = Depends(get_db)):
+    employee_service = EmployeeService(db=db)
+    logger.info("Endpoints: login called.")
+    msg, employee_response = await employee_service.login(emp_login)
+    logger.info("Endpoints: login called successfully.")
+    
+    created_access_token = create_access_token(data={"uid": employee_response.id})
+    created_refresh_token = create_refresh_token(data={"uid": employee_response.id})
+    
+    return make_response_object(dict(access_token=created_access_token, refresh_token=created_refresh_token), msg)
 
 @router.get("/employees")
 async def get_all_employees(

@@ -11,7 +11,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import User
 from app.schemas import ChangePassword, UserResponse
-from app.schemas.user import UserUpdate, UserCreateParams, LoginUserSchema
+from app.schemas.user import UserUpdate, UserCreateParams, LoginUserSchema, UserCreateAccountParams
 from app.services.user import UserService
 from app.utils.response import make_response_object
 
@@ -55,7 +55,7 @@ async def get_user(
 
 @router.post('/auth/register')
 async def create_user(
-        user_create: UserCreateParams,
+        user_create: UserCreateAccountParams,
         db: Session = Depends(get_db)
 ) -> Any:
     """

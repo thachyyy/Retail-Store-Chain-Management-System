@@ -11,6 +11,7 @@ from app import crud
 from app.constant.app_status import AppStatus
 from app.schemas.employee import EmployeeCreateParams, EmployeeCreate, EmployeeUpdate
 from app.core.exceptions import error_exception_handler
+from app.utils import hash_lib
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +119,59 @@ class EmployeeService:
                 newID = '0' + newID
     
             return 'EMP' + newID
+        
+    async def register(self, obj_in):
+        logger.info("EmployeeService: get_employee_by_email called.")
+        current_employee_email = await crud.employee.get_employee_by_email(self.db, obj_in.email)
+        logger.info("EmployeeService: get_employee_by_email called successfully.")
+        
+        logger.info("EmployeeService: get_employee_by_phone called.")
+        current_employee_phone = await crud.employee.get_employee_by_phone(self.db, obj_in.phone_number)
+        logger.info("EmployeeService: get_employee_by_phone called successfully.")
+        
+        if current_employee_email:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+        if current_employee_phone:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        
+        obj_in.email = obj_in.email.lower()
+        newID = await self.gen_id()
+        
+        if obj_in.password != obj_in.password_confirm:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_CONFIRM_INCORRECT_ERROR)
+
+        employee_create = EmployeeCreate(
+            id=newID,
+            full_name=obj_in.full_name,
+            email=obj_in.email,
+            phone_number=obj_in.phone_number,
+            password=hash_lib.hash_password(obj_in.password),
+            role=obj_in.role,
+            status=obj_in.status
+        )
+        
+        logger.info("EmployeeService: register called.")
+        result = crud.employee.create(db=self.db, obj_in=employee_create)
+        logger.info("EmployeeService: register called successfully.")
+        
+        self.db.commit()
+        logger.info("Service: create_employee success.")
+        return dict(message_code=AppStatus.SUCCESS.message), employee_create
     
-    async def create_employee(self, obj_in: EmployeeCreateParams):
+    async def login(self, obj_in):
+        logger.info("EmployeeServvice: get_employee_by_email called.")
+        user = await crud.employee.get_employee_by_email(db=self.db, email=obj_in.email)
+        logger.info("EmployeeServvice: get_employee_by_email called successfully.")
+        
+        if not user:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
+        if not hash_lib.verify_password(obj_in.password, user.password):
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_INVALID)
+        
+        logger.info("EmployeeService: login successfully.")
+        return dict(message_code=AppStatus.LOGIN_SUCCESS.message), user
+    
+    async def create_employee(self, obj_in):
         logger.info("EmployeeService: get_employee_by_email called.")
         current_employee_email = await crud.employee.get_employee_by_email(self.db, obj_in.email)
         logger.info("EmployeeService: get_employee_by_email called successfully.")
@@ -145,22 +197,25 @@ class EmployeeService:
         
         obj_in.email = obj_in.email.lower()
         newID = await self.gen_id()
+        
+        if obj_in.password != obj_in.password_confirm:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_CONFIRM_INCORRECT_ERROR)
 
         employee_create = EmployeeCreate(
             id=newID,
             full_name=obj_in.full_name,
-            date_of_birth=obj_in.date_of_birth,
-            gender=obj_in.gender,
+            # date_of_birth=obj_in.date_of_birth,
+            # gender=obj_in.gender,
             email=obj_in.email,
             phone_number=obj_in.phone_number,
-            password=obj_in.password,
+            password=hash_lib.hash_password(obj_in.password),
             role=obj_in.role,
-            address=obj_in.address,
-            district=obj_in.district,
-            province=obj_in.province,
+            # address=obj_in.address,
+            # district=obj_in.district,
+            # province=obj_in.province,
             status=obj_in.status,
-            note=obj_in.note,
-            branch_name=obj_in.branch_name
+            # note=obj_in.note,
+            # branch_name=obj_in.branch_name
         )
         
         logger.info("EmployeeService: create called.")

@@ -18,6 +18,7 @@ class UserCreateParams(BaseModel):
 
 
 class UserCreateAccountParams(BaseModel):
+    email: str
     username: str
     password: str
     password_confirm: str
@@ -55,7 +56,7 @@ class LoginUserSchema(BaseModel):
 class UserInfo(BaseModel):
     id: str = Field(alias="user_id")
     username: str
-    profile_image: Optional[str] = None
+    # profile_image: Optional[str] = None
 
     class Config:
         allow_population_by_field_name = True

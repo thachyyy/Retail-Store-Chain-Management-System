@@ -55,14 +55,17 @@ class UserService:
         if current_email and current_email.hashed_password:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
 
-        obj_in.email = obj_in.email.lower()
+        # obj_in.email = obj_in.email.lower()
         obj_in.username = obj_in.username.lower()
+        
+        if obj_in.password != obj_in.password_confirm:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_CONFIRM_INCORRECT_ERROR)
 
         user_create = UserCreate(
             id=str(uuid.uuid4()),
             email=obj_in.email,
             username=obj_in.username,
-
+            password=hash_lib.hash_password(obj_in.password)
         )
         result = crud.user.create(db=self.db, obj_in=user_create)
         await self.get_verification_code(email=obj_in.email, username=obj_in.username, action="is_active")

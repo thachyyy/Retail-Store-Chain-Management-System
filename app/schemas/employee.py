@@ -12,6 +12,19 @@ class Status(str,enum.Enum):
 class Gender(str,enum.Enum):
     MALE = "Nam"
     FEMALE = "Nữ"
+    
+class EmployeeRegister(BaseModel):
+    full_name: str
+    email: EmailStr
+    phone_number: str
+    role: Role
+    status: Status
+    password: str
+    password_confirm: str
+    
+class EmployeeLogin(BaseModel):
+    email: EmailStr
+    password: str
         
 class EmployeeCreateParams(BaseModel):
     full_name: str

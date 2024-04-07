@@ -1,5 +1,5 @@
 from .base import *
-# from .user import *
+from .user import *
 from .branch import *
 from .categories import *
 from .contract_for_vendor import *

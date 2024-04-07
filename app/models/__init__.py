@@ -1,4 +1,4 @@
-# from .user import User
+from .user import User
 from .base import Base
 from .batch import Batch
 from .branch import Branch
