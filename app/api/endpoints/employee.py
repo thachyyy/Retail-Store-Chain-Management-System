@@ -14,6 +14,7 @@ from app.db.database import get_db
 from app.schemas.employee import EmployeeCreateParams, EmployeeUpdate, EmployeeRegister, EmployeeLogin
 from app.services.employee import EmployeeService
 from app.utils.response import make_response_object
+from app.models import Employee
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -53,6 +54,7 @@ async def login(emp_login: EmployeeLogin, db: Session = Depends(get_db)):
 @router.get("/employees")
 async def get_all_employees(
     db: Session = Depends(get_db),
+    emp: Employee = Depends(oauth2.get_current_active_user),
     limit: int = None,
     offset: int = None,
     role: str = None,
@@ -72,6 +74,7 @@ async def get_all_employees(
     
 ) -> Any:
     employee_service = EmployeeService(db=db)
+    logger.debug("code is in func get_all_employees")
     logger.info("Endpoints: get_all_employees called.")
     
     msg, employee_response = await employee_service.get_all_employees(

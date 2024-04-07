@@ -32,7 +32,6 @@ async def create_contract_for_product(
 
 @router.get("/contract_for_products")
 async def get_all_contract_for_products(db: Session = Depends(get_db)) -> Any:
-    print("CODE IS HERE ************************")
     contract_for_product_service = ContractForProductService(db=db)
     logger.info("Endpoints: get_all_contract_for_products called.")
     

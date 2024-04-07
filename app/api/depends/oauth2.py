@@ -10,6 +10,10 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.constant.app_status import AppStatus
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 
 def create_token(data: dict, token_type: str):
     to_encode = data.copy()
@@ -34,6 +38,7 @@ def create_refresh_token(data: dict):
 
 
 def verify_token(credentials: HTTPAuthorizationCredentials, db: Session):
+    logger.debug("code is in func verify_token")
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -52,13 +57,15 @@ def verify_token(credentials: HTTPAuthorizationCredentials, db: Session):
 
     # check user existence
     uid = decoded_token['uid']
-    user = crud.user.get(db=db, entry_id=uid)
+    # user = crud.user.get(db=db, entry_id=uid)
+    user = crud.employee.get(db=db, entry_id=uid)
+    logger.warning("CODE IN LINE 62")
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=AppStatus.ERROR_USER_NOT_FOUND.meta
         )
-
+    logger.warning("CODE IN LINE 68")
     return decoded_token
 
 
@@ -66,8 +73,12 @@ def verify_access_token(
         credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
         db: Session = Depends(get_db),
 ):
+    logger.debug("code is in func verify_access_token")
+    
     decoded_token = verify_token(credentials, db)
+    logger.debug("Đã gọi xong hàm verify_token")
     if decoded_token['token_type'] != "access":
+        logger.debug("CODE IN LINE 81")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=AppStatus.ERROR_INVALID_TOKEN.meta
@@ -92,14 +103,18 @@ def get_current_user(
         token: dict = Depends(verify_access_token),
         db: Session = Depends(get_db)
 ):
+    logger.debug("code is in func get_current_user")
     user_id = token['uid']
-    user = crud.user.get_user_by_id(db=db, user_id=user_id)
+    # user = crud.user.get_user_by_id(db=db, user_id=user_id)
+    user = crud.employee.get_by_id(db=db, user_id=user_id)
+    
     return user
 
 
 def get_current_active_user(
         current_user: models.User = Depends(get_current_user),
 ) -> models.User:
+    logger.debug("code is in func get_current_active_user")
     if not crud.user.is_active(current_user):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail=AppStatus.ERROR_INACTIVE_USER.meta)
