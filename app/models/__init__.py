@@ -19,3 +19,4 @@ from .purchase_order import PurchaseOrder
 from .system_settings import SystemSettings
 from .vendor import Vendor
 from .import_order import ImportOrder
+from .branch_account import BranchAccount

@@ -5,9 +5,9 @@ class Status(str,enum.Enum):
     ACTIVE= "Đang hoạt động"
     INACTIVE="Dừng hoạt động"
 class BranchCreateParams(BaseModel):
-    name_display:  str
-    name_detail:  str
-    address:  str
+    name_display: str
+    name_detail: str
+    address: str
     status: Status
     district: Optional[str] = None
     province: Optional[str] = None

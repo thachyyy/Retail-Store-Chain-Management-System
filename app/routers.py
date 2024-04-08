@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 # from app.api.endpoints import user
 from app.api.endpoints import branch
+from app.api.endpoints import branch_account
 from app.api.endpoints import categories
 from app.api.endpoints import contract_for_vendor
 from app.api.endpoints import contract_for_procduct
@@ -27,6 +28,7 @@ from app.api.endpoints import purchase_order
 router = APIRouter()
 
 # router.include_router(user.router, prefix="", tags=["users"])
+router.include_router(branch_account.router, prefix="", tags=["branch_account"])
 router.include_router(branch.router, prefix="", tags=["branches"])
 router.include_router(categories.router, prefix="", tags=["categories"])
 router.include_router(contract_for_vendor.router, prefix="", tags=["contracts_for_vendor"])
