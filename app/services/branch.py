@@ -42,7 +42,7 @@ class BranchService:
                 sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("BranchService: filter_branch called.")
-            result = await crud.branch.filter_branch(self.db, sql=sql)
+            result = await crud.branch.get_branch_by_conditions(self.db, sql=sql)
             logger.info("BranchService: filter_branch called successfully.")
             
         else: 
