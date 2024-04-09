@@ -22,41 +22,68 @@ class EmployeeService:
         self,
         limit: Optional[int] = None,
         offset:Optional[int] = None, 
-        status: str = None,
         role: str = None,
-        branch_name: str = None,
+        status: str = None,
         province: str = None,
-        district: str = None
+        district: str = None,
+        gender: str = None,
+        start_date: date = None,
+        end_date: date = None,
+        id: str = None,
+        full_name: str = None,
+        email: str = None,
+        phone_number: str = None,
+        address: str = None,
+        note: str = None,
+        branch_name: str = None,
     ):
         conditions = dict()
-        if status:
-            conditions['status'] = status
         if role:
             conditions['role'] = role
-        if branch_name:
-            conditions['branch_name'] = branch_name
+        if status:
+            conditions['status'] = status
         if province:
             conditions['province'] = province
         if district:
             conditions['district'] = district
+        if gender:
+            conditions['gender'] = gender
+        if start_date:
+            conditions['start_date'] = start_date
+        if end_date:
+            conditions['end_date'] = end_date
+        if id:
+            conditions['id'] = id
+        if full_name:
+            conditions['full_name'] = full_name
+        if email:
+            conditions['email'] = email
+        if phone_number:
+            conditions['phone_number'] = phone_number
+        if address:
+            conditions['address'] = address
+        if note:
+            conditions['note'] = note
+        if branch_name:
+            conditions['branch_name'] = branch_name
             
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
             sql = f"SELECT * FROM public.employee {whereConditions};"
-            count = f"SELECT COUNT(*)::INT FROM public.employee {whereConditions};"
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("EmployeeService: filter_employee called.")
-            result,total = await crud.employee.filter_employee(self.db, sql=sql, count=count)
+            result = await crud.employee.get_employee_by_conditions(self.db, sql=sql)
 
             logger.info("EmployeeService: filter_employee called successfully.")
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result,total =  crud.employee.get_multi(db=self.db, skip=offset,limit=limit)
+            result = await crud.employee.get_all_employees(db=self.db, offset=offset,limit=limit)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
     async def get_employee_by_id(self, employee_id: str):
@@ -72,7 +99,6 @@ class EmployeeService:
         logger.info("EmployeeService: get_employee_by_branch_name called.")
         result = await crud.employee.get_employee_by_branch_name(db=self.db, branch_name=branch_name)
         if not result:
-                # raise HTTPException(status_code =404, detail="Chi nhánh chưa có nhân viên")
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_HAVE_EMPLOYEE)
         logger.info("EmployeeService: get_employee_by_branch_name called successfully.")
         
@@ -117,6 +143,7 @@ class EmployeeService:
         #         raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
         #     update_branch_manager = await crud.branch.update_branch(self.db,current_branch.id,branch_update=current_branch.manager_id)
         
+        obj_in.email = obj_in.email.lower()
         newID = await self.gen_id()
 
         employee_create = EmployeeCreate(
@@ -126,6 +153,7 @@ class EmployeeService:
             gender=obj_in.gender,
             email=obj_in.email,
             phone_number=obj_in.phone_number,
+            password=obj_in.password,
             role=obj_in.role,
             address=obj_in.address,
             district=obj_in.district,
@@ -155,7 +183,18 @@ class EmployeeService:
             current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch_name)
             logger.info("BranchService: get_branch_by_name_detail called successfully.")
             if current_branch.manager_id:
-                raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
+                raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.")
+            
+        if obj_in.phone_number:
+            isExistPhoneNumber = await crud.employee.get_employee_by_phone(self.db, obj_in.phone_number, employee_id)
+            if isExistPhoneNumber:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
+        
+        if obj_in.email:
+            isExistEmail = await crud.employee.get_employee_by_email(self.db, obj_in.email, employee_id)
+            if isExistEmail:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+            obj_in.email = obj_in.email.lower()
              
         logger.info("EmployeeService: update_employee called.")
         result = await crud.employee.update_employee(db=self.db, employee_id=employee_id, employee_update=obj_in)
@@ -185,10 +224,10 @@ class EmployeeService:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
         conditions.append(f"full_name::text ilike '%{condition}%'")
-        conditions.append(f"phone_number ilike '%{condition}%'")
-        conditions.append(f"address ilike '%{condition}%'")
-        conditions.append(f"district ilike '%{condition}%'")
-        conditions.append(f"province ilike '%{condition}%'")
+        # conditions.append(f"phone_number ilike '%{condition}%'")
+        # conditions.append(f"address ilike '%{condition}%'")
+        # conditions.append(f"district ilike '%{condition}%'")
+        # conditions.append(f"province ilike '%{condition}%'")
         
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
@@ -196,16 +235,35 @@ class EmployeeService:
     async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
         whereList = list()
         
+        # filter using '='
         if 'role' in conditions:
             whereList.append(f"role = '{conditions['role']}'")
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")
-        if 'branch_name' in conditions:
-            whereList.append(f"branch_name = '{conditions['branch_name']}'")
         if 'province' in conditions:
             whereList.append(f"province = '{conditions['province']}'")
         if 'district' in conditions:
             whereList.append(f"district = '{conditions['district']}'")
+        if 'gender' in conditions:
+            whereList.append(f"gender = '{conditions['gender']}'")
+        if 'start_date' in conditions and 'end_date' in conditions:
+            whereList.append(f"date_of_birth BETWEEN '{conditions['start_date']}' AND '{conditions['end_date']}'")
+        
+        # filter using 'ilike'
+        if 'id' in conditions:
+            whereList.append(f"id ilike '%{conditions['id']}%'")
+        if 'full_name' in conditions:
+            whereList.append(f"full_name ilike '%{conditions['full_name']}%'")
+        if 'email' in conditions:
+            whereList.append(f"email ilike '%{conditions['email']}%'")
+        if 'phone_number' in conditions:
+            whereList.append(f"phone_number ilike '%{conditions['phone_number']}%'")
+        if 'address' in conditions:
+            whereList.append(f"address ilike '%{conditions['address']}%'")
+        if 'note' in conditions:
+            whereList.append(f"note ilike '%{conditions['note']}%'")
+        if 'branch_name' in conditions:
+            whereList.append(f"branch_name ilike '%{conditions['branch_name']}%'")
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
@@ -222,40 +280,40 @@ class EmployeeService:
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.employee {whereCondition} LIMIT {limit} OFFSET {offset};"
             
-        total = f"SELECT COUNT(*) FROM public.employee {whereCondition};"
         logger.info("EmployeeService: search_employee called.")
-        result, total = await crud.employee.search_employee(self.db, sql, total)
+        result = await crud.employee.get_employee_by_conditions(self.db, sql)
         logger.info("EmployeeService: search_employee called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total[0]['count']), result
+        total = len(result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
-    async def filter_employee(
-        self,
-        status: str = None,
-        role: str = None,
-        branch_name: str = None,
-        province: str = None,
-        district: str = None
-):
-        conditions = dict()
-        if status:
-            status = status.upper()
-            conditions['status'] = status
-        if role:
-            role = role.lower()
-            conditions['role'] = role
-        if branch_name:
-            conditions['branch_name'] = branch_name
-        if province:
-            conditions['province'] = province
-        if district:
-            conditions['district'] = district
+#     async def filter_employee(
+#         self,
+#         status: str = None,
+#         role: str = None,
+#         branch_name: str = None,
+#         province: str = None,
+#         district: str = None
+# ):
+#         conditions = dict()
+#         if status:
+#             status = status.upper()
+#             conditions['status'] = status
+#         if role:
+#             role = role.lower()
+#             conditions['role'] = role
+#         if branch_name:
+#             conditions['branch_name'] = branch_name
+#         if province:
+#             conditions['province'] = province
+#         if district:
+#             conditions['district'] = district
         
-        whereConditions = await self.whereConditionBuilderForFilter(conditions)
-        sql = f"SELECT * FROM public.employee {whereConditions};"
+#         whereConditions = await self.whereConditionBuilderForFilter(conditions)
+#         sql = f"SELECT * FROM public.employee {whereConditions};"
         
-        logger.info("EmployeeService: filter_employee called.")
-        result = await crud.employee.filter_employee(self.db, sql)
-        logger.info("EmployeeService: filter_employee called successfully.")
+#         logger.info("EmployeeService: filter_employee called.")
+#         result = await crud.employee.filter_employee(self.db, sql)
+#         logger.info("EmployeeService: filter_employee called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+#         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)

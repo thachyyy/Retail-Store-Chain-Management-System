@@ -1,6 +1,12 @@
 from typing import Optional, Literal
 from pydantic import BaseModel, UUID4
 from datetime import datetime
+import enum
+class Status(str,enum.Enum):
+    ACTIVE = "Đang hiệu lực"
+    INACTIVE = "Hết hiệu lực"
+    EXPIRED = "Hết hạn"
+    PENDING = "Đang xử lý"
 
 class PromotionCreateParams(BaseModel):
     promotion_code: str
@@ -10,7 +16,7 @@ class PromotionCreateParams(BaseModel):
     max_discount_amount: int
     start_date: datetime
     end_date: datetime
-    status: Optional[Literal['ACTIVE', 'INACTIVE', 'EXPIRED', 'PENDING', 'CANCALLED']] = None
+    status: Status = Status.ACTIVE
     min_product_value: Optional[int] = None
     min_product_quantity: Optional[int] = None
     

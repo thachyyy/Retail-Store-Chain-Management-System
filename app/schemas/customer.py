@@ -4,8 +4,8 @@ from pydantic import BaseModel, EmailStr, UUID4, Field, validator
 import enum
 
 class Gender(str, enum.Enum):
-    MALE = "MALE"
-    FEMALE = "FEMALE"
+    MALE = "Nam"
+    FEMALE = "Nữ"
 
 class CustomerCreateParams(BaseModel):
     full_name: str

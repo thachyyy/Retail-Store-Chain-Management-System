@@ -6,17 +6,14 @@ from datetime import date
 import enum
 class Role(str,enum.Enum):
     STAFF = "Nhân viên"
-    MANAGER = "Quản lí"
-    BRANCH_MANAGER = "Quản lí chi nhánh"
+    MANAGER = "Quản lý"
+    BRANCH_MANAGER = "Quản lý chi nhánh"
 class Status(str,enum.Enum):
     ACTIVE = "Đang làm việc"
-    ONBOARDING = "Thử việc"
-    PART_TIME = "Bán thời gian"
-    FULL_TIME ="Toàn thời gian"
-    SUSPENDED ="Tạm ngưng làm việc"
+    INACTIVE = "Nghỉ việc"
 class Gender(str,enum.Enum):
-    MALE = "MALE"
-    FEMALE = "FEMALE"
+    MALE = "Nam"
+    FEMALE = "Nữ"
         
 class EmployeeCreateParams(BaseModel):
     full_name: str
@@ -24,11 +21,12 @@ class EmployeeCreateParams(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
+    password: str
     role: Role
-    address: str
-    district: str
-    province: str
-    status: Optional[Status] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    status: Status
     note: Optional[str] = None
   
 
@@ -39,30 +37,44 @@ class EmployeeCreate(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
+    password: str
     role: Role
-    address: str
-    district: str
-    province: str
-    status: Optional[Status] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    status: Status
     note: Optional[str] = None
+<<<<<<< HEAD
     class Config:
         orm_mode = True
 
 # class EmployeeResponse(EmployeeCreate):
 #     branch: List[BranchCreate]
+=======
+    branch_name: Optional[str] = None
+    
+>>>>>>> 34055a1342824c943e23c4b3e4c99a626c6ba95d
 class EmployeeUpdate(BaseModel):
     full_name: Optional[str]
     date_of_birth: Optional[date] = None
     gender: Optional[Gender] = None
     email: Optional[EmailStr]
     phone_number: Optional[str]
+    password: Optional[str]
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
     role: Optional[Role]
+<<<<<<< HEAD
     
     
     @validator('full_name', 'email', 'phone_number', 'role', pre=True, always=False)
+=======
+    branch_name: Optional[str]
+    status: Optional[Status]
+    
+    @validator('full_name', 'email', 'phone_number', 'password', 'role', 'status', pre=True, always=False)
+>>>>>>> 34055a1342824c943e23c4b3e4c99a626c6ba95d
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")

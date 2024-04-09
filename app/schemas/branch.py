@@ -1,10 +1,10 @@
 from typing import List, Optional, Literal
-from pydantic import BaseModel, UUID4, EmailStr
+from pydantic import BaseModel, UUID4, EmailStr, validator
 import enum
 from .employee import EmployeeCreate
 class Status(str,enum.Enum):
-    ACTIVE= "ACTIVE"
-    INACTIVE="INACTIVE"
+    ACTIVE= "Đang hoạt động"
+    INACTIVE="Dừng hoạt động"
 class BranchCreateParams(BaseModel):
     name_display:  str
     name_detail:  str

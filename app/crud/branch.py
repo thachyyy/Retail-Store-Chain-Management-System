@@ -13,8 +13,13 @@ logger = logging.getLogger(__name__)
 
 class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
     @staticmethod
-    async def get_all_branches(db: Session) -> Optional[Branch]:
-        return db.query(Branch).all()
+    async def get_all_branches(db: Session, offset: int = None, limit: int = None) -> Optional[Branch]:
+        result = db.query(Branch)
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+        
+        return result.all()
     
     @staticmethod
     async def get_branch_by_id(db: Session, branch_id: str):
@@ -81,19 +86,9 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return db.query(Branch).filter(Branch.id == branch_id).delete()
     
     @staticmethod
-    async def search_branch(db: Session, sql: str,total:str):        
+    async def get_branch_by_conditions(db: Session, sql: str):        
         result = db.execute(sql)
-        sum = db.execute(total)
-        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict, sum
-    
-    @staticmethod
-    async def filter_branch(db: Session, sql: str,total:str):
-        result = db.execute(sql)
-        sum = db.execute(total)
-        sum = sum.mappings().all()
-        result_as_dict = result.mappings().all()
-        return result_as_dict,sum
+        return result_as_dict
     
 branch = CRUDBranch(Branch)

@@ -9,7 +9,7 @@ class Product(Base):
     
     id = Column(String, primary_key=True)
     barcode = Column(String(255), unique=True, nullable= False)
-    product_name = Column(String(255),nullable=True)
+    product_name = Column(String(255),nullable=False)
     description = Column(String(255),nullable=True)
     
     brand = Column(String(255),nullable=True,index = True)

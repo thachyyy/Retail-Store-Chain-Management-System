@@ -36,18 +36,21 @@ class BranchService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
-            sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
-            total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
+            sql = f"SELECT * FROM public.branch {whereConditions};"
+            
+            if offset is not None and limit is not None:
+                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("BranchService: filter_branch called.")
-            result,total = await crud.branch.filter_branch(self.db, sql=sql,total = total)
-            total = total[0]['count']
+            result = await crud.branch.get_branch_by_conditions(self.db, sql=sql)
             logger.info("BranchService: filter_branch called successfully.")
+            
         else: 
-            logger.info("BranchService: get_all_branchs called.")
-            result,total =  crud.branch.get_multi(db=self.db, skip=offset,limit=limit)
-            logger.info("BranchService: get_all_branchs called successfully.")
-
+            logger.info("BranchService: get_all_branches called.")
+            result = await crud.branch.get_all_branches(db=self.db, offset=offset,limit=limit)
+            logger.info("BranchService: get_all_branches called successfully.")
+            
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     
@@ -93,17 +96,15 @@ class BranchService:
         
         if current_branch_name_detail:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_DETAIL_ALREADY_EXIST)
+        
         if current_branch_address:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
         
         if current_branch_phone_number:
-            if current_branch_phone_number.phone_number:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST) 
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST)
              
         if current_branch_email:
-            if current_branch_email.email:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
-        
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
         newID = await self.gen_id()
             
@@ -128,7 +129,7 @@ class BranchService:
         
         self.db.commit()
         logger.info("Service: create_branch success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message), branch_create
     
     async def update_branch(self, branch_id: str, obj_in: BranchUpdate):
         logger.info("BranchService: get_branch_by_id called.")
@@ -137,8 +138,6 @@ class BranchService:
         
         if not isValidBranch:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)
-
-        # if isValidBranch.phone_number != "null":  #null 
             
         logger.info("BranchService: get_branch_by_name_detail called.")
         current_branch_name_detail = await crud.branch.get_branch_by_name_detail(self.db, obj_in.name_detail,branch_id)
@@ -171,7 +170,8 @@ class BranchService:
         result = await crud.branch.update_branch(db=self.db, branch_id=branch_id, branch_update=obj_in)
         logger.info("BranchService: update_branch called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_in
+        obj_update = await crud.branch.get_branch_by_id(self.db, branch_id)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_branch(self, branch_id: str):
         logger.info("BranchService: get_branch_by_id called.")
@@ -200,10 +200,11 @@ class BranchService:
     async def whereConditionBuilderForSearch(self, condition: str) -> str:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
-        conditions.append(f"name ilike '%{condition}%'")
+        conditions.append(f"name_detail ilike '%{condition}%'")
+        conditions.append(f"name_display ilike '%{condition}%'")
         conditions.append(f"address ilike '%{condition}%'")
         
-        manager_id_list = self.get_manager_id_by_name(condition)
+        manager_id_list = await self.get_manager_id_by_name(condition)
         
         for id in manager_id_list:
             conditions.append(f"manager_id ilike '%{id}%'")
@@ -228,14 +229,22 @@ class BranchService:
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     
-    async def search_branch(self, condition: str = None):
+    async def search_branch(
+        self, 
+        condition: str = None,
+        limit: Optional[int] = None,
+        offset:Optional[int] = None
+    ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.branch {whereCondition};"
         
+        if limit is not None and offset is not None:
+            sql = f"SELECT * FROM public.branch {whereCondition} LIMIT {limit} OFFSET {offset};"
+            
         logger.info("BranchService: search_branch called.")
-        result = await crud.branch.search_branch(self.db, sql)
+        result = await crud.branch.get_branch_by_conditions(self.db, sql)
         logger.info("BranchService: search_branch called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        total = len(result)
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
-  

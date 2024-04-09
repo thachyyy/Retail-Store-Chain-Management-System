@@ -13,8 +13,17 @@ logger = logging.getLogger(__name__)
 
 class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
     @staticmethod
-    async def get_all_employees(db: Session) -> Optional[Employee]:
-        return db.query(Employee).all()
+    async def get_all_employees(
+        db: Session,
+        offset: int = None,
+        limit: int = None
+    ) -> Optional[Employee]:
+        result = db.query(Employee)
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+            
+        return result.all()
     
     @staticmethod
     async def get_employee_by_id(db: Session, employee_id: str):
@@ -31,12 +40,18 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return current_employee_by_branch_name
     
     @staticmethod
-    async def get_employee_by_email(db: Session, email: str):
-        return db.query(Employee).filter(Employee.email == email).first()
+    async def get_employee_by_email(db: Session, email: str, id: str = None):
+        if id is not None:
+            return db.query(Employee).filter(Employee.email == email, Employee.id != id).first()
+        else:
+            return db.query(Employee).filter(Employee.email == email).first()
     
     @staticmethod
-    async def get_employee_by_phone(db: Session, phone_number: str):
-        return db.query(Employee).filter(Employee.phone_number == phone_number).first()
+    async def get_employee_by_phone(db: Session, phone_number: str, id: str = None):
+        if id is not None:
+            return db.query(Employee).filter(Employee.phone_number == phone_number, Employee.id != id).first()
+        else:
+            return db.query(Employee).filter(Employee.phone_number == phone_number).first()
     
     @staticmethod
     async def get_last_id(db: Session):
@@ -68,20 +83,9 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return db.query(Employee).filter(Employee.id == employee_id).delete()
     
     @staticmethod
-    async def search_employee(db: Session, sql: str, total:str):        
+    async def get_employee_by_conditions(db: Session, sql: str):        
         result = db.execute(sql)
-        sum = db.execute(total)
-        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict, sum
-    
-    @staticmethod
-    async def filter_employee(db: Session, sql: str, count: str):
-        result = db.execute(sql)
-        sum = db.execute(count)
-        sum = sum.mappings().all()
-        total = sum[0]['count']
-        result_as_dict = result.mappings().all()
-        return result_as_dict, total
+        return result_as_dict
     
 employee = CRUDEmployee(Employee)
