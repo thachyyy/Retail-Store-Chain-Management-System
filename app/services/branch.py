@@ -120,7 +120,6 @@ class BranchService:
             note=obj_in.note,
             manager_name=obj_in.manager_name,
             manager_id=obj_in.manager_id
-            
         )
         
         logger.info("BranchService: create called.")

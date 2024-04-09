@@ -23,6 +23,5 @@ class Employee(Base):
     province = Column(String(255), unique = False, nullable = True)
     status = Column(String(255), unique = False, nullable = False, default = 'ACTIVE')
     note = Column(String, unique = False, nullable = True)
-    branch_name = Column(String(255), unique = False, nullable = False)
-
+    branchs= relationship("BranchEmployee", back_populates="employee")
  

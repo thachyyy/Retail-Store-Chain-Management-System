@@ -1,6 +1,7 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, UUID4, EmailStr
 import enum
+from .employee import EmployeeCreate
 class Status(str,enum.Enum):
     ACTIVE= "ACTIVE"
     INACTIVE="INACTIVE"
@@ -14,8 +15,7 @@ class BranchCreateParams(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
-    manager_name: Optional[str] = None
-    manager_id: Optional[str]= None
+    
     
 class BranchCreate(BaseModel):
     id: str
@@ -28,7 +28,8 @@ class BranchCreate(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
-
+    class Config:
+        orm_mode = True
     
 class BranchUpdate(BaseModel):
     name_display: Optional[str] = None
@@ -40,3 +41,6 @@ class BranchUpdate(BaseModel):
     province: Optional[str] = None
     status: Optional[Status] = None
     note: Optional[str] = None
+
+class BranchResponse(BranchCreate):
+    employees: List[EmployeeCreate]
