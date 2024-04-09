@@ -80,7 +80,7 @@ class EmployeeService:
             logger.info("EmployeeService: filter_employee called successfully.")
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result =  crud.employee.get_all_employees(db=self.db, offset=offset,limit=limit)
+            result = await crud.employee.get_all_employees(db=self.db, offset=offset,limit=limit)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
         total = len(result)
