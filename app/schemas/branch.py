@@ -1,6 +1,7 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, UUID4, EmailStr, validator
 import enum
+from .employee import EmployeeCreate
 class Status(str,enum.Enum):
     ACTIVE= "Đang hoạt động"
     INACTIVE="Dừng hoạt động"
@@ -14,8 +15,7 @@ class BranchCreateParams(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
-    manager_name: Optional[str] = None
-    manager_id: Optional[str]= None
+    
     
 class BranchCreate(BaseModel):
     id: str
@@ -28,9 +28,8 @@ class BranchCreate(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
-    manager_name: Optional[str] = None
-    manager_id: Optional[str]= None
-
+    class Config:
+        orm_mode = True
     
 class BranchUpdate(BaseModel):
     name_display: Optional[str] = None
@@ -42,9 +41,6 @@ class BranchUpdate(BaseModel):
     province: Optional[str] = None
     status: Optional[Status] = None
     note: Optional[str] = None
-    
-    @validator('name_display', 'name_detail', 'address', 'status', pre=True, always=False)
-    def check_not_null(cls, value, field):
-        if value is None:
-            raise ValueError(f"{field.name} cannot be null")
-        return value
+
+class BranchResponse(BranchCreate):
+    employees: List[EmployeeCreate]

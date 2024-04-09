@@ -29,17 +29,17 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRES_IN_MINUTES: int
     REFRESH_TOKEN_EXPIRES_IN_DAYS: int
-    JWT_ALGORITHM: str
-    JWT_SECRET_KEY: str
+    # JWT_ALGORITHM: str
+    # JWT_SECRET_KEY: str
     # Channels
     GENERAL_CHANNEL: Optional[str] = "general-channel"
     ALL_CHANNEL: Optional[str] = "all-channel"
 
     # s3
-    S3_BUCKET_NAME: str
-    AWS_ACCESS_KEY: str
-    AWS_SECRET_ACCESS_KEY: str
-    AWS_REGION_NAME: str
+    # S3_BUCKET_NAME: str
+    # AWS_ACCESS_KEY: str
+    # AWS_SECRET_ACCESS_KEY: str
+    # AWS_REGION_NAME: str
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
