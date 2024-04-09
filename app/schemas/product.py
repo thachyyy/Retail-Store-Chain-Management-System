@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel, EmailStr, UUID4, Field
+from pydantic import BaseModel, EmailStr, UUID4, Field, validator
 import enum
 class Status(str,enum.Enum):
     ACTIVE = "Đang kinh doanh" #Đang kinh doanh
@@ -53,6 +53,12 @@ class ProductUpdate(BaseModel):
     promotion_id: Optional[str]
     batch_id: Optional[str]
     has_promotion: Optional[bool]
+    
+    @validator('barcode', 'product_name', 'unit', 'sale_price', 'status', pre=True, always=False)
+    def check_not_null(cls, value, field):
+        if value is None:
+            raise ValueError(f"{field.name} cannot be null")
+        return value
 
 
 

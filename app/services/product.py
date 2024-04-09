@@ -56,14 +56,15 @@ class ProductService:
     async def search_product(self, limit: Optional[int] = None, offset: Optional[int] = None,condition: str = None ):
         whereCondition = await self.whereConditionBuilderForSearch(condition)
         sql = f"SELECT * FROM public.product {whereCondition};"
+        
         if limit is not None and offset is not None:
             sql = f"SELECT * FROM public.customer {whereCondition} LIMIT {limit} OFFSET {offset};"
-        total = f"SELECT COUNT(*) FROM public.product {whereCondition};"
+        
         logger.info("productService: search_product called.")
-        result, total = await crud.product.search_product(self.db, sql,total)
-        total = total[0]['count']
+        result = await crud.product.get_product_by_conditions(self.db, sql)
         logger.info("productService: search_product called successfully.")
         
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message, total=total),result
     
     async def get_all_products(
@@ -89,18 +90,21 @@ class ProductService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
-            sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
-            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+            sql = f"SELECT * FROM public.product {whereConditions};"
+            
+            if offset is not None and limit is not None:
+                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
 
             logger.info("ProductService: filter_product called.")
-            result,total= await crud.product.filter_product(self.db, sql=sql,total = total)
-            total = total[0]['count']
+            result = await crud.product.get_product_by_conditions(self.db, sql=sql)
             logger.info("ProductService: filter_product called successfully.")
+            
         else: 
             logger.info("ProductService: get_all_products called.")
-            result,total =  crud.product.get_multi(db=self.db, skip=offset,limit=limit)
+            result = await crud.product.get_all_products(db=self.db, offset=offset,limit=limit)
             logger.info("ProductService: get_all_products called successfully.")
 
+        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):
@@ -178,7 +182,8 @@ class ProductService:
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
+        obj_update = await crud.product.get_product_by_id(self.db, product_id)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_product(self, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
@@ -188,12 +193,14 @@ class ProductService:
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
+        obj_del = await crud.product.get_product_by_id(self.db, product_id)
+        
         logger.info("ProductService: delete_product called.")
         result = await crud.product.delete_product(self.db, product_id)
         logger.info("ProductService: delete_product called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), result
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
     async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
         whereList = list()
@@ -201,7 +208,7 @@ class ProductService:
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")
         if 'categories' in conditions:
-            whereList.append(f"categories = '{conditions['categories']}'")
+            whereList.append(f"categories_id = '{conditions['categories']}'")
         if 'low_price' in conditions and 'high_price' in conditions:
             whereList.append(f"sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
         elif 'low_price' in conditions:
