@@ -61,7 +61,7 @@ class CustomerService:
         
         else: 
             logger.info("CustomerService: get_all_customers called.")
-            result =  crud.customer.get_all_customers(db=self.db, offset=offset,limit=limit)
+            result = await crud.customer.get_all_customers(db=self.db, offset=offset,limit=limit)
             logger.info("CustomerService: get_all_customers called successfully.")
 
         total = len(result)
