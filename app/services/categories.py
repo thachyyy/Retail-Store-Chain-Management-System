@@ -24,10 +24,9 @@ class CategoriesService:
         ):
         
         logger.info("CategoriesService: get_all_categories called.")
-        result = await crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset, limit=limit)
+        result,total = await crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset, limit=limit)
         logger.info("CategoriesService: get_all_categories called successfully.")
-        
-        total = len(result)
+
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def get_categories_by_id(self, id: str):

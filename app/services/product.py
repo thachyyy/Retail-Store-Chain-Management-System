@@ -90,21 +90,16 @@ class ProductService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
-            sql = f"SELECT * FROM public.product {whereConditions};"
-            
-            if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
 
             logger.info("ProductService: filter_product called.")
-            result = await crud.product.get_product_by_conditions(self.db, sql=sql)
-            logger.info("ProductService: filter_product called successfully.")
-            
+            result,total= await crud.product.filter_product(self.db, sql=sql,total = total)
+            total = total[0]['count']
         else: 
             logger.info("ProductService: get_all_products called.")
-            result = await crud.product.get_all_products(db=self.db, offset=offset,limit=limit)
+            result,total =  crud.product.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("ProductService: get_all_products called successfully.")
-
-        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):
