@@ -2,6 +2,7 @@
 from .base import Base
 from .batch import Batch
 from .branch import Branch
+from .branch_and_employee import BranchEmployee
 from .categories import Categories
 from .contract_for_product import ContractForProduct
 from .contract_for_vendor import ContractForVendor
