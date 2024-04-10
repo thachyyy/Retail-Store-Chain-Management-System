@@ -8,7 +8,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 class BranchEmployee(Base):
     __tablename__ = 'branch_employees'
     branch_id = Column(ForeignKey('branch.id'), primary_key=True)
-    employee_id = Column(ForeignKey('employees.id'), primary_key=True)
+    employee_id = Column(ForeignKey('employee.id'), primary_key=True)
     role = Column(String(25), unique = False, nullable = False)
     branch = relationship("Branch", back_populates="employees")
     employee = relationship("Employee", back_populates="branchs")

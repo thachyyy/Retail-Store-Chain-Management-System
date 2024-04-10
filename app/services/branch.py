@@ -119,8 +119,8 @@ class BranchService:
             email=obj_in.email,
             status=obj_in.status,
             note=obj_in.note,
-            manager_name=obj_in.manager_name,
-            manager_id=obj_in.manager_id
+            # manager_name=obj_in.manager_name,
+            # manager_id=obj_in.manager_id
         )
         
         logger.info("BranchService: create called.")
