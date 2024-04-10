@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Date, ForeignKey
+from sqlalchemy import Column, String, Date, ForeignKey, DateTime
+from sqlalchemy.sql import text
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -12,6 +13,8 @@ class Employee(Base):
     __tablename__ = "employee"
     
     id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     full_name = Column(String(255), unique = False, nullable = False)
     date_of_birth = Column(Date, unique = False, nullable = True)
     gender = Column(String(16), unique = False, nullable = True)
