@@ -11,6 +11,7 @@ from app.models.base import Base
 from app.models.customer import *
 from app.models.product import *
 from app.models.branch_and_employee import *
+from app.models.categories import *
 
 config = context.config
 
