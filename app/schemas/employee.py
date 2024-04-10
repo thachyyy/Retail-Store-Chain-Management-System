@@ -44,11 +44,11 @@ class EmployeeCreate(BaseModel):
     province: Optional[str] = None
     status: Status
     note: Optional[str] = None
-    branch_name: Optional[str] = None
-
     class Config:
         orm_mode = True
-        
+
+# class EmployeeResponse(EmployeeCreate):
+#     branch: List[BranchCreate]
 class EmployeeUpdate(BaseModel):
     full_name: Optional[str]
     date_of_birth: Optional[date] = None
@@ -60,10 +60,9 @@ class EmployeeUpdate(BaseModel):
     district: Optional[str] = None
     province: Optional[str] = None
     role: Optional[Role]
-    branch_name: Optional[str]
-    status: Optional[Status]
     
-    @validator('full_name', 'email', 'phone_number', 'password', 'role', 'status', pre=True, always=False)
+    
+    @validator('full_name', 'email', 'phone_number', 'role', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")
