@@ -75,7 +75,7 @@ class ProductService:
         low_price: Optional[int] = None,
         high_price: Optional[int] = None,
         categories: Optional[str] = None,
-        
+        query_search: Optional[str] = None
     ):
         conditions = dict()
         if status:
@@ -90,11 +90,30 @@ class ProductService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
-            sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            sql = f"SELECT * FROM public.product {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+            
             total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
 
             logger.info("ProductService: filter_product called.")
-            result,total= await crud.product.filter_product(self.db, sql=sql,total = total)
+            result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.product {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+
+            logger.info("ProductService: filter_product called.")
+            result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else: 
             logger.info("ProductService: get_all_products called.")

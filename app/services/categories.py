@@ -20,7 +20,7 @@ class CategoriesService:
         self,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
-        sort: Literal['asc', 'desc'] = None
+        sort: Literal['asc', 'desc'] = None,
         ):
         
         logger.info("CategoriesService: get_all_categories called.")

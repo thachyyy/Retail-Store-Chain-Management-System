@@ -41,11 +41,12 @@ async def get_all_products(
     low_price: Optional[int] = None,
     high_price: Optional[int] = None,
     categories: Optional[str] = None,
+    query_search: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> Any:
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
-    msg,product_response= await product_service.get_all_products(limit,offset,status,low_price,high_price,categories)
+    msg,product_response= await product_service.get_all_products(limit,offset,status,low_price,high_price,categories,query_search)
     
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)

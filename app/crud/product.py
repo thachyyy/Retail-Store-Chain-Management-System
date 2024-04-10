@@ -61,10 +61,12 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.id == product_id).delete()
     
     @staticmethod
-    async def get_product_by_conditions(db: Session, sql: str):        
+    async def get_product_by_conditions(db: Session, sql: str, total: str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
     @staticmethod
     def create(db: Session, *, obj_in: ProductCreate) -> Product:
