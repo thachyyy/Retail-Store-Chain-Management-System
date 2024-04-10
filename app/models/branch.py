@@ -16,4 +16,4 @@ class Branch(Base):
     email = Column(String(255), unique = True, nullable = True)
     status = Column(String(16), unique = False, nullable = False, default = "ACTIVE")
     note = Column(String(255), unique = False, nullable = True)
-    employees = relationship('BranchEmployee', back_populates="branch")
+    # employees = relationship('BranchEmployee', back_populates="branch")
