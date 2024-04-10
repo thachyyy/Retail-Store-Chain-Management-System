@@ -1,5 +1,6 @@
 import enum 
-from sqlalchemy import Column, ForeignKey, String,Integer,Enum,Boolean
+from sqlalchemy import Column, ForeignKey, String,Integer,Enum,Boolean,DateTime
+from sqlalchemy.sql import text
 from sqlalchemy.orm import relationship
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
@@ -8,6 +9,8 @@ class Product(Base):
     __tablename__ = "product"
     
     id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     barcode = Column(String(255), unique=True, nullable= False)
     product_name = Column(String(255),nullable=False)
     description = Column(String(255),nullable=True)

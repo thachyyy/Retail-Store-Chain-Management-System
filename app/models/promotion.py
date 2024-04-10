@@ -1,5 +1,6 @@
 import enum
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, DateTime
+from sqlalchemy.sql import text
 from sqlalchemy.orm import relationship
 
 from sqlalchemy.dialects.postgresql import UUID
@@ -22,6 +23,8 @@ class Promotion(Base):
     __tablename__ = 'promotion'
 
     id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     promotion_code = Column(String(20), nullable=False, unique=True)
     promotion_name = Column(String(255), nullable=False)
     promotion_type = Column(String(255), nullable=False)  
