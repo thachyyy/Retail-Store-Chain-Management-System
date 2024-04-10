@@ -13,7 +13,7 @@ from app.core.middleware import router_middleware
 from app.core.settings import settings
 from app.routers import router
 
-app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG, version=settings.VERSION,
+app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG, version=settings.VERSION,   
               docs_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.DOCS,
               redoc_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.RE_DOC)
 
