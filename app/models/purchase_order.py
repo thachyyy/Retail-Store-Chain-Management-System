@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy.sql import text
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -7,7 +8,8 @@ class PurchaseOrder(Base):
     __tablename__ = "purchase_order"
     
     id = Column(String, primary_key=True)
-    created_at = Column(DateTime, unique = False, nullable = False)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     estimated_delivery_date = Column(DateTime, unique = False, nullable = False)
     tax = Column(Integer, unique = False, nullable = True)
     subtotal = Column(Integer, unique = False, nullable = False)

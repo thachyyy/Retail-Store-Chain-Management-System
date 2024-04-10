@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Date, Boolean,  ForeignKey, Integer
+from sqlalchemy import Column, String, Date, Boolean,  ForeignKey, Integer, DateTime
+from sqlalchemy.sql import text
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -7,6 +8,8 @@ class ImportOrder(Base):
     __tablename__ = "import_order"
     
     id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     is_contract = Column(Boolean, unique = False, nullable = False)
     estimated_date = Column(Date, unique = False, nullable = False)
     delivery_status = Column(String, unique = False, nullable = False)
