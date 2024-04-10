@@ -155,7 +155,7 @@ class ProductService:
         # os.path.join(BARCODE_DIR, barcode_path)
         
         logger.info("ProductService: create called.")
-        result = await crud.product.create(db=self.db, obj_in=product_create)
+        result = crud.product.create(db=self.db, obj_in=product_create)
         logger.info("ProductService: create called successfully.")
         
         self.db.commit()
