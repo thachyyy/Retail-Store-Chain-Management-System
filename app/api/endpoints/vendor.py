@@ -29,6 +29,7 @@ async def get_all_vendors(
     phone_number: str = None,
     address: str = None,
     note: str = None,
+    query_search: Optional[str] = None,
 ) -> Any:
     vendor_service = VendorService(db=db)
     logger.info("Endpoints: get_all_vendors called.")
@@ -45,7 +46,8 @@ async def get_all_vendors(
         email,
         phone_number,
         address,
-        note
+        note,
+        query_search
     )
     logger.info("Endpoints: get_all_vendors called successfully.")
     return make_response_object(vendor_response, msg)

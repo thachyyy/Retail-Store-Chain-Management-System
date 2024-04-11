@@ -30,6 +30,7 @@ class VendorService:
         phone_number: str = None,
         address: str = None,
         note: str = None,
+        query_search: Optional[str] = None
     ):
         conditions = dict()
         if province:
@@ -59,16 +60,34 @@ class VendorService:
                 
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
+            
             logger.info("VendorService: filter_vendor called.")
-            result = await crud.vendor.get_vendor_by_conditions(self.db, sql=sql)
+            result,total= await crud.vendor.get_vendor_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             logger.info("VendorService: filter_vendor called successfully.")
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.vendor {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
+
+            logger.info("VendorService: filter_vendor called.")
+            result,total= await crud.vendor.get_vendor_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             
         else:
             logger.info("VendorService: get_all_vendors called.")
-            result = await crud.vendor.get_all_vendors(self.db, offset, limit)
+            result, total = crud.vendor.get_multi(db=self.db, skip=offset, limit=limit)
             logger.info("VendorService: get_all_vendors called successfully.")
         
-        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def get_vendor_by_id(self, vendor_id: str):
