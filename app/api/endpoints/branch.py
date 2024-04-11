@@ -38,11 +38,12 @@ async def get_all_branches(
     status: Optional[str] = None,
     province: Optional[str] = None,
     district: Optional[str] = None,
+    query_search: Optional[str] = None,
     db: Session = Depends(get_db)) -> Any:
     branch_service = BranchService(db=db)
     logger.info("Endpoints: get_all_branches called.")
     
-    msg, branch_response = await branch_service.get_all_branches(limit,offset,status,province,district)
+    msg, branch_response = await branch_service.get_all_branches(limit,offset,status,province,district,query_search)
     logger.info("Endpoints: get_all_branches called successfully.")
     return make_response_object(branch_response, msg)
 

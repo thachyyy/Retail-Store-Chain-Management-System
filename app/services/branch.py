@@ -23,7 +23,8 @@ class BranchService:
         offset:Optional[int] = None,
         status: Optional[str] = None,
         province: Optional[str] = None,
-        district: Optional[str] = None 
+        district: Optional[str] = None,
+        query_search: Optional[str] = None
         ):
         
         conditions = dict()
@@ -40,17 +41,34 @@ class BranchService:
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
 
             logger.info("BranchService: filter_branch called.")
-            result = await crud.branch.get_branch_by_conditions(self.db, sql=sql)
+            result, total = await crud.branch.get_branch_by_conditions(self.db, sql=sql, total=total)
             logger.info("BranchService: filter_branch called successfully.")
+            total = total[0]['count']
+        
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.branch {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
+
+            logger.info("BranchService: filter_product called.")
+            result,total= await crud.branch.get_branch_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             
         else: 
             logger.info("BranchService: get_all_branches called.")
-            result = await crud.branch.get_all_branches(db=self.db, offset=offset,limit=limit)
+            result, total = crud.branch.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("BranchService: get_all_branches called successfully.")
             
-        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     

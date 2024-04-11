@@ -86,9 +86,11 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return db.query(Branch).filter(Branch.id == branch_id).delete()
     
     @staticmethod
-    async def get_branch_by_conditions(db: Session, sql: str):        
+    async def get_branch_by_conditions(db: Session, sql: str, total: str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
 branch = CRUDBranch(Branch)
