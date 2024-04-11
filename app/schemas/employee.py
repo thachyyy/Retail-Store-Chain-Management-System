@@ -21,7 +21,6 @@ class EmployeeCreateParams(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
-    password: str
     role: Role
     address: Optional[str] = None
     district: Optional[str] = None
@@ -37,7 +36,6 @@ class EmployeeCreate(BaseModel):
     gender: Optional[Gender] = None
     email: EmailStr
     phone_number: str
-    password: str
     role: Role
     address: Optional[str] = None
     district: Optional[str] = None
@@ -55,7 +53,6 @@ class EmployeeUpdate(BaseModel):
     gender: Optional[Gender] = None
     email: Optional[EmailStr]
     phone_number: Optional[str]
-    password: Optional[str]
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None

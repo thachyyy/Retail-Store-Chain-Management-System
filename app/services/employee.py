@@ -172,7 +172,6 @@ class EmployeeService:
             gender=obj_in.gender,
             email=obj_in.email,
             phone_number=obj_in.phone_number,
-            password=obj_in.password,
             role=obj_in.role,
             address=obj_in.address,
             district=obj_in.district,
