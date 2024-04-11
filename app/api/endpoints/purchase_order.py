@@ -13,7 +13,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import PurchaseOrder
 from app.schemas import ChangePassword, PurchaseOrderResponse
-from app.schemas.purchase_order import PurchaseOrderCreateParams, PurchaseOrderUpdate
+from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderCreateParams, PurchaseOrderUpdate
 from app.services.purchase_order import PurchaseOrderService
 from app.utils.response import make_response_object
 from typing import Annotated
@@ -24,7 +24,7 @@ router = APIRouter()
 @router.post("/purchase_order")
 async def create_purchase_order(
     purchase_order_create: PurchaseOrderCreateParams, 
-    user:str,
+    user:str = None,
     db: Session = Depends(get_db)
 ) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
@@ -35,11 +35,18 @@ async def create_purchase_order(
     return make_response_object(purchase_order_response)
 
 @router.get("/purchase_order")
-async def get_all_purchase_order(db: Session = Depends(get_db)) -> Any:
+async def get_all_purchase_order(
+    db: Session = Depends(get_db),
+    limit: int = None,
+    offset: int = None,
+    note: str = None,
+    status: str = None,
+    query_search: Optional[str] = None
+    ) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
     logger.info("Endpoints: get_all_purchase_order called.")
     
-    msg, purchase_order_response = await purchase_order_service.get_all_purchase_orders()
+    msg, purchase_order_response = await purchase_order_service.get_all_purchase_orders(limit,offset)
     logger.info("Endpoints: get_all_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 

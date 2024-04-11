@@ -1,9 +1,10 @@
 import logging
+from typing import Optional
 import uuid
 
 from datetime import date
 from sqlalchemy.orm import Session
-from pydantic import UUID4
+from pydantic import UUID4, Field
 
 from app import crud
 from app.constant.app_status import AppStatus
@@ -22,15 +23,85 @@ class PurchaseOrderService:
         result = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id)
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
-    async def get_all_purchase_orders(self):
-        logger.info("PurchaseOrderService: get_all_purchase_orders called.")
-        result = await crud.purchase_order.get_all_purchase_orders(db=self.db)
-        logger.info("PurchaseOrderService: get_all_purchase_orders called successfully.")
+    async def get_all_purchase_orders(self, 
+        limit: Optional[int] = None,
+        offset:Optional[int] = None,
+        #  address: str = None,
+        # note: str = None,
+        # branch_name: str = None,
+        query_search: Optional[str] = None 
+        ):
+        conditions = dict()
+        # if role:
+        #     conditions['role'] = role
+        # if status:
+        #     conditions['status'] = status
+        # if province:
+        #     conditions['province'] = province
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            sql = f"SELECT * FROM public.purchase_order {whereConditions};"
+            
+            if offset is not None and limit is not None:
+                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            total = f"SELECT COUNT(*) FROM public.purchase_order {whereConditions};"
+
+            logger.info("PurchaseOrderService: filter_purchase_order called.")
+            result,total= await crud.purchase_order.get_purchase_order_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+            logger.info("PurchaseOrderService: filter_purchase_order called successfully.")
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.purchase_order {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.purchase_order {whereConditions};"
+
+            logger.info("PurchaseOrderService: filter_purchase_order called.")
+            result,total= await crud.purchase_order.get_purchase_order_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+        else: 
+            logger.info("PurchaseOrderService: get_all_employees called.")
+            result, total = crud.purchase_order.get_multi(db=self.db, skip=offset,limit=limit)
+            logger.info("PurchaseOrderService: get_all_employees called successfully.")
+
+        
+        return dict(message_code=AppStatus.SUCCESS.message,total=total), result
+    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"full_name::text ilike '%{condition}%'")
     
+    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+        whereList = list()
+        
+        # filter using '='
+        if 'role' in conditions:
+            whereList.append(f"role = '{conditions['role']}'")
+        if 'status' in conditions:
+            whereList.append(f"status = '{conditions['status']}'")
+        
+        # filter using 'ilike'
+        if 'id' in conditions:
+            whereList.append(f"id ilike '%{conditions['id']}%'")
+        if 'full_name' in conditions:
+            whereList.append(f"full_name ilike '%{conditions['full_name']}%'")
+        if 'email' in conditions:
+            whereList.append(f"email ilike '%{conditions['email']}%'")
+        
+            
+        whereConditions = "WHERE " + ' AND '.join(whereList)
+        return whereConditions
     async def gen_id(self):
         newID: str
         lastID = await crud.purchase_order.get_last_id(self.db)
@@ -44,9 +115,9 @@ class PurchaseOrderService:
             for i in range(len_rest):
                 newID = '0' + newID
     
-            return 'PORDER' + newID
+            return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams, user:str):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams, user:str |None = None):
         newID = await self.gen_id()
         
         purchase_order_create = PurchaseOrderCreate(
@@ -84,7 +155,7 @@ class PurchaseOrderService:
         result = await crud.purchase_order.update_purchase_order(db=self.db, purchase_order_id=purchase_order_id, purchase_order_update=obj_in)
         logger.info("PurchaseOrderService: update_purchase_order called successfully.")
         self.db.commit()
-        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
     async def delete_purchase_order(self, purchase_order_id: str):
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
@@ -99,7 +170,7 @@ class PurchaseOrderService:
         logger.info("PurchaseOrderService: delete_purchase_order called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), result
     
     # async def whereConditionBuilderForSearch(self, condition: str) -> str:
     #     conditions = list()

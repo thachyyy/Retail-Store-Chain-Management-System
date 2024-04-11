@@ -20,7 +20,7 @@ class ImportOrderService:
         result = await crud.import_order.get_all_import_orders(db=self.db)
         logger.info("ImportOrderService: get_all_import_orders called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_import_order_by_id(self, import_order_id: str):
         logger.info("ImportOrderService: get_import_order_by_id called.")

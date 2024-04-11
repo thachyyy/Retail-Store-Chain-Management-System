@@ -11,36 +11,36 @@ class Status(str,enum.Enum):
     FAILED = "Đặt hàng thất bại"
 class PurchaseOrderCreateParams(BaseModel):
     estimated_delivery_date: datetime
-    tax: Optional[float] = None
-    subtotal: float
-    promote: Optional[float] = None
-    total: float
-    tax_percentage: float
-    status: Status = Field(default= Status.WAITING)
+    subtotal: int
+    total: int
+    tax_percentage: int
+    tax: Optional[int] = None
     note: Optional[str] = None
+    promote: Optional[int] = None
+    status: Status = Field(default= Status.WAITING)
     belong_to_customer : Optional[str] = Field(None)
     
 class PurchaseOrderCreate(BaseModel):
     id: str
     created_at: datetime
     estimated_delivery_date: datetime
-    tax: Optional[float]
-    subtotal: float
-    promote: Optional[float]
-    total: float
-    tax_percentage: float
+    subtotal: int
+    total: int
+    tax_percentage: int
+    handle_by: str
+    tax: Optional[int]
+    promote: Optional[int]
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str]
-    handle_by: str
     belong_to_customer: Optional[str]= Field(None)
     
 class PurchaseOrderUpdate(BaseModel):
     estimated_delivery_date: Optional[datetime] = None
-    tax: Optional[float] = None
-    subtotal: Optional[float] = None
-    promote: Optional[float] = None
-    total: Optional[float] = None
-    tax_percentage: Optional[float] = None
+    tax: Optional[int] = None
+    subtotal: Optional[int] = None
+    promote: Optional[int] = None
+    total: Optional[int] = None
+    tax_percentage: Optional[int] = None
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str] = None
     handle_by: Optional[str] = None
