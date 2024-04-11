@@ -35,6 +35,7 @@ class CustomerService:
         end_date: Optional[date] = None,
         province: Optional[str] = None,
         district: Optional[str] = None,
+        query_search: Optional[str] = None
     ):
         conditions = dict()
         if gender:
@@ -54,17 +55,34 @@ class CustomerService:
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            total = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
 
             logger.info("CustomerService: filter_customer called.")
-            result = await crud.customer.get_customer_by_conditions(self.db, sql=sql)
+            result,total= await crud.customer.get_customer_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             logger.info("CustomerService: filter_customer called successfully.")
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.customer {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
+
+            logger.info("CustomerService: filter_customer called.")
+            result,total= await crud.customer.get_customer_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
         
         else: 
             logger.info("CustomerService: get_all_customers called.")
-            result = await crud.customer.get_all_customers(db=self.db, offset=offset,limit=limit)
+            result, total = crud.customer.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("CustomerService: get_all_customers called successfully.")
 
-        total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):

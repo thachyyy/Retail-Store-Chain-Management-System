@@ -42,11 +42,12 @@ async def get_all_customers(
     end_date: date = None,
     province: str = None,
     district: str = None,
+    query_search: Optional[str] = None,
 ) -> Any:
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: get_all_customers called.")
     
-    msg, customer_response = await customer_service.get_all_customers(limit,offset, gender, start_date, end_date, province, district)
+    msg, customer_response = await customer_service.get_all_customers(limit,offset, gender, start_date, end_date, province, district, query_search)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
 
