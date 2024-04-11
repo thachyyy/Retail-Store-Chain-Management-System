@@ -49,6 +49,7 @@ async def get_all_employees(
     address: str = None,
     note: str = None,
     branch_name: str = None,
+    query_search: Optional[str] = None,
     
 ) -> Any:
     employee_service = EmployeeService(db=db)
@@ -70,7 +71,8 @@ async def get_all_employees(
         phone_number,
         address,
         note,
-        branch_name
+        branch_name,
+        query_search
     )
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)

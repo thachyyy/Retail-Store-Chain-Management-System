@@ -83,9 +83,11 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return db.query(Employee).filter(Employee.id == employee_id).delete()
     
     @staticmethod
-    async def get_employee_by_conditions(db: Session, sql: str):        
+    async def get_employee_by_conditions(db: Session, sql: str, total: str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
 employee = CRUDEmployee(Employee)

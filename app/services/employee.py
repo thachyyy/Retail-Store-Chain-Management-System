@@ -36,6 +36,7 @@ class EmployeeService:
         address: str = None,
         note: str = None,
         branch_name: str = None,
+        query_search: Optional[str] = None
     ):
         conditions = dict()
         if role:
@@ -73,17 +74,35 @@ class EmployeeService:
             
             if offset is not None and limit is not None:
                 sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            total = f"SELECT COUNT(*) FROM public.employee {whereConditions};"
 
             logger.info("EmployeeService: filter_employee called.")
-            result = await crud.employee.get_employee_by_conditions(self.db, sql=sql)
-
+            result,total= await crud.employee.get_employee_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             logger.info("EmployeeService: filter_employee called successfully.")
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            
+            sql = f"SELECT * FROM public.employee {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.employee {whereConditions};"
+
+            logger.info("EmployeeService: filter_employee called.")
+            result,total= await crud.employee.get_employee_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']    
+        
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result = await crud.employee.get_all_employees(db=self.db, offset=offset,limit=limit)
+            result, total = crud.employee.get_multi(db=self.db, skip=offset,limit=limit)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
-        total = len(result)
+        
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
     async def get_employee_by_id(self, employee_id: str):
@@ -160,7 +179,7 @@ class EmployeeService:
             province=obj_in.province,
             status=obj_in.status,
             note=obj_in.note,
-            branch_name=obj_in.branch_name
+            # branch_name=obj_in.branch_name
         )
         
         logger.info("EmployeeService: create called.")
