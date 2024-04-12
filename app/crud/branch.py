@@ -9,6 +9,9 @@ from app.schemas.branch import BranchCreate, BranchUpdate
 from app.crud.base import CRUDBase
 from ..models import Branch
 
+from app.core.exceptions import error_exception_handler
+from app.constant.app_status import AppStatus
+
 logger = logging.getLogger(__name__)
 
 class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
@@ -83,7 +86,10 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
     
     @staticmethod
     async def delete_branch(db: Session, branch_id: str):
-        return db.query(Branch).filter(Branch.id == branch_id).delete()
+        try:
+            return db.query(Branch).filter(Branch.id == id).delete()
+        except:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
     @staticmethod
     async def get_branch_by_conditions(db: Session, sql: str, total: str):        
