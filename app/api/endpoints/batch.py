@@ -33,7 +33,16 @@ async def get_batch_by_id(batch_id: str, db: Session = Depends(get_db)) -> Any:
     
     logger.info("Endpoints: get_batch_by_id called.")  
     msg, batch_response = await batch_service.get_batch_by_id(batch_id)
-    logger.info("Endpoints: get_all_batchs called successfully.")
+    logger.info("Endpoints: get_batch_by_id called successfully.")
+    return make_response_object(batch_response, msg)
+
+@router.get("/batches_product/{product_id}")
+async def get_batch_by_product_id(product_id: str, db: Session = Depends(get_db)) -> Any:
+    batch_service = BatchService(db=db)
+    
+    logger.info("Endpoints: get_batch_by_prod_id called.")  
+    msg, batch_response = await batch_service.get_batch_by_product_id(product_id)
+    logger.info("Endpoints: get_batch_by_prod_id called successfully.")
     return make_response_object(batch_response, msg)
 
 @router.post("/batches")
