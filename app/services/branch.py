@@ -40,7 +40,7 @@ class BranchService:
             sql = f"SELECT * FROM public.branch {whereConditions};"
             
             if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
 
@@ -55,7 +55,7 @@ class BranchService:
             sql = f"SELECT * FROM public.branch {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.branch {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.branch {whereConditions};"
@@ -66,7 +66,7 @@ class BranchService:
             
         else: 
             logger.info("BranchService: get_all_branches called.")
-            result, total = crud.branch.get_multi(db=self.db, skip=offset,limit=limit)
+            result, total = crud.branch.get_multi(db=self.db, skip=offset*limit,limit=limit)
             logger.info("BranchService: get_all_branches called successfully.")
             
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result

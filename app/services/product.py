@@ -93,7 +93,7 @@ class ProductService:
             sql = f"SELECT * FROM public.product {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
             
             total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
 
@@ -107,7 +107,7 @@ class ProductService:
             sql = f"SELECT * FROM public.product {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
@@ -117,7 +117,7 @@ class ProductService:
             total = total[0]['count']
         else: 
             logger.info("ProductService: get_all_products called.")
-            result,total =  crud.product.get_multi(db=self.db, skip=offset,limit=limit)
+            result,total =  crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
             logger.info("ProductService: get_all_products called successfully.")
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     

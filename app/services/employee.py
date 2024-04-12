@@ -72,7 +72,7 @@ class EmployeeService:
             sql = f"SELECT * FROM public.employee {whereConditions};"
             
             if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
 
             total = f"SELECT COUNT(*) FROM public.employee {whereConditions};"
             
@@ -87,7 +87,7 @@ class EmployeeService:
             sql = f"SELECT * FROM public.employee {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.employee {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.employee {whereConditions};"
@@ -98,7 +98,7 @@ class EmployeeService:
             
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result,total = crud.employee.get_multi(db=self.db, skip=offset,limit=limit)
+            result,total = crud.employee.get_multi(db=self.db, skip=offset*limit,limit=limit)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
         

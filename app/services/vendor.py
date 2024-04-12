@@ -59,7 +59,7 @@ class VendorService:
             sql = f"SELECT * FROM public.vendor {whereConditions};"
                 
             if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
             
@@ -74,7 +74,7 @@ class VendorService:
             sql = f"SELECT * FROM public.vendor {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.vendor {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
@@ -85,7 +85,7 @@ class VendorService:
             
         else:
             logger.info("VendorService: get_all_vendors called.")
-            result, total = crud.vendor.get_multi(db=self.db, skip=offset, limit=limit)
+            result, total = crud.vendor.get_multi(db=self.db, skip=offset*limit, limit=limit)
             logger.info("VendorService: get_all_vendors called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result

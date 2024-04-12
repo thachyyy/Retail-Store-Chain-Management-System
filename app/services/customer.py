@@ -54,7 +54,7 @@ class CustomerService:
             sql = f"SELECT * FROM public.customer {whereConditions};"
             
             if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             total = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
 
@@ -69,7 +69,7 @@ class CustomerService:
             sql = f"SELECT * FROM public.customer {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.customer {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.customer {whereConditions};"
@@ -80,7 +80,7 @@ class CustomerService:
         
         else: 
             logger.info("CustomerService: get_all_customers called.")
-            result, total = crud.customer.get_multi(db=self.db, skip=offset,limit=limit)
+            result, total = crud.customer.get_multi(db=self.db, skip=offset*limit,limit=limit)
             logger.info("CustomerService: get_all_customers called successfully.")
 
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
