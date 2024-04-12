@@ -38,6 +38,7 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return dict(message_code=AppStatus.SUCCESS.message), result
     
+    
     async def get_product_by_barcode(self, barcode: str):
         logger.info("ProductService: get_product_by_barcode called.")
         
@@ -127,7 +128,7 @@ class ProductService:
             
             total = "SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id;"
             result, total = await crud.product.get_all_product(self.db, total, sql_join)
-            
+            total = total[0]['count']
             logger.info("ProductService: get_all_products called successfully.")
             
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result

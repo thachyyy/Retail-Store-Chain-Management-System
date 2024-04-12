@@ -2,7 +2,7 @@ import logging
 
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from pydantic import UUID4
 from datetime import date
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/purchase_order")
+@router.post("/purchase_order", summary="Tạo đơn đặt hàng")
 async def create_purchase_order(
     purchase_order_create: PurchaseOrderCreateParams, 
     user:str = None,
@@ -34,24 +34,8 @@ async def create_purchase_order(
     msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,user)
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
-# @router.get("/batchs_and_purchase_order/",response_model_exclude={'role'}, response_model_by_alias=False)
-# async def get_batch_purchase_order( 
-#     db: Session = Depends(get_db),
-#     limit: int = None,
-#     offset: int = None,
-#     status:Optional[str] = None,
-#     gt_total:Optional[int] = None,
-#     lt_total:Optional[int] = None,
-#     start_date:Optional[date] = None,
-#     end_date:Optional[date] = None,
-#     query_search:Optional[str] = None
-# ):
-#     purchase_order_service = PurchaseOrderService(db=db)
-#     msg, purchase_order_response = await purchase_order_service.get_all_purchase_orders(limit,offset)
-#     db_batch_purchase_order = db.query(OrderDetail).options(joinedload(OrderDetail.purchase_order),joinedload(OrderDetail.batch)).all()
-        
-#     return db_batch_purchase_order
-@router.get("/purchase_order")
+
+@router.get("/purchase_order", summary="Lấy thông tin tất cả đơn đặt hàng")
 async def get_all_purchase_order(
     db: Session = Depends(get_db),
     limit: int = None,
@@ -79,7 +63,7 @@ async def get_all_purchase_order(
     logger.info("Endpoints: get_all_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 
-@router.get("/purchase_order/{purchase_order_id}")
+@router.get("/purchase_order/{purchase_order_id}", summary="Lấy thông tin đơn đặt hàng theo ID đơn đặt hàng")
 async def get_purchase_order_by_id(purchase_order_id: str, db: Session = Depends(get_db)) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
     
@@ -88,7 +72,7 @@ async def get_purchase_order_by_id(purchase_order_id: str, db: Session = Depends
     logger.info("Endpoints: get_all_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
     
-@router.put("/purchase_order/{purchase_order_id}")
+@router.put("/purchase_order/{purchase_order_id}", summary="Cập nhật thông tin đơn đặt hàng theo  ID đơn đặt hàng")
 async def update_purchase_order(purchase_order_id: str, purchase_order_update: PurchaseOrderUpdate, db: Session = Depends(get_db)) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
     
@@ -97,7 +81,7 @@ async def update_purchase_order(purchase_order_id: str, purchase_order_update: P
     logger.info("Endpoints: update_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 
-@router.delete("/purchase_order/{purchase_order_id}")
+@router.delete("/purchase_order/{purchase_order_id}",summary="Xóa thông tin đơn đặt hàng theo ID đơn đặt hàng")
 async def delete_purchase_order(purchase_order_id: str, db: Session = Depends(get_db)) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
     

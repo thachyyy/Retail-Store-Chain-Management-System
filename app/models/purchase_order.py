@@ -10,7 +10,7 @@ class PurchaseOrder(Base):
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
-    estimated_delivery_date = Column(DateTime, unique = False, nullable = False)
+    estimated_delivery_date = Column(DateTime, unique = False, nullable = True)
     subtotal = Column(Integer, unique = False, nullable = False)
     total = Column(Integer, unique = False, nullable = False)
     tax_percentage = Column(Integer, unique = False, nullable = False)

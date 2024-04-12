@@ -5,10 +5,10 @@ from typing import Optional
 from sqlalchemy import func
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.crud.base import CRUDBase
-from ..models import Product
+from ..models import Product, Batch
 
 logger = logging.getLogger(__name__)
 

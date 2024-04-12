@@ -88,17 +88,3 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)) -> Any:
     return make_response_object(product_response, msg)
 
 
-@router.get("/product/search")
-async def search_product(
-    limit: Optional[int] = None,
-    offset: Optional[int] = None,
-    db: Session = Depends(get_db), 
-    condition: Optional[str] = Query(None)) -> Any:
-    
-    product_service = ProductService(db=db)
-    
-    logger.info("Endpoints: search_product called.")
-    msg, product_response = await product_service.search_product(limit,offset,condition)
-    logger.info("Endpoints: search_product called successfully.")
-    
-    return make_response_object(product_response, msg)

@@ -25,21 +25,7 @@ class OrderDetailService:
         
         return dict(message_code=AppStatus.SUCCESS.message), result
    
-    async def get_all_order_details(self,
-        limit: Optional[int] = None,
-        offset:Optional[int] = None):
-            logger.info("OrderDetailService: get_all_employees called.")
-            if limit is not None and offset is not None:
-                    
-                result, total = crud.order_detail.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: 
-                result, total = crud.order_detail.get_multi(db=self.db)
-            logger.info("OrderDetailService: get_all_employees called successfully.")
 
-        
-            return dict(message_code=AppStatus.SUCCESS.message,total=total), result
-    
-   
    
     async def get_all_order_details(self, 
         limit: Optional[int] = None,
@@ -75,23 +61,25 @@ class OrderDetailService:
         elif query_search:
             whereConditions = await self.whereConditionBuilderForSearch(query_search)
             
-            sql = f"SELECT * FROM public.order_detail {whereConditions};"
+            sql = f"SELECT * FROM public.order {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.order_detail {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"SELECT * FROM public.order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
-            total = f"SELECT COUNT(*) FROM public.order_detail {whereConditions};"
+            total = f"SELECT COUNT(*) FROM public.order {whereConditions};"
 
             logger.info("OrderDetailService: filter_order_detail called.")
             result,total= await crud.order_detail.get_order_detail_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else: 
-            logger.info("OrderDetailService: get_all_employees called.")
+            sql = f"SELECT COUNT(*) FROM public.order;"
+            logger.info("OrderDetailService: get_all_order_details called.")
             if limit is not None and offset is not None:
-                result, total = crud.order_detail.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.order_detail.get_multi(db=self.db)
-            logger.info("OrderDetailService: get_all_employees called successfully.")
+                result, total = await crud.order_detail.get_all_order_details(db=self.db,sql=sql, offset=offset*limit,limit=limit)
+            else: result, total = await crud.order_detail.get_all_order_details(db=self.db,sql=sql)
+            logger.info("OrderDetailService: get_all_order_details called successfully.")
+            total = total[0]['count']
 
         
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result

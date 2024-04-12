@@ -15,5 +15,6 @@ class InvoiceForCustomer(Base):
     payment_method = Column(String, unique = False, nullable = False)
     
     belong_to_order = Column(String, ForeignKey('purchase_order.id'), unique = True, nullable = False)
-    
+    order_detail = Column(Integer, ForeignKey('order.id'), unique = True, nullable = False)
     purchase_order = relationship('PurchaseOrder')    
+    order = relationship('OrderDetail')

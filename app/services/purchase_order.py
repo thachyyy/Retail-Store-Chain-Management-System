@@ -143,6 +143,7 @@ class PurchaseOrderService:
         note=obj_in.note,
         handle_by=user,
         belong_to_customer=obj_in.belong_to_customer
+        
     )
         
         logger.info("PurchaseOrderService: create called.")

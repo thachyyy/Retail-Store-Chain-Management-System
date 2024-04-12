@@ -16,5 +16,5 @@ class OrderDetail(Base):
     purchase_order = relationship("PurchaseOrder", back_populates="batch")
 
     # proxies
-    purchase_order_name = association_proxy(target_collection='purchase_order', attr='full_name')
-    batch_name = association_proxy(target_collection='batch', attr='name_detail')
+    purchase_order_name = association_proxy(target_collection='purchase_order', attr='total')
+    batch_name = association_proxy(target_collection='batch', attr='quantity')

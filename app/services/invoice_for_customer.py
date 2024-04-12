@@ -77,13 +77,17 @@ class InvoiceForCustomerService:
             logger.info("InvoiceForCustomerService: filter_invoice_for_customer called.")
             result,total= await crud.invoice_for_customer.get_invoice_for_customer_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
-        
         else: 
             logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called.")
+            sql = f"SELECT COUNT(*) FROM public.order;"
             if limit is not None and offset is not None:
-                result, total = crud.invoice_for_customer.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.invoice_for_customer.get_multi(db=self.db)
-            logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called successfully.")
+                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,offset=offset*limit,limit=limit)
+                total = total[0]['count']
+            else: 
+                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql)             
+                total = total[0]['count']
+                logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called successfully.")
+                
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
@@ -112,6 +116,7 @@ class InvoiceForCustomerService:
             status=obj_in.status,
             payment_method=obj_in.payment_method,
             belong_to_order=obj_in.belong_to_order,
+            order_detail=obj_in.order_detail
         )
         
         logger.info("InvoiceForCustomerService: create called.")

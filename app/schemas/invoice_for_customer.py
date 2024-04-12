@@ -15,7 +15,8 @@ class InvoiceForCustomerCreateParams(BaseModel):
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
     belong_to_order: str
-
+    order_detail:int 
+     
 class InvoiceForCustomerCreate(BaseModel):
     id: str
     created_at: datetime
@@ -23,6 +24,8 @@ class InvoiceForCustomerCreate(BaseModel):
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
     belong_to_order: str
+    order_detail:int 
+
     
 class InvoiceForCustomerUpdate(BaseModel):
     total: Optional[int] = None

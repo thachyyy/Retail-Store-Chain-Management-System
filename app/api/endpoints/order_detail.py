@@ -33,7 +33,7 @@ async def get_order_detail_by_id(order_detail_id: str, db: Session = Depends(get
     
     logger.info("Endpoints: get_order_detail_by_id called.")  
     msg, order_detail_response = await order_detail_service.get_order_detail_by_id(order_detail_id)
-    logger.info("Endpoints: get_all_order_details called successfully.")
+    logger.info("Endpoints: get_order_detail_by_id called successfully.")
     return make_response_object(order_detail_response, msg)
 
 # @router.put("/order_detail/{order_detail_id}")

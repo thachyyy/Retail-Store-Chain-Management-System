@@ -18,7 +18,7 @@ from app.utils.response import make_response_object
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-@router.post("/branches")
+@router.post("/branches",summary="Tạo chi nhánh mới")
 async def create_branch(
     branch_create: BranchCreateParams,
     db: Session = Depends(get_db)
@@ -31,7 +31,7 @@ async def create_branch(
     return make_response_object(branch_response, msg)
 
 
-@router.get("/branches")
+@router.get("/branches",summary="Lấy thông tin tất cả chi nhánh")
 async def get_all_branches(
     limit: Optional[int] = None,
     offset:Optional[int] = None,
@@ -47,7 +47,7 @@ async def get_all_branches(
     logger.info("Endpoints: get_all_branches called successfully.")
     return make_response_object(branch_response, msg)
 
-@router.get("/branches/{branch_id}")
+@router.get("/branches/{branch_id}",summary="Lấy thông tin  chi nhánh theo ID chi nhánh")
 async def get_branch_by_id(branch_id: str, db: Session = Depends(get_db)) -> Any:
     branch_service = BranchService(db=db)
     
@@ -56,7 +56,7 @@ async def get_branch_by_id(branch_id: str, db: Session = Depends(get_db)) -> Any
     logger.info("Endpoints: get_all_branches called successfully.")
     return make_response_object(branch_response, msg)
     
-@router.put("/branches/{branch_id}")
+@router.put("/branches/{branch_id}",summary="Cập nhật thông tin chi nhánh theo ID chi nhánh")
 async def update_branch(branch_id: str, branch_update: BranchUpdate, db: Session = Depends(get_db)) -> Any:
     branch_service = BranchService(db=db)
     
@@ -65,7 +65,7 @@ async def update_branch(branch_id: str, branch_update: BranchUpdate, db: Session
     logger.info("Endpoints: update_branch called successfully.")
     return make_response_object(branch_response, msg)
 
-@router.delete("/branches/{branch_id}")
+@router.delete("/branches/{branch_id}",summary="Xóa chi nhánh theo ID chi nhánh")
 async def delete_branch(branch_id: str, db: Session = Depends(get_db)) -> Any:
     branch_service = BranchService(db=db)
     
@@ -74,18 +74,18 @@ async def delete_branch(branch_id: str, db: Session = Depends(get_db)) -> Any:
     logger.info("Endpoints: delete_branch called successfully.")
     return make_response_object(branch_response, msg)
 
-@router.get("/branch/search")
-async def search_branch(
-    db: Session = Depends(get_db), 
-    condition: Optional[str] = Query(None),
-    limit: Optional[int] = None,
-    offset:Optional[int] = None
-    ) -> Any:
-    branch_service = BranchService(db=db)
+# @router.get("/branch/search")
+# async def search_branch(
+#     db: Session = Depends(get_db), 
+#     condition: Optional[str] = Query(None),
+#     limit: Optional[int] = None,
+#     offset:Optional[int] = None
+#     ) -> Any:
+#     branch_service = BranchService(db=db)
     
-    logger.info("Endpoints: search_branch called.")
-    msg, branch_response = await branch_service.search_branch(condition, limit, offset)
-    logger.info("Endpoints: search_branch called successfully.")
+#     logger.info("Endpoints: search_branch called.")
+#     msg, branch_response = await branch_service.search_branch(condition, limit, offset)
+#     logger.info("Endpoints: search_branch called successfully.")
     
-    return make_response_object(branch_response, msg)
+#     return make_response_object(branch_response, msg)
 

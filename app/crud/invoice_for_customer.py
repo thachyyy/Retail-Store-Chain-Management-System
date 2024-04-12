@@ -3,7 +3,8 @@ import logging
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
+from app.models.order_detail import OrderDetail
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreate, InvoiceForCustomerUpdate
 from app.crud.base import CRUDBase
 from ..models import InvoiceForCustomer
@@ -13,8 +14,15 @@ logger = logging.getLogger(__name__)
 
 class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCreate, InvoiceForCustomerUpdate]):    
     @staticmethod
-    async def get_all_invoice_for_customers(db: Session) -> Optional[InvoiceForCustomer]:
-        return db.query(InvoiceForCustomer).all()
+    async def get_all_invoice_for_customers(db: Session,sql:str, offset: int = None, limit: int = None) -> Optional[InvoiceForCustomer]:
+        
+        total = db.execute(sql)
+        result_as_dict = total.mappings().all()
+        response = db.query(InvoiceForCustomer).options(joinedload(InvoiceForCustomer.order),joinedload(OrderDetail.purchase_order),joinedload(OrderDetail.batch))
+        
+        if limit is not None and offset is not None:
+               response = response.offset(offset).limit(limit)
+        return response.all(), result_as_dict
     
     @staticmethod
     async def get_invoice_for_customer_by_phone(db: Session, phone_number: str) -> Optional[InvoiceForCustomer]:

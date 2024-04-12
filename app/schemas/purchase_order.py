@@ -12,7 +12,7 @@ class Status(str,enum.Enum):
     REFUNDED = "Hoàn trả tiền"
     FAILED = "Đặt hàng thất bại"
 class PurchaseOrderCreateParams(BaseModel):
-    estimated_delivery_date: datetime
+    estimated_delivery_date: Optional[datetime]
     subtotal: int
     total: int
     tax_percentage: int
@@ -25,7 +25,7 @@ class PurchaseOrderCreateParams(BaseModel):
 class PurchaseOrderCreate(BaseModel):
     id: str
     # created_at: datetime
-    estimated_delivery_date: datetime
+    estimated_delivery_date:Optional[datetime]
     subtotal: int
     total: int
     tax_percentage: int
