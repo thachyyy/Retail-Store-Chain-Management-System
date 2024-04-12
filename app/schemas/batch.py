@@ -5,21 +5,23 @@ from datetime import date
 class BatchCreateParams(BaseModel):
     quantity: int
     import_price: int
+    belong_to_branch: str
+    product_id:str 
+    belong_to_receipt: Optional[str]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: str
-    belong_to_receipt: Optional[str]
-    product_id: str
+    class Config:
+        orm_mode = True
     
 class BatchCreate(BaseModel):
     id: str
     quantity: int
     import_price: int
+    belong_to_branch: str
+    product_id:str 
+    belong_to_receipt: Optional[str]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: str
-    belong_to_receipt: Optional[str]
-    product_id: str
     
 class BatchUpdate(BaseModel):
     import_price: Optional[int]

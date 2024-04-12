@@ -9,6 +9,7 @@ from app import crud
 from app.constant.app_status import AppStatus
 from app.schemas.batch import BatchCreateParams, BatchCreate, BatchUpdate
 from app.core.exceptions import error_exception_handler
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ class BatchService:
         
         batch_create = BatchCreate(
             id=newID,
+            created_at = datetime.now(),
             quantity=obj_in.quantity,
             import_price=obj_in.import_price,
             manufacturing_date=obj_in.manufacturing_date,

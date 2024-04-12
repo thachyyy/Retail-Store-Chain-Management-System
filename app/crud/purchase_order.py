@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import EmailStr, UUID4
 
 from sqlalchemy.orm import Session
+from app.models.order_detail import OrderDetail
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderUpdate
 from app.crud.base import CRUDBase
 from ..models import PurchaseOrder
@@ -58,7 +59,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return result_as_dict
     
     @staticmethod
-    def create(db: Session, *, obj_in: PurchaseOrderCreate) -> PurchaseOrder:
+    def create(db: Session, *, obj_in: PurchaseOrderCreate,obj) -> PurchaseOrder:
         logger.info("CRUDPurchaseOrder: create called.")
         logger.debug("With: PurchaseOrderCreate - %s", obj_in.dict())
 
@@ -66,7 +67,20 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         db.add(db_obj)
         db.flush()
         db.refresh(db_obj)
+        
+        order_obj = [ OrderDetail(
+            quantity = product.quantity,
+            sub_total = product.sub_total,
+            price = product.price,
+            batch_id = product.batch,
+            purchase_order_id = db_obj.id
+            )
+               for product in obj]
+        
+        db.add_all(order_obj)
+        db.commit()
+        
         logger.info("CRUDPurchaseOrder: create called successfully.")
-        return db_obj
+        return order_obj
 
 purchase_order = CRUDPurchaseOrder(PurchaseOrder)

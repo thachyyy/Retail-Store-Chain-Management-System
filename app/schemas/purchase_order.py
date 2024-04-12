@@ -1,8 +1,10 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, UUID4, Field
 from datetime import datetime
 import enum
+
+from app.schemas.order_detail import OrderDetails
 class Status(str,enum.Enum):
     PAID = "Đã thanh toán"
     WAITING = "Đang chờ xử lí"
@@ -19,7 +21,7 @@ class PurchaseOrderCreateParams(BaseModel):
     promote: Optional[int] = None
     status: Status = Field(default= Status.WAITING)
     belong_to_customer : Optional[str] = Field(None)
-    
+    order_detail: List[OrderDetails]
 class PurchaseOrderCreate(BaseModel):
     id: str
     created_at: datetime

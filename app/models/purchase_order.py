@@ -21,7 +21,7 @@ class PurchaseOrder(Base):
     # handle_by = Column(String,  unique = False, nullable = False)
     # belong_to_customer = Column(String,  unique = False, nullable = False)
     
-    
+    batch = relationship("OrderDetail", back_populates="purchase_order")
     handle_by = Column(String, ForeignKey('employee.id'), unique = False, nullable = False)
     belong_to_customer = Column(String, ForeignKey('customer.id'), unique = False, nullable = True)
     

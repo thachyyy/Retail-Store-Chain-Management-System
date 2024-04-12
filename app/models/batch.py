@@ -18,9 +18,12 @@ class Batch(Base):
     # belong_to_receipt = Column(UUID(as_uuid=True),  nullable = False)
     product_id = Column(String, ForeignKey('product.id'), nullable=False)
     
+    purchase_order = relationship("OrderDetail", back_populates="batch")
+    product_id = Column(String, ForeignKey('product.id'), unique = False, nullable = False)
     belong_to_branch = Column(String, ForeignKey('branch.id'), unique = False, nullable = False)
-    belong_to_receipt = Column(String, ForeignKey('import_order.id'), unique = False, nullable = False)
+    belong_to_receipt = Column(String, ForeignKey('import_order.id'), unique = False, nullable = True)
     
+    product = relationship('Product')
     branch = relationship('Branch')
     import_order = relationship('ImportOrder')
     product = relationship('Product')

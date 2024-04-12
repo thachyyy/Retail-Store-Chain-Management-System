@@ -12,6 +12,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import PurchaseOrder
+from app.models.order_detail import OrderDetail
 from app.schemas import ChangePassword, PurchaseOrderResponse
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderCreateParams, PurchaseOrderUpdate
 from app.services.purchase_order import PurchaseOrderService
@@ -33,7 +34,17 @@ async def create_purchase_order(
     msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,user)
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response)
-
+@router.get("/batchs_and_purchase_order/",response_model_exclude={'role'}, response_model_by_alias=False)
+async def get_batch_purchase_order( 
+    db: Session = Depends(get_db),
+    limit: int = None,
+    offset: int = None
+    ):
+    purchase_order_service = PurchaseOrderService(db=db)
+    msg, purchase_order_response = await purchase_order_service.get_all_purchase_orders_details(limit,offset)
+    db_batch_purchase_order = db.query(OrderDetail).options(joinedload(OrderDetail.purchase_order),joinedload(OrderDetail.batch)).all()
+        
+    return db_batch_purchase_order
 @router.get("/purchase_order")
 async def get_all_purchase_order(
     db: Session = Depends(get_db),

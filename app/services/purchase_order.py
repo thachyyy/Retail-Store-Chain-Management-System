@@ -24,7 +24,7 @@ class PurchaseOrderService:
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
-    
+   
     async def get_all_purchase_orders(self, 
         limit: Optional[int] = None,
         offset:Optional[int] = None,
@@ -47,7 +47,7 @@ class PurchaseOrderService:
             sql = f"SELECT * FROM public.purchase_order {whereConditions};"
             
             if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             total = f"SELECT COUNT(*) FROM public.purchase_order {whereConditions};"
 
@@ -62,7 +62,7 @@ class PurchaseOrderService:
             sql = f"SELECT * FROM public.purchase_order {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset};"
+                sql = f"SELECT * FROM public.purchase_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM public.purchase_order {whereConditions};"
@@ -72,7 +72,9 @@ class PurchaseOrderService:
             total = total[0]['count']
         else: 
             logger.info("PurchaseOrderService: get_all_employees called.")
-            result, total = crud.purchase_order.get_multi(db=self.db, skip=offset,limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.purchase_order.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.purchase_order.get_multi(db=self.db)
             logger.info("PurchaseOrderService: get_all_employees called successfully.")
 
         
@@ -117,7 +119,7 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams, user:str |None = None):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,user:str |None = None):
         newID = await self.gen_id()
         
         purchase_order_create = PurchaseOrderCreate(
@@ -136,7 +138,7 @@ class PurchaseOrderService:
     )
         
         logger.info("PurchaseOrderService: create called.")
-        result = crud.purchase_order.create(db=self.db, obj_in=purchase_order_create)
+        result = crud.purchase_order.create(db=self.db, obj_in=purchase_order_create,obj=obj_in.order_detail)
         logger.info("PurchaseOrderService: create called successfully.")
         
         self.db.commit()
