@@ -77,7 +77,7 @@ class EmployeeService:
             total = f"SELECT COUNT(*) FROM public.employee {whereConditions};"
             
             logger.info("EmployeeService: filter_employee called.")
-            result,total = await crud.employee.get_employee_by_conditions(self.db, sql=sql)
+            result,total = await crud.employee.get_employee_by_conditions(self.db, sql=sql, total=total)
             total = total[0]['count']
             logger.info("EmployeeService: filter_employee called successfully.")
             
