@@ -37,6 +37,13 @@ class BatchService:
         
         return dict(message_code=AppStatus.SUCCESS.message), result
     
+    async def get_batch_by_product_id(self, product_id: str):
+        logger.info("BatchService: get_batch_by_prod_id called.")
+        result = await crud.batch.get_batch_by_product_id(db=self.db, product_id=product_id)
+        logger.info("BatchService: get_batch_by_prod_id called successfully.")
+        
+        return dict(message_code=AppStatus.SUCCESS.message), result
+    
     async def gen_id(self):
         newID: str
         lastID = await crud.batch.get_last_id(self.db)

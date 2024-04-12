@@ -5,10 +5,10 @@ from typing import Optional
 from sqlalchemy import func
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.crud.base import CRUDBase
-from ..models import Product, Batch
+from ..models import Product
 
 from app.core.exceptions import error_exception_handler
 from app.constant.app_status import AppStatus
