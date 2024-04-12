@@ -10,6 +10,9 @@ from app.schemas.product import ProductCreate, ProductUpdate
 from app.crud.base import CRUDBase
 from ..models import Product, Batch
 
+from app.core.exceptions import error_exception_handler
+from app.constant.app_status import AppStatus
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,8 +70,11 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.id == product_id).update(update_data)
     
     @staticmethod
-    async def delete_product(db: Session, product_id: str):
-        return db.query(Product).filter(Product.id == product_id).delete()
+    async def delete_product(db: Session, Product: str):
+        try:
+            return db.query(Product).filter(Product.id == Product).delete()
+        except:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
     @staticmethod
     async def get_product_by_conditions(db: Session, sql: str, total: str):        
