@@ -25,21 +25,29 @@ class PurchaseOrderService:
         
         return dict(message_code=AppStatus.SUCCESS.message), result
    
-    async def get_all_purchase_orders(self, 
+    async def get_all_purchase_orders(
+        self, 
         limit: Optional[int] = None,
         offset:Optional[int] = None,
-        #  address: str = None,
-        # note: str = None,
-        # branch_name: str = None,
-        query_search: Optional[str] = None 
-        ):
+        status:Optional[str] = None,
+        gt_total:Optional[int] = None,
+        lt_total:Optional[int] = None,
+        start_date:Optional[date] = None,
+        end_date:Optional[date] = None,
+        query_search:Optional[str] = None
+    ):
+        
         conditions = dict()
-        # if role:
-        #     conditions['role'] = role
-        # if status:
-        #     conditions['status'] = status
-        # if province:
-        #     conditions['province'] = province
+        if status:
+            conditions['status'] = status
+        if gt_total:
+            conditions['gt_total'] = gt_total
+        if lt_total:
+            conditions['lt_total'] = lt_total
+        if start_date:
+            conditions['start_date'] = start_date
+        if end_date:
+            conditions['end_date'] = end_date
         
         
         if conditions:

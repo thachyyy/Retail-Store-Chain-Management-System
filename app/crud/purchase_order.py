@@ -53,16 +53,12 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
     @staticmethod
-    async def search_purchase_order(db: Session, sql: str):        
+    async def get_purchase_order_by_conditions(db: Session, sql: str, total: str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
-    
-    @staticmethod
-    async def filter_purchase_order(db: Session, sql: str):
-        result = db.execute(sql)
-        result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
     @staticmethod
     def create(db: Session, *, obj_in: PurchaseOrderCreate,obj) -> PurchaseOrder:
