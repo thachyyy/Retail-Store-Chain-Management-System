@@ -162,7 +162,7 @@ class ProductService:
             note=obj_in.note,
             contract_for_vendor_id=obj_in.contract_for_vendor_id,
             promotion_id=obj_in.promotion_id,
-            batch_id=obj_in.batch_id,
+            # batch_id=obj_in.batch_id,
             has_promotion=obj_in.has_promotion
         )
         # barcode_path = await self.generate_barcode(bar_code=product_create.barcode)

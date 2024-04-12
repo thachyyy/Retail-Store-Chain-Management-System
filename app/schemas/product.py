@@ -18,7 +18,7 @@ class ProductCreateParams(BaseModel):
     categories_id: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
-    batch_id: Optional[str] = None
+    # batch_id: Optional[str] = None
     has_promotion: Optional[bool] = Field(default=False)
     
 class ProductCreate(BaseModel):
@@ -35,7 +35,7 @@ class ProductCreate(BaseModel):
     categories_id: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
-    batch_id: Optional[str] = None
+    # batch_id: Optional[str] = None
     has_promotion: Optional[bool] = None 
     
 class ProductUpdate(BaseModel):
@@ -51,7 +51,7 @@ class ProductUpdate(BaseModel):
     categories_id: Optional[str] 
     contract_for_vendor_id: Optional[str]
     promotion_id: Optional[str]
-    batch_id: Optional[str]
+    # batch_id: Optional[str]
     has_promotion: Optional[bool]
     
     @validator('barcode', 'product_name', 'unit', 'sale_price', 'status', pre=True, always=False)

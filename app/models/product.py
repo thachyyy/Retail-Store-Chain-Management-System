@@ -30,9 +30,9 @@ class Product(Base):
     categories_id = Column(String,ForeignKey('categories.id'),nullable=True,index = True)
     contract_for_vendor_id = Column(String,ForeignKey('contract_for_vendor.id'),unique=False,nullable=True,index = True)
     promotion_id = Column(String,ForeignKey('promotion.id'),unique=False,nullable=True,index = True)
-    batch_id = Column(String,ForeignKey('batch.id'),unique=False,nullable=True,index = True)
+    # batch_id = Column(String,ForeignKey('batch.id'),unique=False,nullable=True,index = True)
     
     categories = relationship('Categories')
     promotion = relationship('Promotion')
     contract_for_vendor = relationship('ContractForVendor')
-    batch = relationship('Batch')
+    # batch = relationship('Batch')
