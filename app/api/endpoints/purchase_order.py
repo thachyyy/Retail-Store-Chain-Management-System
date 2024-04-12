@@ -35,6 +35,18 @@ async def create_purchase_order(
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 
+@router.put("/purchase_order/update_status", summary="Cập nhật trạng thái đơn đặt hàng")
+async def create_purchase_order(
+    purchase_order_create: str, 
+    user:str = None,
+    db: Session = Depends(get_db)
+) -> Any:
+    purchase_order_service = PurchaseOrderService(db=db)
+    logger.info("Endpoints: create_purchase_order called.")
+    
+    msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,user)
+    logger.info("Endpoints: create_purchase_order called successfully.")
+    return make_response_object(purchase_order_response, msg)
 @router.get("/purchase_order", summary="Lấy thông tin tất cả đơn đặt hàng")
 async def get_all_purchase_order(
     db: Session = Depends(get_db),
