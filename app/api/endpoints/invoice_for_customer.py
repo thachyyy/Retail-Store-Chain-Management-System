@@ -34,11 +34,30 @@ async def create_invoice_for_customer(
     return make_response_object(invoice_for_customer_response)
 
 @router.get("/invoice_for_customers")
-async def get_all_invoice_for_customers(db: Session = Depends(get_db)) -> Any:
+async def get_all_invoice_for_customers(
+    db: Session = Depends(get_db),
+    limit: Optional[int] = None,
+    offset:Optional[int] = None,
+    status:Optional[str] = None,
+    gt_total:Optional[int] = None,
+    lt_total:Optional[int] = None,
+    start_date:Optional[date] = None,
+    end_date:Optional[date] = None,
+    query_search:Optional[str] = None
+) -> Any:
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     logger.info("Endpoints: get_all_invoice_for_customers called.")
     
-    msg, invoice_for_customer_response = await invoice_for_customer_service.get_all_invoice_for_customers()
+    msg, invoice_for_customer_response = await invoice_for_customer_service.get_all_invoice_for_customers(
+        limit=limit,
+        offset=offset,
+        status=status,
+        gt_total=gt_total,
+        lt_total=lt_total,
+        start_date=start_date,
+        end_date=end_date,
+        query_search=query_search
+    )
     logger.info("Endpoints: get_all_invoice_for_customers called successfully.")
     return make_response_object(invoice_for_customer_response, msg)
 

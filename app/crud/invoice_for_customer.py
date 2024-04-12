@@ -45,17 +45,25 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
     async def delete_invoice_for_customer(db: Session, invoice_for_customer_id: str):
         return db.query(InvoiceForCustomer).filter(InvoiceForCustomer.id == invoice_for_customer_id).delete()
     
-    @staticmethod
-    async def search_invoice_for_customer(db: Session, sql: str):        
-        result = db.execute(sql)
-        result_as_dict = result.mappings().all()
-        return result_as_dict
+    # @staticmethod
+    # async def search_invoice_for_customer(db: Session, sql: str):        
+    #     result = db.execute(sql)
+    #     result_as_dict = result.mappings().all()
+    #     return result_as_dict
+    
+    # @staticmethod
+    # async def filter_invoice_for_customer(db: Session, sql: str):
+    #     result = db.execute(sql)
+    #     result_as_dict = result.mappings().all()
+    #     return result_as_dict
     
     @staticmethod
-    async def filter_invoice_for_customer(db: Session, sql: str):
+    async def get_invoice_for_customer_by_conditions(db: Session, sql: str, total: str):        
         result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
         result_as_dict = result.mappings().all()
-        return result_as_dict
+        return result_as_dict, sum
     
     @staticmethod
     def create(db: Session, *, obj_in: InvoiceForCustomerCreate) -> InvoiceForCustomer:
