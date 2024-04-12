@@ -16,9 +16,11 @@ class Batch(Base):
     expiry_date = Column(Date, nullable = True)
     # belong_to_branch = Column(UUID(as_uuid=True), nullable = False)
     # belong_to_receipt = Column(UUID(as_uuid=True),  nullable = False)
+    product_id = Column(String, ForeignKey('product.id'), nullable=False)
     
     belong_to_branch = Column(String, ForeignKey('branch.id'), unique = False, nullable = False)
     belong_to_receipt = Column(String, ForeignKey('import_order.id'), unique = False, nullable = False)
     
     branch = relationship('Branch')
     import_order = relationship('ImportOrder')
+    product = relationship('Product')

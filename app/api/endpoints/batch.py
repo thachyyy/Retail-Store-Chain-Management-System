@@ -15,11 +15,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/batches")
-async def get_all_batches(db: Session = Depends(get_db)) -> Any:
+async def get_all_batches(
+    db: Session = Depends(get_db),
+    limit: Optional[int] = None,
+    offset:Optional[int] = None,
+) -> Any:
     batch_service = BatchService(db=db)
     logger.info("Endpoints: get_all_batches called.")
     
-    msg, batch_response = await batch_service.get_all_batches()
+    msg, batch_response = await batch_service.get_all_batches(limit=limit, offset=offset)
     logger.info("Endpoints: get_all_batches called successfully.")
     return make_response_object(batch_response, msg)
 
