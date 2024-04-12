@@ -86,9 +86,9 @@ class EmployeeService:
         total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
-    async def get_employee_by_id(self, employee_id: str):
+    async def get_employee_by_id(self, id: str):
         logger.info("EmployeeService: get_employee_by_id called.")
-        result = await crud.employee.get_employee_by_id(db=self.db, employee_id=employee_id)
+        result = await crud.employee.get_employee_by_id(db=self.db, id=id)
         if not result:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
         logger.info("EmployeeService: get_employee_by_id called successfully.")
@@ -153,14 +153,14 @@ class EmployeeService:
             gender=obj_in.gender,
             email=obj_in.email,
             phone_number=obj_in.phone_number,
-            password=obj_in.password,
+            # password=obj_in.password,
             role=obj_in.role,
             address=obj_in.address,
             district=obj_in.district,
             province=obj_in.province,
             status=obj_in.status,
             note=obj_in.note,
-            branch_name=obj_in.branch_name
+            # branch_name=obj_in.branch_name
         )
         
         logger.info("EmployeeService: create called.")
@@ -173,7 +173,7 @@ class EmployeeService:
     
     async def update_employee(self, employee_id: str, obj_in: EmployeeUpdate):
         logger.info("EmployeeService: get_employee_by_id called.")
-        isValidEmployee = await crud.employee.get_employee_by_id(db=self.db, employee_id=employee_id)
+        isValidEmployee = await crud.employee.get_employee_by_id(db=self.db, id=employee_id)
         logger.info("EmployeeService: get_employee_by_id called successfully.")
         
         if not isValidEmployee:
@@ -203,9 +203,9 @@ class EmployeeService:
         obj_update = await crud.employee.get_employee_by_id(self.db, employee_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_employee(self, employee_id: str):
+    async def delete_employee(self, id: str):
         logger.info("EmployeeService: get_employee_by_id called.")
-        isValidEmployee = await crud.employee.get_employee_by_id(db=self.db, employee_id=employee_id)
+        isValidEmployee = await crud.employee.get_employee_by_id(db=self.db, id=id)
         logger.info("EmployeeService: get_employee_by_id called successfully.")
         
         if not isValidEmployee:
@@ -214,7 +214,7 @@ class EmployeeService:
         obj_del = await crud.employee.get_employee_by_id(self.db, id)
         
         logger.info("EmployeeService: delete_employee called.")
-        result = await crud.employee.delete_employee(self.db, employee_id)
+        result = await crud.employee.delete_employee(self.db, id)
         logger.info("EmployeeService: delete_employee called successfully.")
         
         self.db.commit()

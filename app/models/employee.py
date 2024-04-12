@@ -20,7 +20,7 @@ class Employee(Base):
     gender = Column(String(16), unique = False, nullable = True)
     email = Column(String(255), unique = True, nullable = False)
     phone_number = Column(String(32), unique = True, nullable = False)
-    password = Column(String(255), unique = False, nullable = False)
+    # password = Column(String(255), unique = False, nullable = False)
     role = Column(String(25), unique = False, nullable = False)
     address = Column(String(255), unique = False, nullable = True)
     district = Column(String(255), unique = False, nullable = True)
