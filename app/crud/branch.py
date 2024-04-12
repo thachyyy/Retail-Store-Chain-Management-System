@@ -87,7 +87,7 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
     @staticmethod
     async def delete_branch(db: Session, branch_id: str):
         try:
-            return db.query(Branch).filter(Branch.id == id).delete()
+            return db.query(Branch).filter(Branch.id == branch_id).delete()
         except:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     

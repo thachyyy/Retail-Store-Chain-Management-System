@@ -41,6 +41,12 @@ class BranchUpdate(BaseModel):
     province: Optional[str] = None
     status: Optional[Status] = None
     note: Optional[str] = None
+    
+    @validator('name_display', 'name_detail', 'address', 'status', pre=True, always=False)
+    def check_not_null(cls, value, field):
+        if value is None:
+            raise ValueError(f"{field.name} cannot be null")
+        return value
 
 class BranchResponse(BranchCreate):
     employees: List[EmployeeCreate]
