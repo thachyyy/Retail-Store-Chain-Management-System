@@ -33,7 +33,7 @@ async def create_purchase_order(
     
     msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,user)
     logger.info("Endpoints: create_purchase_order called successfully.")
-    return make_response_object(purchase_order_response)
+    return make_response_object(purchase_order_response, msg)
 @router.get("/batchs_and_purchase_order/",response_model_exclude={'role'}, response_model_by_alias=False)
 async def get_batch_purchase_order( 
     db: Session = Depends(get_db),

@@ -9,6 +9,9 @@ from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderUpdate
 from app.crud.base import CRUDBase
 from ..models import PurchaseOrder
 
+from app.core.exceptions import error_exception_handler
+from app.constant.app_status import AppStatus
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +47,10 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
     
     @staticmethod
     async def delete_purchase_order(db: Session, purchase_order_id: str):
-        return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).delete()
+        try:
+            return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).delete()
+        except:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
     @staticmethod
     async def search_purchase_order(db: Session, sql: str):        

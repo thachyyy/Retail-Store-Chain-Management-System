@@ -124,7 +124,7 @@ class PurchaseOrderService:
         
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
-        created_at=datetime.now(),
+        # created_at=datetime.now(),
         estimated_delivery_date=obj_in.estimated_delivery_date,
         tax=obj_in.tax,
         subtotal=obj_in.subtotal,
