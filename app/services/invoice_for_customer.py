@@ -24,7 +24,7 @@ class InvoiceForCustomerService:
         result = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id)
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_all_invoice_for_customers(
         self,

@@ -79,11 +79,11 @@ class PurchaseOrderService:
             result,total= await crud.purchase_order.get_purchase_order_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else: 
-            logger.info("PurchaseOrderService: get_all_employees called.")
+            logger.info("PurchaseOrderService: get_all_purchase_order called.")
             if limit is not None and offset is not None:
                 result, total = crud.purchase_order.get_multi(db=self.db, skip=offset*limit,limit=limit)
             else: result, total = crud.purchase_order.get_multi(db=self.db)
-            logger.info("PurchaseOrderService: get_all_employees called successfully.")
+            logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
         
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
