@@ -50,9 +50,9 @@ async def get_all_purchase_order(
     db: Session = Depends(get_db),
     limit: int = None,
     offset: int = None,
-    note: str = None,
-    status: str = None,
-    query_search: Optional[str] = None
+    # note: str = None,
+    # status: str = None,
+    # query_search: Optional[str] = None
     ) -> Any:
     purchase_order_service = PurchaseOrderService(db=db)
     logger.info("Endpoints: get_all_purchase_order called.")
