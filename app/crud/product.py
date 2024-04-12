@@ -15,13 +15,23 @@ logger = logging.getLogger(__name__)
 
 class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):    
     @staticmethod
-    async def get_all_products(db: Session, offset: int = None, limit: int = None) -> Optional[Product]:
-        result = db.query(Product)
+    # async def get_all_products(db: Session, offset: int = None, limit: int = None) -> Optional[Product]:
+    #     result = db.query(Product)
         
-        if offset is not None and limit is not None:
-            result = result.offset(offset).limit(limit)
+    #     if offset is not None and limit is not None:
+    #         result = result.offset(offset).limit(limit)
         
-        return result.all()
+    #     return result.all()
+    
+    async def get_all_product(db: Session, total: str, sql: str):
+        result = db.execute(sql)
+        count = db.execute(total)
+        
+        result_as_dict = result.mappings().all()
+        count = count.mappings().all()
+    
+        return result_as_dict, count
+    
     
     # @staticmethod
     # async def get_products_with_pagination(limit_value:int, offset_value:int, total:str, db: Session) -> Optional[Product]:

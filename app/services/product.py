@@ -90,12 +90,12 @@ class ProductService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(conditions)
-            sql = f"SELECT * FROM public.product {whereConditions};"
+            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
             
-            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
 
             logger.info("ProductService: filter_product called.")
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
@@ -104,23 +104,32 @@ class ProductService:
         elif query_search:
             whereConditions = await self.whereConditionBuilderForSearch(query_search)
             
-            sql = f"SELECT * FROM public.product {whereConditions};"
+            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.product {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
-            total = f"SELECT COUNT(*) FROM public.product {whereConditions};"
+            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
 
             logger.info("ProductService: filter_product called.")
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
-        else: 
-            logger.info("ProductService: get_all_products called.")
+        else:
+            sql_join = "SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id;"
+            # logger.info("ProductService: get_all_products called.")
+            # if limit is not None and offset is not None:
+            #     result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            # else: result, total = crud.product.get_multi(db=self.db)
+            
             if limit is not None and offset is not None:
-                result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.product.get_multi(db=self.db)
+                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id LIMIT {limit} OFFSET {offset*limit};"
+            
+            total = "SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id;"
+            result, total = await crud.product.get_all_product(self.db, total, sql_join)
+            
             logger.info("ProductService: get_all_products called successfully.")
+            
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     
     async def gen_id(self):
@@ -236,9 +245,9 @@ class ProductService:
     
     async def whereConditionBuilderForSearch(self, condition: str) -> str:
         conditions = list()
-        conditions.append(f"id::text ilike '%{condition}%'")
-        conditions.append(f"product_name ilike '%{condition}%'")
-        conditions.append(f"barcode  ilike '%{condition}%'")
+        conditions.append(f"p.id::text ilike '%{condition}%'")
+        conditions.append(f"p.product_name ilike '%{condition}%'")
+        conditions.append(f"p.barcode  ilike '%{condition}%'")
             
         whereCondition = "WHERE " + ' OR '.join(conditions)
         return whereCondition
