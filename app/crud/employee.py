@@ -26,9 +26,7 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_employee_by_id(db: Session, id: str):
-        print("EMP ID:", id)
-        
+    async def get_employee_by_id(db: Session, id: str):        
         return db.query(Employee).filter(Employee.id == id).first()
     
     @staticmethod
