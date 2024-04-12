@@ -26,11 +26,8 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_employee_by_id(db: Session, employee_id: str):
-        logger.info("CRUDEmployee: get_employee_by_id called.")
-        current_employee_by_id =  db.query(Employee).filter(Employee.id == employee_id).first()
-        logger.info("CRUDEmployee: get_employee_by_id called successfully.")
-        return current_employee_by_id
+    async def get_employee_by_id(db: Session, id: str):        
+        return db.query(Employee).filter(Employee.id == id).first()
     
     @staticmethod
     async def get_employee_by_branch_name(db: Session, branch_name: str):
