@@ -48,7 +48,6 @@ async def get_all_employees(
     phone_number: str = None,
     address: str = None,
     note: str = None,
-    branch_name: str = None,
     query_search: Optional[str] = None,
     
 ) -> Any:
@@ -71,7 +70,6 @@ async def get_all_employees(
         phone_number,
         address,
         note,
-        branch_name,
         query_search
     )
     logger.info("Endpoints: get_all_employees called successfully.")
