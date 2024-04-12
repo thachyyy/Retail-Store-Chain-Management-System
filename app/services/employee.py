@@ -98,7 +98,9 @@ class EmployeeService:
             
         else: 
             logger.info("EmployeeService: get_all_employees called.")
-            result,total = crud.employee.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.employee.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.employee.get_multi(db=self.db)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
         

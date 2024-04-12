@@ -20,11 +20,16 @@ class CategoriesService:
         self,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
-        sort: Literal['asc', 'desc'] = None,
+        # sort: Literal['asc', 'desc'] = None,
         ):
         
         logger.info("CategoriesService: get_all_categories called.")
-        result,total = await crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset*limit, limit=limit)
+        if limit is not None and offset is not None:
+                result, total = crud.categories.get_multi(db=self.db, skip=offset*limit,limit=limit)
+        else: result, total = crud.categories.get_multi(db=self.db)
+        # if limit is not None and offset is not None:
+        #     result, total = crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset*limit,limit=limit)
+        # else: result,total = await crud.categories.get_all_categories(db=self.db, sort=sort)
         logger.info("CategoriesService: get_all_categories called successfully.")
 
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result

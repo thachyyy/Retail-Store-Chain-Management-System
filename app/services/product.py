@@ -117,7 +117,9 @@ class ProductService:
             total = total[0]['count']
         else: 
             logger.info("ProductService: get_all_products called.")
-            result,total =  crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.product.get_multi(db=self.db)
             logger.info("ProductService: get_all_products called successfully.")
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
     

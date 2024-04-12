@@ -80,7 +80,9 @@ class CustomerService:
         
         else: 
             logger.info("CustomerService: get_all_customers called.")
-            result, total = crud.customer.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.customer.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.customer.get_multi(db=self.db)
             logger.info("CustomerService: get_all_customers called successfully.")
 
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result

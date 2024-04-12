@@ -66,7 +66,9 @@ class BranchService:
             
         else: 
             logger.info("BranchService: get_all_branches called.")
-            result, total = crud.branch.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.branch.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.branch.get_multi(db=self.db)
             logger.info("BranchService: get_all_branches called successfully.")
             
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result

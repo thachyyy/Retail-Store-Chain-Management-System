@@ -85,7 +85,9 @@ class VendorService:
             
         else:
             logger.info("VendorService: get_all_vendors called.")
-            result, total = crud.vendor.get_multi(db=self.db, skip=offset*limit, limit=limit)
+            if limit is not None and offset is not None:
+                result, total = crud.vendor.get_multi(db=self.db, skip=offset*limit,limit=limit)
+            else: result, total = crud.vendor.get_multi(db=self.db)
             logger.info("VendorService: get_all_vendors called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
