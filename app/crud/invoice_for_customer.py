@@ -35,7 +35,7 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
     
     @staticmethod
     async def get_invoice_for_customer_by_id(db: Session, invoice_for_customer_id: str):
-        return db.query(InvoiceForCustomer).options(joinedload(InvoiceForCustomer.order)).where(InvoiceForCustomer.id == invoice_for_customer_id).one()
+        return db.query(InvoiceForCustomer).options(joinedload(InvoiceForCustomer.purchase_order)).where(InvoiceForCustomer.id == invoice_for_customer_id).one()
     
     @staticmethod
     async def get_last_id(db: Session):
