@@ -19,6 +19,7 @@ class PurchaseOrderCreateParams(BaseModel):
     tax: Optional[int] = None
     note: Optional[str] = None
     promote: Optional[int] = None
+    invoice_id: str
     # status: Status = Field(default= Status.WAITING)
     belong_to_customer : Optional[str] = Field(None)
     order_detail: List[OrderDetails]
@@ -32,6 +33,7 @@ class PurchaseOrderCreate(BaseModel):
     handle_by: str
     tax: Optional[int]
     promote: Optional[int]
+    invoice_id: str
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str]
     belong_to_customer: Optional[str]= Field(None)
@@ -41,6 +43,7 @@ class PurchaseOrderUpdate(BaseModel):
     tax: Optional[int] = None
     subtotal: Optional[int] = None
     promote: Optional[int] = None
+    invoice_id: Optional[str] = None
     total: Optional[int] = None
     tax_percentage: Optional[int] = None
     status: Optional[Status] = Field(default= Status.WAITING)

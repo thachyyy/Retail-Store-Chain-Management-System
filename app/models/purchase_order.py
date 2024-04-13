@@ -18,6 +18,7 @@ class PurchaseOrder(Base):
     promote = Column(Integer, unique = False, nullable = True)
     status = Column(String, unique = False, nullable = True)
     note = Column(String, unique = False, nullable = True)
+    invoice_id = Column(String, ForeignKey('invoice_for_customer.id'), unique=True, nullable=True)
     # handle_by = Column(String,  unique = False, nullable = False)
     # belong_to_customer = Column(String,  unique = False, nullable = False)
     
@@ -27,3 +28,4 @@ class PurchaseOrder(Base):
     
     employee = relationship('Employee')
     customer = relationship('Customer')
+    invoice_for_customer = relationship('InvoiceForCustomer')

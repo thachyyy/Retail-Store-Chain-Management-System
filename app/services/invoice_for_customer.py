@@ -119,7 +119,7 @@ class InvoiceForCustomerService:
             total=obj_in.total,
             status=status,
             payment_method=obj_in.payment_method,
-            belong_to_order=obj_in.belong_to_order,
+            # belong_to_order=obj_in.belong_to_order,
             order_detail=obj_in.order_detail
         )
         
