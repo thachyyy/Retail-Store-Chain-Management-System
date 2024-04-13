@@ -137,7 +137,7 @@ class PurchaseOrderService:
              for item in obj_in.order_detail
             ]
         else:
-            status = "Chưa thanh toán"
+            status = "Đang chờ xử lí"
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
         # created_at=datetime.now(),
