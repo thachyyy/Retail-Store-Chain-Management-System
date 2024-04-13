@@ -80,10 +80,14 @@ class PurchaseOrderService:
             result,total= await crud.purchase_order.get_purchase_order_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else: 
+            sql = f"SELECT COUNT(*) FROM public.purchase_order;"
             logger.info("PurchaseOrderService: get_all_purchase_order called.")
             if limit is not None and offset is not None:
-                result, total = crud.purchase_order.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.purchase_order.get_multi(db=self.db)
+                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql, offset=offset*limit,limit=limit)
+                total = total[0]['count']
+            else: 
+                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql)
+                total = total[0]['count']
             logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
         

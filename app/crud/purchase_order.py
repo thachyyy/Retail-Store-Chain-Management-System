@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 from app.models.order_detail import OrderDetail
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderUpdate
 from app.crud.base import CRUDBase
@@ -17,8 +17,17 @@ logger = logging.getLogger(__name__)
 
 class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrderUpdate]):    
     @staticmethod
-    async def get_all_purchase_orders(db: Session) -> Optional[PurchaseOrder]:
-        return db.query(PurchaseOrder).all()
+    async def get_all_purchase_orders(db: Session,sql:str,offset:int= None,limit :int = None) -> Optional[PurchaseOrder]:
+        total = db.execute(sql)
+        result_as_dict = total.mappings().all()
+        
+        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),joinedload(PurchaseOrder.employee))
+
+        
+        if limit is not None and offset is not None:
+            response = response.offset(offset).limit(limit)
+        return response.all(), result_as_dict
+        
     
     @staticmethod
     async def get_purchase_order_by_phone(db: Session, phone_number: str) -> Optional[PurchaseOrder]:
