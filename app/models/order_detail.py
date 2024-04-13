@@ -12,6 +12,8 @@ class OrderDetail(Base):
     quantity = Column(Integer,nullable= False)
     price = Column(Integer,nullable =True)
     sub_total = Column(Integer,nullable = True)
+    product_id = Column(String, nullable=True)
+    product_name = Column(String, nullable=True)
     batch = relationship("Batch", back_populates="purchase_order")
     purchase_order = relationship("PurchaseOrder", back_populates="batch")
     

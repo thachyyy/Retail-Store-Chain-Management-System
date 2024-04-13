@@ -75,6 +75,8 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             sub_total = product.sub_total,
             price = product.price,
             batch_id = product.batch,
+            product_id = product.product_id,
+            product_name = product.product_name,
             purchase_order_id = db_obj.id
             )
                for product in obj]
