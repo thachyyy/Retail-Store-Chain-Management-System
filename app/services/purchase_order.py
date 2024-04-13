@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from pydantic import UUID4, Field
 
 from app import crud
+from app.api.endpoints.batch import update_batch
 from app.constant.app_status import AppStatus
 from app.schemas.purchase_order import PurchaseOrderResponse, PurchaseOrderCreate, PurchaseOrderCreateParams
 from app.utils import hash_lib
@@ -127,9 +128,16 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,user:str |None = None):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user:str |None = None):
         newID = await self.gen_id()
-        
+        if paid == True:
+            
+            status = "Đã thanh toán"
+            [await update_batch(item.batch,item.quantity,db=self.db)
+             for item in obj_in.order_detail
+            ]
+        else:
+            status = "Chưa thanh toán"
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
         # created_at=datetime.now(),
@@ -139,7 +147,7 @@ class PurchaseOrderService:
         promote=obj_in.promote,
         total=obj_in.total,
         tax_percentage=obj_in.tax_percentage,
-        status=obj_in.status,  
+        status=status,  
         note=obj_in.note,
         handle_by=user,
         belong_to_customer=obj_in.belong_to_customer

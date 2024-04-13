@@ -17,7 +17,11 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     @staticmethod
     async def get_all_batches(db: Session) -> Optional[Batch]:
         return db.query(Batch).all()
+
     
+    @staticmethod
+    async def get_all_batches(db: Session) -> Optional[Batch]:
+        return db.query(Batch).all()
     @staticmethod
     async def get_batch_by_id(db: Session, batch_id: str):
         return db.query(Batch).filter(Batch.id == batch_id).first()
@@ -51,7 +55,16 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     async def update_batch(db: Session, batch_id: str, batch_update: BatchUpdate):
         update_data = batch_update.dict(exclude_unset=True)
         return db.query(Batch).filter(Batch.id == batch_id).update(update_data)
-    
+    @staticmethod
+    async def update_quantity(db: Session,batch_id:str, quantity:int) -> Optional[Batch]:
+        get_quantity= f"SELECT quantity FROM public.batch WHERE id = '{batch_id}';"
+        current_quantity= db.execute(get_quantity)
+        result = current_quantity.mappings().all()
+        print(result)
+        new_quantity = result[0]['quantity'] - quantity
+        sql = f"UPDATE public.batch SET quantity = {new_quantity} WHERE id = '{batch_id}';"
+        result = db.execute(sql)
+        return result
     @staticmethod
     async def delete_batch(db: Session, batch_id: str):
         try:

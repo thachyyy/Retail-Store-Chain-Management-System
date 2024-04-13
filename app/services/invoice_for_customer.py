@@ -79,7 +79,7 @@ class InvoiceForCustomerService:
             total = total[0]['count']
         else: 
             logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called.")
-            sql = f"SELECT COUNT(*) FROM public.order;"
+            sql = f"SELECT COUNT(*) FROM public.invoice_for_customer;"
             if limit is not None and offset is not None:
                 result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,offset=offset*limit,limit=limit)
                 total = total[0]['count']
@@ -106,14 +106,18 @@ class InvoiceForCustomerService:
     
             return 'INVOICECUS' + newID
         
-    async def create_invoice_for_customer(self, obj_in: InvoiceForCustomerCreateParams):
+    async def create_invoice_for_customer(self, 
+                                          paid:bool,
+                                          obj_in: InvoiceForCustomerCreateParams):
         newID = await self.gen_id()
-              
+        if paid == True:
+            status = "Đã thanh toán"
+        else:
+            status = "Chưa thanh toán"      
         invoice_for_customer_create = InvoiceForCustomerCreate(
             id=newID,
-            created_at=datetime.now(),
             total=obj_in.total,
-            status=obj_in.status,
+            status=status,
             payment_method=obj_in.payment_method,
             belong_to_order=obj_in.belong_to_order,
             order_detail=obj_in.order_detail

@@ -18,8 +18,9 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         
         total = db.execute(sql)
         result_as_dict = total.mappings().all()
-        response = db.query(InvoiceForCustomer).options(joinedload(InvoiceForCustomer.order))
- 
+        
+        response = db.query(InvoiceForCustomer)
+        
         if limit is not None and offset is not None:
                response = response.offset(offset).limit(limit)
         return response.all(), result_as_dict

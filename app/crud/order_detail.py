@@ -25,9 +25,13 @@ class CRUDOrderDetail(CRUDBase[OrderDetail, OrderDetailCreate, OrderDetailUpdate
                response = response.offset(offset).limit(limit)
         return response.all(), result_as_dict
     
+    @staticmethod
+    async def get_order_detail_by_id(db: Session, order_detail_id:int) -> Optional[OrderDetail]:
+       return db.query(OrderDetail).options(joinedload(OrderDetail.purchase_order),joinedload(OrderDetail.batch)).filter(OrderDetail.id == order_detail_id).first()
+    
     
     @staticmethod
-    async def delete_order_detail(db: Session, order_detail_id: str):
+    async def delete_order_detail(db: Session, order_detail_id: int):
         return db.query(OrderDetail).filter(OrderDetail.id == order_detail_id).delete()
     
     @staticmethod

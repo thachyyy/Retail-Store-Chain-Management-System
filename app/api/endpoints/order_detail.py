@@ -28,7 +28,7 @@ async def get_all_order_detail(
     return make_response_object(order_detail_response, msg)
 
 @router.get("/order_detail/{order_detail_id}")
-async def get_order_detail_by_id(order_detail_id: str, db: Session = Depends(get_db)) -> Any:
+async def get_order_detail_by_id(order_detail_id: int, db: Session = Depends(get_db)) -> Any:
     order_detail_service = OrderDetailService(db=db)
     
     logger.info("Endpoints: get_order_detail_by_id called.")  

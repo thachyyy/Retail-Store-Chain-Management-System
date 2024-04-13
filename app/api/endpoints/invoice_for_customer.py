@@ -23,13 +23,14 @@ router = APIRouter()
 
 @router.post("/invoice_for_customers")
 async def create_invoice_for_customer(
+    paid:bool,
     invoice_for_customer_create: InvoiceForCustomerCreateParams,
     db: Session = Depends(get_db)
 ) -> Any:
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     logger.info("Endpoints: create_invoice_for_customer called.")
     
-    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(invoice_for_customer_create)
+    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_create)
     logger.info("Endpoints: create_invoice_for_customer called successfully.")
     return make_response_object(invoice_for_customer_response)
 

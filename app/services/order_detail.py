@@ -18,7 +18,7 @@ class OrderDetailService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def get_order_detail_by_id(self, order_detail_id: str):
+    async def get_order_detail_by_id(self, order_detail_id: int):
         logger.info("OrderDetailService: get_order_detail_by_id called.")
         result = await crud.order_detail.get_order_detail_by_id(db=self.db, order_detail_id=order_detail_id)
         logger.info("OrderDetailService: get_order_detail_by_id called successfully.")

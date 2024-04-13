@@ -96,7 +96,21 @@ class BatchService:
         self.db.commit()
         obj_update = await crud.batch.get_batch_by_id(self.db, batch_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
+    
+    async def update_quantity(self, batch_id: str, quantity:int):
+        logger.info("BatchService: get_batch_by_id called.")
+        isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
+        logger.info("BatchService: get_batch_by_id called successfully.")
         
+        if not isValidBatch:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BATCH_NOT_FOUND)
+
+        logger.info("BatchService: update_batch called.")
+        result = await crud.batch.update_quantity(db=self.db, batch_id=batch_id, quantity=quantity)
+        logger.info("BatchService: update_batch called successfully.")
+        self.db.commit()
+        obj_update = await crud.batch.get_batch_by_id(self.db, batch_id)
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update    
     async def delete_batch(self, batch_id: str):
         logger.info("BatchService: get_batch_by_id called.")
         isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
