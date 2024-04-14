@@ -149,7 +149,6 @@ class PurchaseOrderService:
         tax=obj_in.tax,
         subtotal=obj_in.subtotal,
         promote=obj_in.promote,
-        invoice_id=obj_in.invoice_id,
         total=obj_in.total,
         tax_percentage=obj_in.tax_percentage,
         status=status,  
