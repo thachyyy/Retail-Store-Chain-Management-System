@@ -6,6 +6,7 @@ from sqlalchemy import func
 from pydantic import EmailStr, UUID4
 
 from sqlalchemy.orm import Session
+from app.models.batch import Batch
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.crud.base import CRUDBase
 from ..models import Product
@@ -32,7 +33,14 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         
         result_as_dict = result.mappings().all()
         count = count.mappings().all()
-    
+        query = (
+            db.query(func.count())
+            .select_from(Product)
+            .outerjoin(Batch, Product.id == Batch.product_id)
+        )
+
+        # Execute the query
+        result = query.scalar()
         return result_as_dict, count
     
     
