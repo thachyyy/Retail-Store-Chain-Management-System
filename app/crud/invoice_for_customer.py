@@ -8,6 +8,7 @@ from app.models.order_detail import OrderDetail
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreate, InvoiceForCustomerUpdate
 from app.crud.base import CRUDBase
 from ..models import InvoiceForCustomer
+from ..models import OrderDetail
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,10 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         if limit is not None and offset is not None:
                response = response.offset(offset).limit(limit)
         return response.all(), result_as_dict
+    
+    @staticmethod
+    async def get_order_detail_by_id(db: Session, id: int):
+        return db.query(OrderDetail).filter(OrderDetail.id == id).first()
     
     @staticmethod
     async def get_invoice_for_customer_by_phone(db: Session, phone_number: str) -> Optional[InvoiceForCustomer]:

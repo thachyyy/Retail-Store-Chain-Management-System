@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from pydantic import EmailStr, UUID4
 
 from sqlalchemy.orm import Session
@@ -78,9 +79,9 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.id == product_id).update(update_data)
     
     @staticmethod
-    async def delete_product(db: Session, Product: str):
+    async def delete_product(db: Session, product_id: str):
         try:
-            return db.query(Product).filter(Product.id == Product).delete()
+            return db.query(Product).filter(Product.id == product_id).delete()
         except:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     

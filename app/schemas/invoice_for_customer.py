@@ -3,6 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, UUID4, Field
 from datetime import datetime
 import enum
+from app.schemas.order_detail import OrderDetails
 
 class PaymentMethod(str,enum.Enum):
     Momo = "Momo"
@@ -23,7 +24,7 @@ class InvoiceForCustomerCreate(BaseModel):
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
     # belong_to_order: str
-    order_detail: List[int] 
+    order_details: List[int] 
 
     
 class InvoiceForCustomerUpdate(BaseModel):
@@ -33,6 +34,12 @@ class InvoiceForCustomerUpdate(BaseModel):
     # belong_to_order: Optional[str] = None
 
 class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
-    class Config:
-        orm_mode = True
-        
+    # class Config:
+    #     orm_mode = True
+    id: str
+    created_at: datetime
+    updated_at: Optional[datetime]
+    total: int
+    payment_method: str
+    status: str
+    order_details: Optional[list[OrderDetails]]

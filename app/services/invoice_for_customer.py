@@ -88,8 +88,35 @@ class InvoiceForCustomerService:
                 total = total[0]['count']
                 logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called successfully.")
                 
+                
+            response = []
+            for x in result:
+                r = await self.make_response_invoice(x)
+                response.append(r)
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), response
+    
+    async def make_response_invoice(self, obj_in):
+        response = InvoiceForCustomerResponse(
+            id=obj_in.id,
+            created_at=obj_in.created_at,
+            updated_at=obj_in.updated_at,
+            total=obj_in.total,
+            payment_method=obj_in.payment_method,
+            status=obj_in.status,
+            order_details=[]
+        )
+        # lenght_order_details = len(obj_in.order_detail)
+        # idx = 0
+        for id in obj_in.order_detail:
+            order_detail = await crud.invoice_for_customer.get_order_detail_by_id(self.db, id)
+
+            response.order_details.append(order_detail)
+
+            # if idx < lenght_order_details: idx += 1
+            # else: break
+            
+        return response
     
     async def gen_id(self):
         newID: str
