@@ -8,6 +8,9 @@ from app.schemas.customer import CustomerCreate, CustomerUpdate
 from app.crud.base import CRUDBase
 from ..models import Customer
 
+from app.core.exceptions import error_exception_handler
+from app.constant.app_status import AppStatus
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,7 +57,10 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
     
     @staticmethod
     async def delete_customer(db: Session, customer_id: str):
-        return db.query(Customer).filter(Customer.id == customer_id).delete()
+        try:
+            return db.query(Customer).filter(Customer.id == customer_id).delete()
+        except:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_DATA_USED_ERROR)
     
     @staticmethod
     async def get_customer_by_conditions(db: Session, sql: str, total: str):        
