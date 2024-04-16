@@ -8,7 +8,10 @@ from pydantic import UUID4, Field
 
 from app import crud
 from app.api.endpoints.batch import update_batch
+from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
 from app.constant.app_status import AppStatus
+from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams
+from app.schemas.order_detail import OrderDetails
 from app.schemas.purchase_order import PurchaseOrderResponse, PurchaseOrderCreate, PurchaseOrderCreateParams
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
@@ -134,14 +137,13 @@ class PurchaseOrderService:
         
     async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user:str |None = None):
         newID = await self.gen_id()
-        if paid == True:
-            
-            status = "Đã thanh toán"
-            [await update_batch(item.batch,item.quantity,db=self.db)
-             for item in obj_in.order_detail
-            ]
-        else:
-            status = "Đang chờ xử lí"
+        status = "Đã thanh toán" if paid else "Đang chờ xử lí"
+
+        # Update batches if paid
+        if paid:
+            for item in obj_in.order_detail:
+                await update_batch(item.batch, item.quantity, db=self.db)
+                
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
         # created_at=datetime.now(),
@@ -155,17 +157,32 @@ class PurchaseOrderService:
         note=obj_in.note,
         handle_by=user,
         belong_to_customer=obj_in.belong_to_customer
+        )
         
-    )
-        
+        # order_details_instances = [
+        #     OrderDetails(
+        #         quantity =product.quantity,
+        #         sub_total=product.sub_total,
+        #         price = product.price,
+        #         batch = product.batch,
+        #         product_id = product.product_id,
+        #         product_name=product.product_name,
+        #         )
+        # for product in obj_in.order_detail]
+
+        # Creating an instance of InvoiceForCustomerCreateParams with the list of OrderDetails instances
+      
         logger.info("PurchaseOrderService: create called.")
-        result = crud.purchase_order.create(db=self.db, obj_in=purchase_order_create,obj=obj_in.order_detail)
+        result = await crud.purchase_order.create(db=self.db,paid =paid,obj_in=purchase_order_create,obj=obj_in.order_detail)
+        
         logger.info("PurchaseOrderService: create called successfully.")
         
         self.db.commit()
+        
+       
         logger.info("Service: create_purchase_order success.")
         return dict(message_code=AppStatus.SUCCESS.message), purchase_order_create
-    
+
     async def update_purchase_order(self, purchase_order_id: str, obj_in):
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
         isValidPurchaseOrder = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id)
