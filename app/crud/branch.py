@@ -60,6 +60,20 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return result_as_dict
     
     @staticmethod
+    async def get_branch_by_manager_id(db: Session, tenant_id: str, manager_id: str) -> Optional[Branch]:
+        return db.query(Branch).filter(Branch.manager_id == manager_id, Branch.tenant_id == tenant_id).first()
+    
+    @staticmethod
+    async def change_manager(db: Session, old_manager: str, new_manager: str):
+        sql = f"""
+            UPDATE public.employee SET role = 'Nhân viên' WHERE id = '{old_manager}';
+            UPDATE public.employee SET role = 'Quản lý cửa hàng' WHERE id = '{new_manager}';
+        """
+        result = db.execute(sql)
+        return result
+        
+        
+    @staticmethod
     async def get_last_id(db: Session):
         sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM branch;"
         last_id = db.execute(sql).scalar_one_or_none()
@@ -83,6 +97,12 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
     async def update_branch(db: Session, branch_id: str, branch_update: BranchUpdate):
         update_data = branch_update.dict(exclude_unset=True)
         return db.query(Branch).filter(Branch.id == branch_id).update(update_data)
+    
+    @staticmethod
+    async def update_manager(db: Session, tenant_id: str, name_detail: str, manager_id: str):
+        sql = f"UPDATE public.branch SET manager_id = '{manager_id}' WHERE name_detail = '{name_detail}' AND tenant_id = '{tenant_id}';"
+        result = db.execute(sql)
+        return result
     
     @staticmethod
     async def delete_branch(db: Session, branch_id: str):

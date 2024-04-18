@@ -218,22 +218,22 @@ class EmployeeService:
         if current_employee_phone:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         
-    
-        # Kiểm tra chi nhánh có quản lí hay chưa
-        # if obj_in.role.value == "Quản lí chi nhánh":
-             
-        #     logger.info("BranchService: get_branch_by_name_detail called.")
-        #     current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch_name)
-        #     logger.info("BranchService: get_branch_by_name_detail called successfully.")
-        #     if current_branch.manager_id:
-        #         raise HTTPException(status_code=404, detail="Chi nhánh đã có quản lí.") 
-        #     update_branch_manager = await crud.branch.update_branch(self.db,current_branch.id,branch_update=current_branch.manager_id)
+        newID = await self.gen_id() # gen id for employee
+        
+        # Kiểm tra chi nhánh có quản lý hay chưa
+        if obj_in.role.value == "Quản lý chi nhánh":
+            logger.info("BranchService: get_branch_by_name_detail called.")
+            current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch, tenant_id)
+            logger.info("BranchService: get_branch_by_name_detail called successfully.")
+            if current_branch.manager_id:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EXIST_MANAGER_ERROR)
+            else:
+                await crud.branch.update_manager(self.db, tenant_id, obj_in.branch, newID)
         
         if len(obj_in.password) < 6 or len(obj_in.password) > 64:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_LENGTH)
         
         obj_in.email = obj_in.email.lower()
-        newID = await self.gen_id()
         hashed_password = hash_lib.hash_password(obj_in.password)
 
         employee_create = EmployeeCreate(
