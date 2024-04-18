@@ -173,7 +173,7 @@ class PurchaseOrderService:
         # Creating an instance of InvoiceForCustomerCreateParams with the list of OrderDetails instances
       
         logger.info("PurchaseOrderService: create called.")
-        result = await crud.purchase_order.create(db=self.db,paid =paid,obj_in=purchase_order_create,obj=obj_in.order_detail)
+        result = await crud.purchase_order.create(db=self.db,paid=paid,obj_in=purchase_order_create,obj=obj_in.order_detail)
         
         logger.info("PurchaseOrderService: create called successfully.")
         

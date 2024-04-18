@@ -106,6 +106,7 @@ class BatchService:
         isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
         logger.info("BatchService: get_batch_by_id called successfully.")
         
+        
         if not isValidBatch:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BATCH_NOT_FOUND)
 

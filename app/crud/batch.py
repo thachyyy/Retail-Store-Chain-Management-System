@@ -18,10 +18,6 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     async def get_all_batches(db: Session) -> Optional[Batch]:
         return db.query(Batch).all()
 
-    
-    @staticmethod
-    async def get_all_batches(db: Session) -> Optional[Batch]:
-        return db.query(Batch).all()
     @staticmethod
     async def get_batch_by_id(db: Session, batch_id: str):
         return db.query(Batch).filter(Batch.id == batch_id).first()
@@ -60,8 +56,10 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         get_quantity= f"SELECT quantity FROM public.batch WHERE id = '{batch_id}';"
         current_quantity= db.execute(get_quantity)
         result = current_quantity.mappings().all()
-        print(result)
+
         new_quantity = result[0]['quantity'] - quantity
+        if new_quantity < 0: 
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_QUANITY_NOT_ENOUGH)
         sql = f"UPDATE public.batch SET quantity = {new_quantity} WHERE id = '{batch_id}';"
         result = db.execute(sql)
         return result
