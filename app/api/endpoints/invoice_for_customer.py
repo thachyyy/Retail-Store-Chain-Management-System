@@ -12,7 +12,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import InvoiceForCustomer
-from app.schemas import ChangePassword, InvoiceForCustomerResponse
+# from app.schemas import ChangePassword, InvoiceForCustomerResponse
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams, InvoiceForCustomerUpdate
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.utils.response import make_response_object

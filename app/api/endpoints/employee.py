@@ -7,31 +7,109 @@ from pydantic import UUID4
 from datetime import date
 
 from app.api.depends import oauth2
-# from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
+from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
-from app.schemas.employee import EmployeeCreateParams, EmployeeUpdate
+from app.schemas.employee import EmployeeCreateParams, EmployeeUpdate, EmployeeRegister, EmployeeLogin
 from app.services.employee import EmployeeService
 from app.utils.response import make_response_object
+from app.models import Employee
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+
+
+@router.post('/auth/register')
+async def create_user(
+        employee_create: EmployeeRegister,
+        db: Session = Depends(get_db)
+) -> Any:
+    """
+    Create user.
+    """
+    employee_service = EmployeeService(db=db)
+    logger.info("Endpoints: create_user called.")
+
+    emp_response = await employee_service.create_user(employee_create)
+    logger.info("Endpoints: create_user called successfully.")
+    return make_response_object(emp_response)
+
+@router.post("/auth/login")
+async def login(
+        login_request: EmployeeLogin,
+        db: Session = Depends(get_db),
+) -> Any:
+    """
+    login social.
+    """
+    logger.info("Service: login called.")
+
+    employee_service = EmployeeService(db=db)
+    current_user = await employee_service.login(login_request)
+
+    created_access_token = create_access_token(data={"uid": current_user.id, 
+                                                     "tenant_id": current_user.tenant_id,
+                                                     "branch": current_user.branch,
+                                                     "role": current_user.role})
+    created_refresh_token = create_refresh_token(data={"uid": current_user.id, 
+                                                       "tenant_id": current_user.tenant_id,
+                                                       "branch": current_user.branch,
+                                                       "role": current_user.role})
+    logger.info("Service: read_user_me successfully.")
+    return make_response_object(data=dict(access_token=created_access_token,
+                                          refresh_token=created_refresh_token),
+                                meta=AppStatus.LOGIN_SUCCESS.meta)
+
+@router.post("/auth/refresh")
+async def refresh_token(decoded_refresh_token=Depends(verify_refresh_token),
+                        db: Session = Depends(get_db)):
+    logger.info("Service: refresh_token called.")
+    employee_service = EmployeeService(db=db)
+    msg, current_user = await employee_service.get_employee_by_id(decoded_refresh_token['uid'])
+    
+    if not current_user:
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
+
+    created_access_token = create_access_token(data={"uid": current_user.id, 
+                                                     "tenant_id": current_user.tenant_id,
+                                                     "branch": current_user.branch,
+                                                     "role": current_user.role})
+    created_refresh_token = create_refresh_token(data={"uid": current_user.id, 
+                                                       "tenant_id": current_user.tenant_id,
+                                                       "branch": current_user.branch,
+                                                       "role": current_user.role})
+    logger.info("Service: refresh_token called successfully.")
+    return make_response_object(data=dict(access_token=created_access_token,
+                                          refresh_token=created_refresh_token),meta=msg)
+
 @router.post("/employees")
 async def create_employee(
     employee_create: EmployeeCreateParams,
+    user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    current_user = await user
+    
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    if current_user.role == "Quản lý chi nhánh":
+        if employee_create.role == "Quản lý" or employee_create.role == "Quản lý chi nhánh":
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: create_employee called.")
     
-    msg,employee_response = await employee_service.create_employee(employee_create)
+    msg,employee_response = await employee_service.create_employee(current_user.tenant_id, employee_create)
     logger.info("Endpoints: create_employee called successfully.")
     return make_response_object(employee_response,msg)
 
 @router.get("/employees")
 async def get_all_employees(
+    user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
     limit: int = None,
     offset: int = None,
@@ -54,7 +132,14 @@ async def get_all_employees(
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: get_all_employees called.")
     
+    current_user = await user
+    
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     msg, employee_response = await employee_service.get_all_employees(
+        current_user.tenant_id,
+        current_user.branch,
         limit, 
         offset, 
         role, 
@@ -76,7 +161,16 @@ async def get_all_employees(
     return make_response_object(employee_response, msg)
 
 @router.get("/employees/work_on_branch")
-async def get_employee_by_branch_name(branch_name: str, db: Session = Depends(get_db)) -> Any:
+async def get_employee_by_branch_name(
+    branch_name: str, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    
+    current_user = await user
+    if current_user.role != "Quản lý":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: get_employee_by_branch_name called.")  
@@ -86,60 +180,100 @@ async def get_employee_by_branch_name(branch_name: str, db: Session = Depends(ge
     
 
 @router.get("/employees/{employee_id}")
-async def get_employee_by_id(employee_id: str, db: Session = Depends(get_db)) -> Any:
+async def get_employee_by_id(
+    employee_id: str, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: get_employee_by_id called.")  
-    msg, employee_response = await employee_service.get_employee_by_id(employee_id)
+    msg, employee_response = await employee_service.get_employee_by_id(employee_id, current_user.branch)
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)
     
 @router.put("/employees/{employee_id}")
-async def update_employee(employee_id: str, employee_update: EmployeeUpdate, db: Session = Depends(get_db)) -> Any:
+async def update_employee(
+    employee_id: str, 
+    employee_update: EmployeeUpdate, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: update_employee called.")
-    msg, employee_response = await employee_service.update_employee(employee_id, employee_update)
+    msg, employee_response = await employee_service.update_employee(employee_id, employee_update, branch=current_user.branch)
     logger.info("Endpoints: update_employee called successfully.")
     return make_response_object(employee_response, msg)
 
 @router.delete("/employees/{employee_id}")
-async def delete_employee(employee_id: str, db: Session = Depends(get_db)) -> Any:
+async def delete_employee(
+    employee_id: str, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: delete_employee called.")
-    msg, employee_response = await employee_service.delete_employee(employee_id)
+    msg, employee_response = await employee_service.delete_employee(employee_id, current_user.branch)
     logger.info("Endpoints: delete_employee called successfully.")
     return make_response_object(employee_response, msg)
 
-@router.get("/employee/search")
-async def search_employee(
-    db: Session = Depends(get_db), 
-    condition: Optional[str] = Query(None),
-    limit: int = None,
-    offset: int = None
-) -> Any:
-    employee_service = EmployeeService(db=db)
+# @router.get("/employee/search")
+# async def search_employee(
+#     user: Employee = Depends(oauth2.get_current_user),
+#     db: Session = Depends(get_db), 
+#     condition: Optional[str] = Query(None),
+#     limit: int = None,
+#     offset: int = None
+# ) -> Any:
     
-    logger.info("Endpoints: search_employee called.")
-    msg, employee_response = await employee_service.search_employee(condition, limit, offset)
-    logger.info("Endpoints: search_employee called successfully.")
+#     current_user = await user
+#     if current_user.role == "Nhân viên":
+#         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    return make_response_object(employee_response, msg)
+#     employee_service = EmployeeService(db=db)
+    
+#     logger.info("Endpoints: search_employee called.")
+#     msg, employee_response = await employee_service.search_employee(condition, limit, offset)
+#     logger.info("Endpoints: search_employee called successfully.")
+    
+#     return make_response_object(employee_response, msg)
 
-@router.get("/employees/filter")
-async def filter_employee(
-    db: Session = Depends(get_db),
-    status: str = None,
-    role: str = None,
-    branch_name: str = None,
-    province: str = None,
-    district: str = None
-) -> Any:
-    employee_service = EmployeeService(db=db)
+# @router.get("/employees/filter")
+# async def filter_employee(
+#     user: Employee = Depends(oauth2.get_current_user),
+#     db: Session = Depends(get_db),
+#     status: str = None,
+#     role: str = None,
+#     branch_name: str = None,
+#     province: str = None,
+#     district: str = None
+# ) -> Any:
     
-    logger.info("Endpoints: filter_employee called.")
-    msg, employee_response = await employee_service.filter_employee(status, role, branch_name, province, district)
-    logger.info("Endpoints: filter_employee called successfully.")
+#     current_user = await user
+#     if current_user.role == "Nhân viên":
+#         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    return make_response_object(employee_response, msg)
+#     employee_service = EmployeeService(db=db)
+    
+#     logger.info("Endpoints: filter_employee called.")
+#     msg, employee_response = await employee_service.filter_employee(status, role, branch_name, province, district)
+#     logger.info("Endpoints: filter_employee called successfully.")
+    
+#     return make_response_object(employee_response, msg)

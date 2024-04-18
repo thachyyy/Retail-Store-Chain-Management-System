@@ -14,6 +14,7 @@ class OrderOfBatch(Base):
     quantity = Column(Integer, unique = False, nullable = False)
     # purchase_order_id = Column(String, unique = False, nullable = False)
     # batch_id = Column(String, unique = False, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     purchase_order_id = Column(String, ForeignKey('purchase_order.id'), unique = False, nullable = False)
     batch_id = Column(String, ForeignKey('batch.id'), unique = False, nullable = False)

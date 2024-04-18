@@ -18,4 +18,5 @@ from .product_of_import_order import *
 from .promotion_belong_to_branch import * 
 from .promotion_for_order import *
 from .purchase_order import *
+from .tenant import *
 from .order_detail import *

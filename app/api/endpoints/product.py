@@ -12,7 +12,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import Product
-from app.schemas import ChangePassword, ProductResponse
+# from app.schemas import ChangePassword, ProductResponse
 from app.schemas.product import ProductCreateParams, ProductUpdate
 from app.services.product import ProductService
 from app.utils.response import make_response_object

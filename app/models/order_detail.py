@@ -16,6 +16,7 @@ class OrderDetail(Base):
     product_name = Column(String, nullable=True)
     batch = relationship("Batch", back_populates="purchase_order")
     purchase_order = relationship("PurchaseOrder", back_populates="batch")
+    tenant_id = Column(String, unique=False, nullable=False)
     
     # proxies
     purchase_order_name = association_proxy(target_collection='purchase_order', attr='total')

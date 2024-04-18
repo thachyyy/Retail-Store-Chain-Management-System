@@ -16,6 +16,7 @@ class InvoiceForCustomer(Base):
     
     # belong_to_order = Column(String, ForeignKey('purchase_order.id'), unique = True, nullable = True)
     order_detail = Column(ARRAY(Integer), unique = True, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
     # detail_order = Column(ARRAY(Integer), ForeignKey('order.id'), unique = True, nullable = False)
     # purchase_order = relationship('PurchaseOrder')    
     # order = relationship('OrderDetail',uselist=True)

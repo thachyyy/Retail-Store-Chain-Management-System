@@ -22,6 +22,7 @@ class Batch(Base):
     product_id = Column(String, ForeignKey('product.id'), unique = False, nullable = False)
     belong_to_branch = Column(String, ForeignKey('branch.id'), unique = False, nullable = False)
     belong_to_receipt = Column(String, ForeignKey('import_order.id'), unique = False, nullable = True)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     product = relationship('Product')
     branch = relationship('Branch')

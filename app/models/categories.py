@@ -14,4 +14,5 @@ class Categories(Base):
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     name = Column(String(255),nullable=False,unique=True)
     description = Column(String(255),nullable=True)
+    tenant_id = Column(String, unique=False, nullable=False)
     

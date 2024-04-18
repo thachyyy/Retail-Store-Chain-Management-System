@@ -13,7 +13,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import PurchaseOrder
 from app.models.order_detail import OrderDetail
-from app.schemas import ChangePassword, PurchaseOrderResponse
+# from app.schemas import ChangePassword, PurchaseOrderResponse
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderCreateParams, PurchaseOrderUpdate
 from app.services.purchase_order import PurchaseOrderService
 from app.utils.response import make_response_object

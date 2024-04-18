@@ -34,9 +34,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             logger.error("User service: get by ID failed.", exc_info=error)
             return None
     def  get_multi(
-            self, db: Session, *, skip: int = None, limit: int = None,
+            self, db: Session, *, skip: int = None, limit: int = None, tenant_id: str, branch: str = None
     ) -> Any:
-        query_set = db.query(self.model)
+        print("Chi nhanh:", branch)
+        if branch:
+            query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id, self.model.branch == branch)
+        else:  
+            query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id)
         count = query_set.count()
 
         if skip is not None and limit is not None:

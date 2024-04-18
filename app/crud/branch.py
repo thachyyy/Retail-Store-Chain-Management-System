@@ -25,33 +25,33 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_branch_by_id(db: Session, branch_id: str):
-        return db.query(Branch).filter(Branch.id == branch_id).first()
+    async def get_branch_by_id(db: Session, branch_id: str, tenant_id: str):
+        return db.query(Branch).filter(Branch.id == branch_id, Branch.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_branch_by_address(db: Session, address: str, id:str=None) -> Optional[Branch]:
+    async def get_branch_by_address(db: Session, address: str, tenant_id: str, id: str = None) -> Optional[Branch]:
         if id:
-            return db.query(Branch).filter(Branch.address == address,Branch.id != id).first()
-        return db.query(Branch).filter(Branch.address == address).first()
+            return db.query(Branch).filter(Branch.address == address,Branch.id != id, Branch.tenant_id == tenant_id).first()
+        return db.query(Branch).filter(Branch.address == address, Branch.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_branch_by_phone_number(db: Session, phone_number: str,id:str = None) -> Optional[Branch]:
+    async def get_branch_by_phone_number(db: Session, tenant_id: str, phone_number: str, id: str = None) -> Optional[Branch]:
         if id:
-            return db.query(Branch).filter(Branch.phone_number == phone_number,Branch.id != id).first()
-        return db.query(Branch).filter(Branch.phone_number == phone_number).first()
+            return db.query(Branch).filter(Branch.phone_number == phone_number,Branch.id != id, Branch.tenant_id == tenant_id).first()
+        return db.query(Branch).filter(Branch.phone_number == phone_number, Branch.tenant_id == tenant_id).first()
 
     
     @staticmethod
-    async def get_branch_by_email(db: Session, email: str, id:str= None) -> Optional[Branch]:
+    async def get_branch_by_email(db: Session, email: str, tenant_id: str, id: str= None) -> Optional[Branch]:
         if id:
-            return db.query(Branch).filter(Branch.email == email,Branch.id != id).first()
-        return db.query(Branch).filter(Branch.email == email).first()
+            return db.query(Branch).filter(Branch.email == email,Branch.id != id, Branch.tenant_id == tenant_id).first()
+        return db.query(Branch).filter(Branch.email == email, Branch.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_branch_by_name_detail(db: Session, name_detail: str,id :str = None) -> Optional[Branch]:
+    async def get_branch_by_name_detail(db: Session, name_detail: str, tenant_id: str, id: str = None) -> Optional[Branch]:
         if id:
-            return db.query(Branch).filter(Branch.name_detail == name_detail,Branch.id != id).first()
-        return db.query(Branch).filter(Branch.name_detail == name_detail).first()
+            return db.query(Branch).filter(Branch.name_detail == name_detail,Branch.id != id, Branch.tenant_id == tenant_id).first()
+        return db.query(Branch).filter(Branch.name_detail == name_detail, Branch.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_manager_id_by_name(db: Session, sql: str):

@@ -6,7 +6,7 @@ class Status(str,enum.Enum):
     ACTIVE= "Đang hoạt động"
     INACTIVE="Dừng hoạt động"
 class BranchCreateParams(BaseModel):
-    name_display:  str
+    # name_display:  str
     name_detail:  str
     address:  str
     status: Status
@@ -15,7 +15,7 @@ class BranchCreateParams(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
-    
+    manager_id: Optional[str] = None
     
 class BranchCreate(BaseModel):
     id: str
@@ -28,6 +28,8 @@ class BranchCreate(BaseModel):
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     note: Optional[str] = None
+    manager_id: Optional[str] = None
+    tenant_id: str
     class Config:
         orm_mode = True
     
@@ -41,6 +43,7 @@ class BranchUpdate(BaseModel):
     province: Optional[str] = None
     status: Optional[Status] = None
     note: Optional[str] = None
+    manager_id: Optional[str] = None
     
     @validator('name_display', 'name_detail', 'address', 'status', pre=True, always=False)
     def check_not_null(cls, value, field):

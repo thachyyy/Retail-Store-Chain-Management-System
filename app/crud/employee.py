@@ -26,13 +26,16 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_employee_by_id(db: Session, id: str):        
-        return db.query(Employee).filter(Employee.id == id).first()
+    async def get_employee_by_id(db: Session, id: str, branch: str = None):   
+        if branch:
+            return db.query(Employee).filter(Employee.id == id, Employee.branch == branch).first()
+        else:
+            return db.query(Employee).filter(Employee.id == id).first()
     
     @staticmethod
     async def get_employee_by_branch_name(db: Session, branch_name: str):
         logger.info("CRUDEmployee: get_employee_by_branch_name called.")
-        current_employee_by_branch_name =  db.query(Employee).filter(Employee.branch_name == branch_name).all()
+        current_employee_by_branch_name =  db.query(Employee).filter(Employee.branch == branch_name).all()
         logger.info("CRUDEmployee: get_employee_by_branch_name called successfully.")
         return current_employee_by_branch_name
     
@@ -59,7 +62,7 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return last_id
     
     @staticmethod
-    def create(db: Session, *, obj_in: EmployeeCreate) -> Employee:
+    async def create(db: Session, *, obj_in: EmployeeCreate) -> Employee:
         logger.info("CRUDEmployee: create called.")
         logger.debug("With: EmployeeCreate - %s", obj_in.dict())
 
