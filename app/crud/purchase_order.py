@@ -4,7 +4,10 @@ from typing import Optional
 from pydantic import EmailStr, UUID4
 
 from sqlalchemy.orm import Session,joinedload
+
+from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
 from app.models.order_detail import OrderDetail
+from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderUpdate
 from app.crud.base import CRUDBase
 from ..models import PurchaseOrder
@@ -70,7 +73,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return result_as_dict, sum
     
     @staticmethod
-    def create(db: Session, *, obj_in: PurchaseOrderCreate,obj) -> PurchaseOrder:
+    async def create(db: Session, *,paid, obj_in: PurchaseOrderCreate,obj) -> PurchaseOrder:
         logger.info("CRUDPurchaseOrder: create called.")
         logger.debug("With: PurchaseOrderCreate - %s", obj_in.dict())
 
@@ -78,7 +81,6 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         db.add(db_obj)
         db.flush()
         db.refresh(db_obj)
-        
         order_obj = [ OrderDetail(
             quantity = product.quantity,
             sub_total = product.sub_total,
@@ -92,6 +94,20 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         
         db.add_all(order_obj)
         db.commit()
+        
+        list_order = []
+        for item in order_obj:
+            list_order += [item.id]
+        print("list_orderxx",list_order)
+        invoice_for_customer_obj = InvoiceForCustomerCreateParams(
+            total=obj_in.total,
+            status = obj_in.status,
+            payment_method = "Tiền mặt",
+            belong_to_order = obj_in.id,
+            order_detail = list_order
+        )
+        
+        await create_invoice_for_customer(paid,invoice_for_customer_obj,db)
         
         logger.info("CRUDPurchaseOrder: create called successfully.")
         return order_obj

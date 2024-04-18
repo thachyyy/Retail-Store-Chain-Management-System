@@ -13,9 +13,9 @@ class PaymentMethod(str,enum.Enum):
 
 class InvoiceForCustomerCreateParams(BaseModel):
     total: int
-    # status: str = Field(default="Đã thanh toán")
+    status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
-    # belong_to_order: str
+    belong_to_order: str
     order_detail: List[int]
      
 class InvoiceForCustomerCreate(BaseModel):
@@ -23,15 +23,15 @@ class InvoiceForCustomerCreate(BaseModel):
     total: int
     status: str = Field(default="Đã thanh toán")
     payment_method: PaymentMethod = Field(default=PaymentMethod.Cash)
-    # belong_to_order: str
-    order_details: List[int] 
+    belong_to_order: str
+    order_detail: List[int] 
 
     
 class InvoiceForCustomerUpdate(BaseModel):
     total: Optional[int] = None
     status: Optional[str] = Field(default="Đã thanh toán")
     payment_method: Optional[PaymentMethod] = Field(default=PaymentMethod.Cash)
-    # belong_to_order: Optional[str] = None
+    belong_to_order: Optional[str] = None
 
 class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
     # class Config:
@@ -42,4 +42,5 @@ class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
     total: int
     payment_method: str
     status: str
-    order_details: Optional[list[OrderDetails]]
+    belong_to_order:str
+    order_detail: Optional[list[int]]

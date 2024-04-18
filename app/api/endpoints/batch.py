@@ -69,7 +69,7 @@ async def update_batch(batch_id: str, batch_update: BatchUpdate, db: Session = D
 @router.put("/batches/update_quantity/{batch_id}")
 async def update_batch(batch_id: str,quantity:int, db: Session = Depends(get_db)) -> Any:
     batch_service = BatchService(db=db)
-    print("dfasdf",quantity)
+    
     logger.info("Endpoints: update_batch called.")
     msg, batch_response = await batch_service.update_quantity(batch_id, quantity)
     logger.info("Endpoints: update_batch called successfully.")

@@ -1,4 +1,4 @@
-from sqlalchemy import ARRAY, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import ARRAY, JSON, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import text
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
@@ -12,13 +12,13 @@ class InvoiceForCustomer(Base):
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     total = Column(Integer, unique = False, nullable = False)
     status = Column(String, unique = False, nullable = False)
-    payment_method = Column(String, unique = False, nullable = False)
-    
+    payment_method = Column(String, unique = False, nullable = False)  
     # belong_to_order = Column(String, ForeignKey('purchase_order.id'), unique = True, nullable = True)
     order_detail = Column(ARRAY(Integer), unique = True, nullable = False)
     tenant_id = Column(String, unique=False, nullable=False)
+    belong_to_order = Column(String, ForeignKey('purchase_order.id'), unique = True, nullable = True)
     # detail_order = Column(ARRAY(Integer), ForeignKey('order.id'), unique = True, nullable = False)
-    # purchase_order = relationship('PurchaseOrder')    
+    purchase_order = relationship('PurchaseOrder')    
     # order = relationship('OrderDetail',uselist=True)
    
 

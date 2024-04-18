@@ -1,4 +1,5 @@
 
+import json
 import logging
 import uuid
 from typing import Optional
@@ -23,8 +24,11 @@ class InvoiceForCustomerService:
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called.")
         result = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id)
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called successfully.")
+        response = []
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        r = await self.make_response_invoice(result)
+        response.append(r)
+        return dict(message_code=AppStatus.SUCCESS.message), response
     
     async def get_all_invoice_for_customers(
         self,
@@ -62,7 +66,6 @@ class InvoiceForCustomerService:
             logger.info("InvoiceForCustomerService: filter_invoice_for_customer called.")
             result,total= await crud.invoice_for_customer.get_invoice_for_customer_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
-        
         elif query_search:
             whereConditions = await self.whereConditionBuilderForSearch(query_search)
             
@@ -104,14 +107,15 @@ class InvoiceForCustomerService:
             total=obj_in.total,
             payment_method=obj_in.payment_method,
             status=obj_in.status,
-            order_details=[]
+            belong_to_order= obj_in.belong_to_order,
+            order_detail=[]
         )
         # lenght_order_details = len(obj_in.order_detail)
         # idx = 0
         for id in obj_in.order_detail:
             order_detail = await crud.invoice_for_customer.get_order_detail_by_id(self.db, id)
 
-            response.order_details.append(order_detail)
+            response.order_detail.append(order_detail)
 
             # if idx < lenght_order_details: idx += 1
             # else: break
@@ -146,9 +150,9 @@ class InvoiceForCustomerService:
             total=obj_in.total,
             status=status,
             payment_method=obj_in.payment_method,
-            # belong_to_order=obj_in.belong_to_order,
+            belong_to_order=obj_in.belong_to_order,
             order_detail=obj_in.order_detail
-        )
+        )   
         
         logger.info("InvoiceForCustomerService: create called.")
         result = crud.invoice_for_customer.create(db=self.db, obj_in=invoice_for_customer_create)
@@ -175,7 +179,7 @@ class InvoiceForCustomerService:
         result = await crud.invoice_for_customer.update_invoice_for_customer(db=self.db, invoice_for_customer_id=invoice_for_customer_id, invoice_for_customer_update=obj_in)
         logger.info("InvoiceForCustomerService: update_invoice_for_customer called successfully.")
         self.db.commit()
-        obj_update = await crud.invoice_for_customer.get_invoice_for_customer_by_id(self.db, invoice_for_customer_id)
+        obj_update = await crud.invoice_for_customer.update_invoice_for_customer(self.db, invoice_for_customer_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_invoice_for_customer(self, invoice_for_customer_id: str):
