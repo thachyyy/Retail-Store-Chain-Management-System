@@ -15,6 +15,7 @@ class PromotionBelongToBranch(Base):
     
     promotion_id = Column(String, ForeignKey('promotion.id'), unique = False, nullable = False)
     branch_id = Column(String, ForeignKey('branch.id'), unique = False, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     branch = relationship('Branch')
     promotion = relationship('Promotion')

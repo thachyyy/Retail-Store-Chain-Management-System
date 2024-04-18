@@ -14,6 +14,7 @@ class ContractForProduct(Base):
     price = Column(Integer, unique = False, nullable = False)
     # contract_id = Column(String, unique = False, nullable = False)
     # product_id = Column(String, unique = False, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     contract_for_vendor_id = Column(String, ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
     product_id = Column(String, ForeignKey('product.id'), unique = False, nullable = False)

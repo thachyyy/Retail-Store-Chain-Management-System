@@ -21,4 +21,5 @@ from .system_settings import SystemSettings
 from .vendor import Vendor
 from .import_order import ImportOrder
 from .order_detail import OrderDetail
-from .branch_and_employee import BranchEmployee
+# from .branch_and_employee import BranchEmployee
+from .tenant import Tenant

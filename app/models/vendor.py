@@ -23,3 +23,4 @@ class Vendor(Base):
     province = Column(String(64), unique=False, nullable=True)
     status = Column(String(64), unique=False, nullable=False, default = 'Đang hợp tác')
     note = Column(String, unique=False, nullable=True)
+    tenant_id = Column(String, unique=False, nullable=False)

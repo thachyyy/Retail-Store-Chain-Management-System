@@ -36,5 +36,6 @@ class Promotion(Base):
     min_product_value = Column(Integer, nullable=True) 
     min_product_quantity = Column(Integer, nullable=True)
     vendor_id = Column(String,ForeignKey('vendor.id'),nullable=False,unique=False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     vendor = relationship('Vendor')

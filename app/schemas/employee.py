@@ -14,7 +14,20 @@ class Status(str,enum.Enum):
 class Gender(str,enum.Enum):
     MALE = "Nam"
     FEMALE = "Nữ"
-        
+
+class EmployeeRegister(BaseModel):
+    full_name: str
+    email: EmailStr
+    phone_number: str
+    branch_name: str
+    password: str
+    password_confirm: str
+    
+class EmployeeLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+   
 class EmployeeCreateParams(BaseModel):
     full_name: str
     date_of_birth: Optional[date] = None
@@ -25,7 +38,9 @@ class EmployeeCreateParams(BaseModel):
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
+    branch: str
     status: Status
+    password: str
     note: Optional[str] = None
   
 
@@ -41,6 +56,9 @@ class EmployeeCreate(BaseModel):
     district: Optional[str] = None
     province: Optional[str] = None
     status: Status
+    branch: str
+    hashed_password: str
+    tenant_id: str
     note: Optional[str] = None
     class Config:
         orm_mode = True
@@ -56,10 +74,12 @@ class EmployeeUpdate(BaseModel):
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
-    role: Optional[Role]
+    password: Optional[str] = None
+    branch: Optional[str] = None
+    # role: Optional[Role]
     
     
-    @validator('full_name', 'email', 'phone_number', 'role', pre=True, always=False)
+    @validator('full_name', 'email', 'phone_number', 'password', 'branch', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")

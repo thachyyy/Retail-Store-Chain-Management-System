@@ -26,5 +26,7 @@ class Employee(Base):
     province = Column(String(255), unique = False, nullable = True)
     status = Column(String(255), unique = False, nullable = False, default = 'Đang làm việc')
     note = Column(String, unique = False, nullable = True)
-    branch= relationship("BranchEmployee", back_populates="employee")
+    hashed_password = Column(String, nullable=False)
+    branch= Column(String)
+    tenant_id = Column(String, unique=False, nullable=False)
  

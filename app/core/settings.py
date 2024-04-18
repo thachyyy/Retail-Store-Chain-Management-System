@@ -29,8 +29,8 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRES_IN_MINUTES: int
     REFRESH_TOKEN_EXPIRES_IN_DAYS: int
-    # JWT_ALGORITHM: str
-    # JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str
+    JWT_SECRET_KEY: str
     # Channels
     GENERAL_CHANNEL: Optional[str] = "general-channel"
     ALL_CHANNEL: Optional[str] = "all-channel"

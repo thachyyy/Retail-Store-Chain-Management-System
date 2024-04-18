@@ -13,6 +13,7 @@ class ProductOfImportOrder(Base):
     import_price = Column(Integer, unique = False, nullable = False)
     # product_id = Column(String, unique = False, nullable = False)
     # import_order_id = Column(String,  unique = False, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
    
     product_id = Column(String, ForeignKey('product.id'), unique = False, nullable = False)
     import_order_id = Column(String, ForeignKey('import_order.id'), unique = False, nullable = False)

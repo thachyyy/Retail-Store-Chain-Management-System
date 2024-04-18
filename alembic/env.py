@@ -24,6 +24,7 @@ from app.models.product import *
 from app.models.promotion_belong_to_branch import *
 from app.models.promotion import *
 from app.models.purchase_order import *
+from app.models.tenant import *
 from app.models.vendor import *
 
 

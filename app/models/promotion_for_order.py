@@ -15,6 +15,7 @@ class PromotionForOrder(Base):
     
     promotion_id = Column(String, ForeignKey('promotion.id'), unique = False, nullable = False)
     purchase_order_id = Column(String, ForeignKey('purchase_order.id'), unique = False, nullable =False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     promotion = relationship('Promotion')
     purchase_order = relationship('PurchaseOrder')

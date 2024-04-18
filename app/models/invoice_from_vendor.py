@@ -14,5 +14,6 @@ class InvoiceFromVendor(Base):
     total = Column(Integer, unique = False, nullable = False)
     status = Column(String, unique = False, nullable = False)
     vendor_id = Column(String, ForeignKey('vendor.id'), unique = False, nullable = False)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     vendor = relationship('Vendor')

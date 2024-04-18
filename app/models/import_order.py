@@ -26,6 +26,7 @@ class ImportOrder(Base):
     belong_to_vendor = Column(String, ForeignKey('vendor.id'), unique = False, nullable = False)
     belong_to_contract = Column(String, ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
     belong_to_invoice = Column(String, ForeignKey('invoice_from_vendor.id'), unique = False, nullable = True)
+    tenant_id = Column(String, unique=False, nullable=False)
     
     employee = relationship('Employee')
     vendor = relationship('Vendor')

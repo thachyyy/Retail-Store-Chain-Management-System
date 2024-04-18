@@ -19,3 +19,4 @@ class Customer(Base):
     province = Column(String(64), unique=False, nullable=True)
     reward_point = Column(String, unique=False, nullable=False)
     note = Column(String, unique=False, nullable=True)    
+    tenant_id = Column(String, unique=False, nullable=False)
