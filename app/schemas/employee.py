@@ -56,7 +56,7 @@ class EmployeeCreate(BaseModel):
     district: Optional[str] = None
     province: Optional[str] = None
     status: Status
-    branch: str
+    branch: Optional[str]
     hashed_password: str
     tenant_id: str
     note: Optional[str] = None
