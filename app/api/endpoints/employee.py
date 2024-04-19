@@ -130,8 +130,6 @@ async def get_all_employees(
     query_search: Optional[str] = None,
     
 ) -> Any:
-    employee_service = EmployeeService(db=db)
-    logger.info("Endpoints: get_all_employees called.")
     
     current_user = await user
     
@@ -139,6 +137,9 @@ async def get_all_employees(
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
     branch = current_user.branch
+    
+    employee_service = EmployeeService(db=db)
+    logger.info("Endpoints: get_all_employees called.")
     
     if branch_name:
         branch = branch_name

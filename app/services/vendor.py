@@ -18,6 +18,7 @@ class VendorService:
         
     async def get_all_vendors(
         self,
+        tenant_id: str,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
         province: str = None,
@@ -55,7 +56,7 @@ class VendorService:
             conditions['note'] = note
             
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions)
             sql = f"SELECT * FROM public.vendor {whereConditions};"
                 
             if offset is not None and limit is not None:
@@ -69,7 +70,7 @@ class VendorService:
             logger.info("VendorService: filter_vendor called successfully.")
             
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search)
             
             sql = f"SELECT * FROM public.vendor {whereConditions};"
             
@@ -86,15 +87,15 @@ class VendorService:
         else:
             logger.info("VendorService: get_all_vendors called.")
             if limit is not None and offset is not None:
-                result, total = crud.vendor.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.vendor.get_multi(db=self.db)
+                result, total = crud.vendor.get_multi(db=self.db, skip=offset*limit,limit=limit, tenant_id=tenant_id)
+            else: result, total = crud.vendor.get_multi(db=self.db, tenant_id=tenant_id)
             logger.info("VendorService: get_all_vendors called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
-    async def get_vendor_by_id(self, vendor_id: str):
+    async def get_vendor_by_id(self, tenant_id: str, vendor_id: str):
         logger.info("VendorService: get_vendor_by_id called.")
-        result = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
+        result = await crud.vendor.get_vendor_by_id(db=self.db, tenant_id=tenant_id, vendor_id=vendor_id)
         logger.info("VendorService: get_vendor_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_VENDOR_NOT_FOUND)
@@ -116,17 +117,17 @@ class VendorService:
     
             return 'VEN' + newID
     
-    async def create_vendor(self, obj_in: VendorCreateParams):
+    async def create_vendor(self, tenant_id: str, obj_in: VendorCreateParams):
         if obj_in.phone_number is not None:
             logger.info("VendorService: get_vendor_by_phone called.")
-            current_phone_number = await crud.vendor.get_vendor_by_phone(self.db, obj_in.phone_number)
+            current_phone_number = await crud.vendor.get_vendor_by_phone(self.db, tenant_id, obj_in.phone_number)
             logger.info("VendorService: get_vendor_by_phone called successfully.")
             if current_phone_number:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         
         if obj_in.email is not None:
             logger.info("VendorService: get_vendor_by_email called.")
-            current_email = await crud.vendor.get_vendor_by_email(self.db, obj_in.email)
+            current_email = await crud.vendor.get_vendor_by_email(self.db, tenant_id, obj_in.email)
             logger.info("VendorService: get_vendor_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
@@ -145,6 +146,7 @@ class VendorService:
             province=obj_in.province,
             status=obj_in.status,
             note=obj_in.note,
+            tenant_id=tenant_id
         )
         
         logger.info("VendorService: create called.")
@@ -155,9 +157,9 @@ class VendorService:
         logger.info("Service: create_vendor success.")
         return dict(message_code=AppStatus.SUCCESS.message), vendor_create
     
-    async def update_vendor(self, vendor_id: str, obj_in):
+    async def update_vendor(self, tenant_id: str, vendor_id: str, obj_in):
         logger.info("VendorService: get_vendor_by_id called.")
-        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
+        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, tenant_id=tenant_id, vendor_id=vendor_id)
         logger.info("VendorService: get_vendor_by_id called successfully.")
         
         if not isValidVendor:
@@ -165,14 +167,14 @@ class VendorService:
         
         if obj_in.phone_number is not None:
             logger.info("VendorService: get_vendor_by_phone called.")
-            current_phone_number = await crud.vendor.get_vendor_by_phone(self.db, obj_in.phone_number, vendor_id)
+            current_phone_number = await crud.vendor.get_vendor_by_phone(self.db, tenant_id, obj_in.phone_number, vendor_id)
             logger.info("VendorService: get_vendor_by_phone called successfully.")
             if current_phone_number:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         
         if obj_in.email is not None:
             logger.info("VendorService: get_vendor_by_email called.")
-            current_email = await crud.vendor.get_vendor_by_email(self.db, obj_in.email, vendor_id)
+            current_email = await crud.vendor.get_vendor_by_email(self.db, tenant_id, obj_in.email, vendor_id)
             logger.info("VendorService: get_vendor_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
@@ -182,18 +184,18 @@ class VendorService:
         result = await crud.vendor.update_vendor(db=self.db, vendor_id=vendor_id, vendor_update=obj_in)
         logger.info("VendorService: update_vendor called successfully.")
         self.db.commit()
-        obj_update = await crud.vendor.get_vendor_by_id(self.db, vendor_id)
+        obj_update = await crud.vendor.get_vendor_by_id(self.db, tenant_id, vendor_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_vendor(self, vendor_id: str):
+    async def delete_vendor(self, tenant_id: str, vendor_id: str):
         logger.info("VendorService: get_vendor_by_id called.")
-        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, vendor_id=vendor_id)
+        isValidVendor = await crud.vendor.get_vendor_by_id(db=self.db, tenant_id=tenant_id, vendor_id=vendor_id)
         logger.info("VendorService: get_vendor_by_id called successfully.")
         
         if not isValidVendor:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_VENDOR_NOT_FOUND)
         
-        obj_del = await crud.vendor.get_vendor_by_id(self.db, vendor_id)
+        obj_del = await crud.vendor.get_vendor_by_id(self.db, tenant_id, vendor_id)
         
         logger.info("VendorService: delete_vendor called.")
         result = await crud.vendor.delete_vendor(self.db, vendor_id)
@@ -202,7 +204,7 @@ class VendorService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
-    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str) -> str:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
         conditions.append(f"vendor_name ilike '%{condition}%'")
@@ -210,11 +212,14 @@ class VendorService:
         # conditions.append(f"email ilike '%{condition}%'")
         # conditions.append(f"address ilike '%{condition}%'")
             
-        whereCondition = "WHERE " + ' OR '.join(conditions)
+        whereCondition = ' OR '.join(conditions)
+        whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
+        
         return whereCondition
     
-    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict) -> str:
         whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
         
         # filter using '='
         if 'province' in conditions:

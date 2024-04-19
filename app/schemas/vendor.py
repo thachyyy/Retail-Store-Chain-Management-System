@@ -27,6 +27,7 @@ class VendorCreate(BaseModel):
     province: Optional[str] = None
     status: Status
     note: Optional[str] = None
+    tenant_id: str
 
 class VendorUpdate(BaseModel):
     company_name: Optional[str]

@@ -21,18 +21,18 @@ class CRUDVendor(CRUDBase[Vendor, VendorCreate, VendorUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_vendor_by_id(db: Session, vendor_id: str):
-        return db.query(Vendor).filter(Vendor.id == vendor_id).first()
+    async def get_vendor_by_id(db: Session, tenant_id: str, vendor_id: str):
+        return db.query(Vendor).filter(Vendor.id == vendor_id, Vendor.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_vendor_by_phone(db: Session, phone_number: str, id: str = None) -> Optional[Vendor]:
-        if id is not None: return db.query(Vendor).filter(Vendor.phone_number == phone_number, Vendor.id != id).first()
-        else: return db.query(Vendor).filter(Vendor.phone_number == phone_number).first()
+    async def get_vendor_by_phone(db: Session, tenant_id: str, phone_number: str, id: str = None) -> Optional[Vendor]:
+        if id is not None: return db.query(Vendor).filter(Vendor.phone_number == phone_number, Vendor.id != id, Vendor.tenant_id == tenant_id).first()
+        else: return db.query(Vendor).filter(Vendor.phone_number == phone_number, Vendor.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_vendor_by_email(db: Session, email: EmailStr, id: str = None) -> Optional[Vendor]:
-        if id is not None: return db.query(Vendor).filter(Vendor.email == email, Vendor.id != id).first()
-        else: return db.query(Vendor).filter(Vendor.email == email).first()
+    async def get_vendor_by_email(db: Session, tenant_id: str, email: EmailStr, id: str = None) -> Optional[Vendor]:
+        if id is not None: return db.query(Vendor).filter(Vendor.email == email, Vendor.id != id, Vendor.tenant_id == tenant_id).first()
+        else: return db.query(Vendor).filter(Vendor.email == email, Vendor.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_last_id(db: Session):
