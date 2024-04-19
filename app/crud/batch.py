@@ -19,12 +19,12 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         return db.query(Batch).all()
 
     @staticmethod
-    async def get_batch_by_id(db: Session, batch_id: str):
-        return db.query(Batch).filter(Batch.id == batch_id).first()
+    async def get_batch_by_id(db: Session, batch_id: str, tenant_id: str):
+        return db.query(Batch).filter(Batch.id == batch_id, Batch.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_batch_by_product_id(db: Session, product_id: str):
-        return db.query(Batch).filter(Batch.product_id == product_id).all()
+    async def get_batch_by_product_id(db: Session, product_id: str, tenant_id: str):
+        return db.query(Batch).filter(Batch.product_id == product_id, Batch.tenant_id == tenant_id).all()
     
     @staticmethod
     async def get_last_id(db: Session):

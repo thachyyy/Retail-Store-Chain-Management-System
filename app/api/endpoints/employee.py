@@ -33,9 +33,9 @@ async def create_user(
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: create_user called.")
 
-    emp_response = await employee_service.create_user(employee_create)
+    msg, emp_response = await employee_service.create_user(employee_create)
     logger.info("Endpoints: create_user called successfully.")
-    return make_response_object(emp_response)
+    return make_response_object(emp_response, msg)
 
 @router.post("/auth/login")
 async def login(
@@ -110,6 +110,7 @@ async def create_employee(
 @router.get("/employees")
 async def get_all_employees(
     user: Employee = Depends(oauth2.get_current_user),
+    branch_name: Optional[str] = None,
     db: Session = Depends(get_db),
     limit: int = None,
     offset: int = None,
@@ -137,9 +138,14 @@ async def get_all_employees(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
+    branch = current_user.branch
+    
+    if branch_name:
+        branch = branch_name
+    
     msg, employee_response = await employee_service.get_all_employees(
         current_user.tenant_id,
-        current_user.branch,
+        branch,
         limit, 
         offset, 
         role, 

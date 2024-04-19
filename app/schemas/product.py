@@ -35,8 +35,9 @@ class ProductCreate(BaseModel):
     categories_id: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
-    # batch_id: Optional[str] = None
     has_promotion: Optional[bool] = None 
+    tenant_id: str
+    branch: str
     
 class ProductUpdate(BaseModel):
     barcode: Optional[str] 

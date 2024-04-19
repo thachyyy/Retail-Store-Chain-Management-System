@@ -58,8 +58,11 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.barcode == barcode).first()
     
     @staticmethod
-    async def get_product_by_barcode(db: Session, barcode: str,id:str = None) -> Optional[Product]:
-        return db.query(Product).filter(Product.barcode == barcode,Product.id != id).first()
+    async def get_product_by_barcode(db: Session, tenant_id: str, barcode: str, id: str = None) -> Optional[Product]:
+        if id:
+            return db.query(Product).filter(Product.barcode == barcode, Product.id != id, Product.tenant_id == tenant_id).first()
+        else:
+            return db.query(Product).filter(Product.barcode == barcode, Product.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_product_by_id(db: Session, product_id: str):

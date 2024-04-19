@@ -148,11 +148,11 @@ class ProductService:
     
             return 'SP' + newID
     
-    async def create_product(self, obj_in: ProductCreateParams):
+    async def create_product(self, obj_in: ProductCreateParams, tenant_id: str, branch: str):
         logger.info("ProductService: get_product_by_barcode called.")
         #Generate random barcode
         # random_barcode = await self.generate_random_number()
-        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode)
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, tenant_id, obj_in.barcode)
         if current_bar_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
         
@@ -175,7 +175,9 @@ class ProductService:
             contract_for_vendor_id=obj_in.contract_for_vendor_id,
             promotion_id=obj_in.promotion_id,
             # batch_id=obj_in.batch_id,
-            has_promotion=obj_in.has_promotion
+            has_promotion=obj_in.has_promotion,
+            tenant_id=tenant_id,
+            branch=branch
         )
         # barcode_path = await self.generate_barcode(bar_code=product_create.barcode)
         # os.path.join(BARCODE_DIR, barcode_path)

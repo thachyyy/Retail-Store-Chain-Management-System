@@ -115,17 +115,19 @@ class BranchService:
         current_branch_email = await crud.branch.get_branch_by_email(self.db, obj_in.email, tenant_id)
         logger.info("BranchService: get_branch_by_email called successfully.")
         
-        if current_branch_name_detail.name_detail:            
+        if current_branch_name_detail:            
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_DETAIL_ALREADY_EXIST)
         
-        if current_branch_address.address:
+        if current_branch_address:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_ADDRESS_ALREADY_EXIST)
         
-        if current_branch_phone_number.phone_number:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST)
+        if current_branch_phone_number:
+            if current_branch_phone_number.phone_number:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_PHONE_NUMBER_ALREADY_EXIST)
              
-        if current_branch_email.email:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
+        if current_branch_email:
+            if current_branch_email.email:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_EMAIL_ALREADY_EXIST)
         
         newID = await self.gen_id()
             

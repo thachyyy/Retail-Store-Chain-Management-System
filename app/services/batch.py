@@ -19,27 +19,29 @@ class BatchService:
         
     async def get_all_batches(
         self,
+        tenant_id: str,
+        branch: str,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
     ):
         logger.info("BatchService: get_all_batches called.")
         if limit is not None and offset is not None:
-            result, total = crud.batch.get_multi(db=self.db, skip=offset*limit,limit=limit)
-        else: result, total = crud.batch.get_multi(db=self.db)
+            result, total = crud.batch.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
+        else: result, total = crud.batch.get_multi(db=self.db,tenant_id=tenant_id,branch=branch)
         logger.info("BatchService: get_all_batches called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
-    async def get_batch_by_id(self, batch_id: str):
+    async def get_batch_by_id(self, batch_id: str, tenant_id: str):
         logger.info("BatchService: get_batch_by_id called.")
-        result = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
+        result = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id, tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
     
-    async def get_batch_by_product_id(self, product_id: str):
+    async def get_batch_by_product_id(self, product_id: str, tenant_id: str):
         logger.info("BatchService: get_batch_by_prod_id called.")
-        result = await crud.batch.get_batch_by_product_id(db=self.db, product_id=product_id)
+        result = await crud.batch.get_batch_by_product_id(db=self.db, product_id=product_id, tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_prod_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
@@ -59,7 +61,7 @@ class BatchService:
     
             return 'LO' + newID
     
-    async def create_batch(self, obj_in: BatchCreateParams):
+    async def create_batch(self, obj_in: BatchCreateParams, tenant_id: str, branch_id: str):
         isValisProd = await crud.product.get_product_by_id(self.db, obj_in.product_id)
         if not isValisProd:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
@@ -68,14 +70,14 @@ class BatchService:
         
         batch_create = BatchCreate(
             id=newID,
-            created_at = datetime.now(),
             quantity=obj_in.quantity,
             import_price=obj_in.import_price,
             manufacturing_date=obj_in.manufacturing_date,
             expiry_date=obj_in.expiry_date,
-            belong_to_branch=obj_in.belong_to_branch,
+            belong_to_branch=branch_id,
             belong_to_receipt=obj_in.belong_to_receipt,
-            product_id=obj_in.product_id
+            product_id=obj_in.product_id,
+            tenant_id=tenant_id
         )
         
         logger.info("BatchService: create called.")

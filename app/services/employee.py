@@ -61,7 +61,7 @@ class EmployeeService:
         
         self.db.commit()
         logger.info("Service: create_user success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message), user_create
     
     async def login(self, obj_in) -> Employee:
         logger.info("EmployeeService: login called.")
@@ -225,8 +225,9 @@ class EmployeeService:
             logger.info("BranchService: get_branch_by_name_detail called.")
             current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch, tenant_id)
             logger.info("BranchService: get_branch_by_name_detail called successfully.")
-            if current_branch.manager_id:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EXIST_MANAGER_ERROR)
+            if current_branch:
+                if current_branch.manager_id:
+                    raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EXIST_MANAGER_ERROR)
             else:
                 await crud.branch.update_manager(self.db, tenant_id, obj_in.branch, newID)
         

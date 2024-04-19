@@ -16,6 +16,7 @@ from app.models import Product
 from app.schemas.product import ProductCreateParams, ProductUpdate
 from app.services.product import ProductService
 from app.utils.response import make_response_object
+from app.models import Employee
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -24,12 +25,23 @@ router = APIRouter()
 @router.post("/products")
 async def create_product(
     product_create: ProductCreateParams,
+    branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
+    user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     product_service = ProductService(db=db)
     logger.info("Endpoints: create_product called.")
     
-    msg, product_response = await product_service.create_product(product_create)
+    if current_user.branch:
+        branch_name_detail = current_user.branch
+    else:
+        branch_name_detail = branch
+    
+    msg, product_response = await product_service.create_product(product_create, current_user.tenant_id, branch_name_detail)
     logger.info("Endpoints: create_product called successfully.")
     return make_response_object(product_response,msg)
 
