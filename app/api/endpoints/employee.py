@@ -190,6 +190,7 @@ async def get_employee_by_branch_name(
 async def get_employee_by_id(
     employee_id: str, 
     user: Employee = Depends(oauth2.get_current_user),
+    branch_name: str = None,
     db: Session = Depends(get_db)
 ) -> Any:
     
@@ -197,10 +198,15 @@ async def get_employee_by_id(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: get_employee_by_id called.")  
-    msg, employee_response = await employee_service.get_employee_by_id(employee_id, current_user.branch)
+    msg, employee_response = await employee_service.get_employee_by_id(employee_id, current_user.branch, branch)
     logger.info("Endpoints: get_all_employees called successfully.")
     return make_response_object(employee_response, msg)
     
