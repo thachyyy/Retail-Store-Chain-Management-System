@@ -135,7 +135,7 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user:str |None = None):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user:str|None = None):
         newID = await self.gen_id()
         status = "Đã thanh toán" if paid else "Đang chờ xử lí"
 

@@ -24,7 +24,6 @@ def upgrade() -> None:
     #            existing_type=postgresql.ARRAY(sa.INTEGER()),
     #            type_=sa.ARRAY(sa.String()),
     #            existing_nullable=False)
-    # ### end Alembic commands ###
     pass
 
 

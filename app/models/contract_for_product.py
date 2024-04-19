@@ -20,3 +20,5 @@ class ContractForProduct(Base):
     product_id = Column(String, ForeignKey('product.id'), unique = False, nullable = False)
     contract_for_vendor = relationship('ContractForVendor')
     product = relationship('Product')
+    
+    
