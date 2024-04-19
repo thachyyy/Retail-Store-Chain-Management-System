@@ -26,11 +26,11 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_employee_by_id(db: Session, tenant_id: str, id: str, branch: str = None):   
+    async def get_employee_by_id(db: Session, id: str = None, branch: str = None):   
         if branch:
-            return db.query(Employee).filter(Employee.id == id, Employee.branch == branch, Employee.tenant_id == tenant_id).first()
+            return db.query(Employee).filter(Employee.id == id, Employee.branch == branch).first()
         else:
-            return db.query(Employee).filter(Employee.id == id, Employee.tenant_id == tenant_id).first()
+            return db.query(Employee).filter(Employee.id == id).first()
     
     @staticmethod
     async def get_employee_by_branch_name(db: Session, branch_name: str):

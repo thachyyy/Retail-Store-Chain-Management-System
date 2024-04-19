@@ -171,9 +171,9 @@ class EmployeeService:
     async def get_employee_by_id(self, id: str, tenant_id: str, branch: str = None):
         logger.info("EmployeeService: get_employee_by_id called.")
         if branch:
-            result = await crud.employee.get_employee_by_id(db=self.db, tenant_id=tenant_id, id=id, branch=branch)
+            result = await crud.employee.get_employee_by_id(db=self.db, id=id, branch=branch)
         else:
-            result = await crud.employee.get_employee_by_id(db=self.db, tenant_id=tenant_id, id=id)
+            result = await crud.employee.get_employee_by_id(db=self.db, id=id)
         if not result:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMPLOYEE_NOT_FOUND)
         logger.info("EmployeeService: get_employee_by_id called successfully.")
