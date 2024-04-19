@@ -35,6 +35,9 @@ async def create_import_order(
     import_order_service = ImportOrderService(db=db)
     logger.info("Endpoints: create_import_order called.")
     current_user = await user
+    
+    
+    print("abcccccc")
     if not file.filename.endswith('.xlsx'):
         return JSONResponse(status_code=400, content={"message": "File must be an Excel file"})
 
@@ -42,7 +45,6 @@ async def create_import_order(
     try:
         contents = await file.read()
         data_frame = pd.read_excel(BytesIO(contents), engine='openpyxl')
-        print(data_frame.columns)
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
     for index, row in data_frame.iterrows():
@@ -52,9 +54,9 @@ async def create_import_order(
                 unit = row['Đơn vị tính'],
                 import_price = row['Giá nhập'],
                 quantity = row['Số lượng']
+
             )
-            
-    msg, import_order_response = await import_order_service.create_import_order(import_order_create,current_user.full_name,current_user.tenant_id,db_contract)
+    msg, import_order_response = await import_order_service.create_import_order(import_order_create,current_user.id,current_user.tenant_id,db_contract)
     logger.info("Endpoints: create_import_order called successfully.")
     return make_response_object(import_order_response, msg)
 

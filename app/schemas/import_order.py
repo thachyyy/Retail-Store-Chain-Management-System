@@ -12,10 +12,8 @@ class ImportOrderCreateParams(BaseModel):
     payment_status: PaymentStatus
     subtotal: int
     total: int
-    status: str
-    created_by: str
     belong_to_vendor: str
-    belong_to_contract: str
+    belong_to_contract: Optional[str]
     estimated_date: Optional[date]
     promotion: Optional[int]
     # import_details : Optional[List[int]]
@@ -30,10 +28,11 @@ class ImportOrderCreate(BaseModel):
     status:str 
     created_by: str
     belong_to_vendor: str
-    belong_to_contract: str
+    belong_to_contract: Optional[str]
     estimated_date: Optional[date]
     promotion: Optional[int]
-    import_details : List[int]
+    tenant_id :str
+    # import_details : List[int]
     
 class ImportOrderUpdate(BaseModel):
     is_contract: Optional[bool]

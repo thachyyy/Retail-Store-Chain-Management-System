@@ -49,23 +49,24 @@ class ImportOrderService:
     async def create_import_order(
         self, 
         obj_in: ImportOrderCreateParams,
-        user_name:str,
+        user_id:str,
         tenant_id:str,
-        db_contract: ImportDetail
+        db_contract: ImportDetail = None
         ):
         
         newID = await self.gen_id()
-        import_order_create = ImportDetailCreate(
-            product_id = db_contract.product_id,
-            product_name= db_contract.product_name,
-            unit= db_contract.unit,
-            import_price= db_contract.import_price,
-            quantity= db_contract.quantity,
-            tenant_id = tenant_id
-        )    
-        import_detail = crud.import_detail.create(db=self.db, obj_in=import_order_create)
+        if db_contract:
+            import_detail_obj = ImportDetailCreate(
+                product_id = db_contract.product_id,
+                product_name= db_contract.product_name,
+                unit= db_contract.unit,
+                import_price= db_contract.import_price,
+                quantity= db_contract.quantity,
+                tenant_id = tenant_id
+            )    
+            import_detail = crud.import_detail.create(db=self.db, obj_in=import_detail_obj)
         
-        import_order_create = ImportOrderCreate(
+        import_order_obj = ImportOrderCreate(
             id=newID,
             is_contract=obj_in.is_contract,
             estimated_date=obj_in.estimated_date,
@@ -74,7 +75,8 @@ class ImportOrderService:
             subtotal=obj_in.subtotal,
             promotion=obj_in.promotion,
             total=obj_in.total,
-            created_by=user_name,
+            status="Đã nhập hàng" ,
+            created_by=user_id,
             belong_to_vendor=obj_in.belong_to_vendor,
             belong_to_contract=obj_in.belong_to_contract,
             tenant_id= tenant_id
@@ -82,12 +84,12 @@ class ImportOrderService:
         
         
         logger.info("ImportOrderService: create called.")
-        result = crud.import_order.create(db=self.db, obj_in=import_order_create)
+        result = crud.import_order.create(db=self.db, obj_in=import_order_obj)
         logger.info("ImportOrderService: create called successfully.")
         
         self.db.commit()
         logger.info("Service: create_import_order success.")
-        return dict(message_code=AppStatus.SUCCESS.message), import_order_create
+        return dict(message_code=AppStatus.SUCCESS.message), import_order_obj
     
     async def update_import_order(self, import_order_id: str, obj_in: ImportOrderUpdate):
         logger.info("ImportOrderService: get_import_order_by_id called.")

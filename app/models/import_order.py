@@ -19,8 +19,8 @@ class ImportOrder(Base):
     promotion = Column(Integer, unique = False, nullable = True)
     status = Column(String,nullable = False, default=("Đã nhập hàng"))
     created_by = Column(String, ForeignKey('employee.id'), unique = False, nullable = False)
-    belong_to_vendor = Column(String, ForeignKey('vendor.id'), unique = False, nullable = False)
-    belong_to_contract = Column(String, ForeignKey('contract_for_vendor.id'), unique = False, nullable = False)
+    belong_to_vendor = Column(String(30), ForeignKey('vendor.id'), unique = False, nullable = False)
+    belong_to_contract = Column(String(30), ForeignKey('contract_for_vendor.id'), unique = False, nullable = True)
     tenant_id = Column(String, unique=False, nullable=False)
     
     employee = relationship('Employee')

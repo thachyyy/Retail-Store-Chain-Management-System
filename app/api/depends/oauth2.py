@@ -93,7 +93,8 @@ def get_current_user(
         db: Session = Depends(get_db)
 ):
     user_id = token['uid']
-    user = crud.employee.get_employee_by_id(db=db, id=user_id)
+    
+    user =  crud.employee.get_employee_by_id(db=db, id=user_id)
     return user
 
 
