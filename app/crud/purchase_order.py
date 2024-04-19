@@ -98,7 +98,6 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         list_order = []
         for item in order_obj:
             list_order += [item.id]
-        print("list_orderxx",list_order)
         invoice_for_customer_obj = InvoiceForCustomerCreateParams(
             total=obj_in.total,
             status = obj_in.status,
