@@ -33,7 +33,8 @@ class Promotion(Base):
     remaining_number = Column(Integer)
     start_date = Column(DateTime)
     end_date = Column(DateTime)
-    branch = Column(String)
+    status = Column(String)
+    branch = Column(String, nullable=False)
     tenant_id = Column(String, unique=False, nullable=False)
     
     # promotion_type = Column(String(255), nullable=False)  

@@ -1,42 +1,44 @@
 from typing import Optional, Literal
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, validator
 from datetime import datetime
 import enum
 class Status(str,enum.Enum):
     ACTIVE = "Đang hiệu lực"
     INACTIVE = "Hết hiệu lực"
-    EXPIRED = "Hết hạn"
-    PENDING = "Đang xử lý"
 
 class PromotionCreateParams(BaseModel):
     promotion_code: str
     promotion_name: str
-    promotion_type: str
-    promotion_value: int
-    max_discount_amount: int
+    discount_percent: int
+    discount_value_max: int
+    min_total_valid: int
+    remaining_number: int
     start_date: datetime
     end_date: datetime
-    status: Status = Status.ACTIVE
-    min_product_value: Optional[int] = None
-    min_product_quantity: Optional[int] = None
+    status: Status
     
 class PromotionCreate(BaseModel):
     id: str
     promotion_code: str
     promotion_name: str
-    promotion_type: str
-    promotion_value: int
-    max_discount_amount: int
+    discount_percent: int
+    discount_value_max: int
+    min_total_valid: int
+    remaining_number: int
     start_date: datetime
     end_date: datetime
-    status: Optional[Literal['ACTIVE', 'INACTIVE', 'EXPIRED', 'PENDING', 'CANCALLED']] = None
-    min_product_value: Optional[int] = None
-    min_product_quantity: Optional[int] = None
+    status: Status
+    branch: str
+    tenant_id: str
     
 class PromotionUpdate(BaseModel):
-    max_discount_amount: Optional[int] = None
+    remaining_number: Optional[int] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    status: Optional[Literal['ACTIVE', 'INACTIVE', 'EXPIRED', 'PENDING', 'CANCALLED']] = None
-    min_product_value: Optional[int] = None
-    min_product_quantity: Optional[int] = None
+    status: Optional[Status] = None
+    
+    @validator('remaining_number', 'start_date', 'end_date', 'status', pre=True, always=False)
+    def check_not_null(cls, value, field):
+        if value is None:
+            raise ValueError(f"{field.name} cannot be null")
+        return value
