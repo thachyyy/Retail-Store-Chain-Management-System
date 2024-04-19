@@ -37,14 +37,14 @@ class CRUDCategories(CRUDBase[Categories, CategoriesCreate, CategoriesUpdate]):
         return result.all(),total
     
     @staticmethod
-    async def get_categories_by_id(db: Session, id: str):
-        return db.query(Categories).filter(Categories.id == id).first()
+    async def get_categories_by_id(db: Session, tenant_id: str, branch: str, id: str):
+        return db.query(Categories).filter(Categories.id == id, Categories.tenant_id == tenant_id, Categories.branch == branch).first()
     
     @staticmethod
-    async def get_categories_by_name(db: Session, name: str, id: str = None):
+    async def get_categories_by_name(db: Session, tenant_id: str, branch: str, name: str, id: str = None):
         if id is None:
-            return db.query(Categories).filter(Categories.name == name).first()
-        return db.query(Categories).filter(Categories.name == name, Categories.id != id).first()
+            return db.query(Categories).filter(Categories.name == name, Categories.tenant_id == tenant_id, Categories.branch == branch).first()
+        return db.query(Categories).filter(Categories.name == name, Categories.id != id, Categories.tenant_id == tenant_id, Categories.branch == branch).first()
     
     @staticmethod
     async def get_last_id(db: Session):

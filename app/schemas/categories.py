@@ -9,6 +9,8 @@ class CategoriesCreate(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
+    branch: str
+    tenant_id: str
     
 class CategoriesUpdate(BaseModel):
     name: Optional[str] = None

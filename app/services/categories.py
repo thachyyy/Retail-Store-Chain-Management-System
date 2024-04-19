@@ -18,6 +18,8 @@ class CategoriesService:
         
     async def get_all_categories(
         self,
+        tenant_id: str,
+        branch: str,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         # sort: Literal['asc', 'desc'] = None,
@@ -25,8 +27,8 @@ class CategoriesService:
         
         logger.info("CategoriesService: get_all_categories called.")
         if limit is not None and offset is not None:
-                result, total = crud.categories.get_multi(db=self.db, skip=offset*limit,limit=limit)
-        else: result, total = crud.categories.get_multi(db=self.db)
+                result, total = crud.categories.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
+        else: result, total = crud.categories.get_multi(db=self.db,tenant_id=tenant_id,branch=branch)
         # if limit is not None and offset is not None:
         #     result, total = crud.categories.get_all_categories(db=self.db, sort=sort, offset=offset*limit,limit=limit)
         # else: result,total = await crud.categories.get_all_categories(db=self.db, sort=sort)
@@ -34,9 +36,9 @@ class CategoriesService:
 
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
-    async def get_categories_by_id(self, id: str):
+    async def get_categories_by_id(self, tenant_id: str, branch: str, id: str):
         logger.info("CategoriesService: get_categories_by_id called.")
-        result = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        result = await crud.categories.get_categories_by_id(db=self.db, tenant_id=tenant_id, branch=branch, id=id)
         
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
@@ -59,9 +61,9 @@ class CategoriesService:
     
             return 'NHOM' + newID
     
-    async def create_categories(self, obj_in: CategoriesCreateParams):
+    async def create_categories(self, tenant_id: str, branch: str, obj_in: CategoriesCreateParams):
         logger.info("CategoriesService: get_categories_by_name called.")
-        current_categories_name = await crud.categories.get_categories_by_name(self.db, obj_in.name)
+        current_categories_name = await crud.categories.get_categories_by_name(self.db, tenant_id, branch, obj_in.name)
         logger.info("CategoriesService: get_categories_by_name called successfully.")
         
         if current_categories_name:
@@ -72,7 +74,9 @@ class CategoriesService:
         categories_create = CategoriesCreate(
             id=newID,
             name=obj_in.name,
-            description=obj_in.description
+            description=obj_in.description,
+            branch=branch,
+            tenant_id=tenant_id
         )
         
         logger.info("CategoriesService: create called.")
@@ -83,9 +87,9 @@ class CategoriesService:
         logger.info("Service: create_categories success.")
         return dict(message_code=AppStatus.SUCCESS.message), categories_create
     
-    async def update_categories(self, id: str, obj_in: CategoriesUpdate):
+    async def update_categories(self, tenant_id: str, branch: str, id: str, obj_in: CategoriesUpdate):
         logger.info("CategoriesService: get_categories_by_id called.")
-        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, tenant_id=tenant_id, branch=branch, id=id)
         logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         if not isValidCategories:
@@ -93,7 +97,7 @@ class CategoriesService:
         
         if obj_in.name:
             logger.info("CategoriesService: get_categories_by_name called.")
-            current_categories_name = await crud.categories.get_categories_by_name(self.db, obj_in.name, id)
+            current_categories_name = await crud.categories.get_categories_by_name(self.db, tenant_id, branch, obj_in.name, id)
             logger.info("CategoriesService: get_categories_by_name called successfully.")
             
             if current_categories_name:
@@ -104,18 +108,18 @@ class CategoriesService:
         result = await crud.categories.update_categories(db=self.db, id=id, categories_update=obj_in)
         logger.info("CategoriesService: update_categories called successfully.")
         self.db.commit()
-        obj_update = await crud.categories.get_categories_by_id(self.db, id)
+        obj_update = await crud.categories.get_categories_by_id(self.db, tenant_id, branch, id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_categories(self, id: str):
+    async def delete_categories(self, tenant_id: str, branch: str, id: str):
         logger.info("CategoriesService: get_categories_by_id called.")
-        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, id=id)
+        isValidCategories = await crud.categories.get_categories_by_id(db=self.db, tenant_id=tenant_id, branch=branch, id=id)
         logger.info("CategoriesService: get_categories_by_id called successfully.")
         
         if not isValidCategories:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
         
-        obj_del = await crud.categories.get_categories_by_id(self.db, id)
+        obj_del = await crud.categories.get_categories_by_id(self.db, tenant_id, branch, id)
         
         logger.info("CategoriesService: delete_categories called.")
         result = await crud.categories.delete_categories(self.db, id)
