@@ -29,18 +29,18 @@ class CRUDCustomer(CRUDBase[Customer, CustomerCreate, CustomerUpdate]):
         return result.all()
     
     @staticmethod
-    async def get_customer_by_phone(db: Session, phone_number: str, id: str = None) -> Optional[Customer]:
-        if id is not None: return db.query(Customer).filter(Customer.phone_number == phone_number, Customer.id != id).first()
-        else: return db.query(Customer).filter(Customer.phone_number == phone_number).first()
+    async def get_customer_by_phone(db: Session, tenant_id: str, phone_number: str, id: str = None) -> Optional[Customer]:
+        if id is not None: return db.query(Customer).filter(Customer.phone_number == phone_number, Customer.id != id, Customer.tenant_id == tenant_id).first()
+        else: return db.query(Customer).filter(Customer.phone_number == phone_number, Customer.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_customer_by_email(db: Session, email: EmailStr, id: str = None) -> Optional[Customer]:
-        if id is not None: return db.query(Customer).filter(Customer.email == email, Customer.id != id).first()
-        else: return db.query(Customer).filter(Customer.email == email).first()
+    async def get_customer_by_email(db: Session, tenant_id: str, email: EmailStr, id: str = None) -> Optional[Customer]:
+        if id is not None: return db.query(Customer).filter(Customer.email == email, Customer.id != id, Customer.tenant_id == tenant_id).first()
+        else: return db.query(Customer).filter(Customer.email == email, Customer.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_customer_by_id(db: Session, customer_id: str):
-        return db.query(Customer).filter(Customer.id == customer_id).first()
+    async def get_customer_by_id(db: Session, tenant_id: str, customer_id: str):
+        return db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_last_id(db: Session):

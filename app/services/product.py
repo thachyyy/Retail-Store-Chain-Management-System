@@ -30,23 +30,23 @@ class ProductService:
         barcode_image.save(os.path.join(BARCODE_DIR, filename))
         return filename
 
-    async def get_product_by_id(self, product_id: str):
+    async def get_product_by_id(self,tenant_id: str, branch: str, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
-        result = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
+        result = await crud.product.get_product_by_id(db=self.db, tenant_id=tenant_id, product_id=product_id, branch=branch)
         logger.info("ProductService: get_product_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return dict(message_code=AppStatus.SUCCESS.message), result
     
     
-    async def get_product_by_barcode(self, barcode: str):
+    async def get_product_by_barcode(self, barcode: str, tenant_id: str, branch: str = None):
         logger.info("ProductService: get_product_by_barcode called.")
         
-        current_product = await crud.product.check_product_by_barcode(db=self.db, barcode=barcode)
+        current_product = await crud.product.check_product_by_barcode(db=self.db, barcode=barcode, tenant_id=tenant_id, branch=branch)
         if not current_product:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_NOT_FOUND)
       
-        result = await crud.product.get_product_by_barcode(db=self.db, barcode=barcode)
+        result = await crud.product.get_product_by_barcode(db=self.db, tenant_id=tenant_id, barcode=barcode, branch=branch)
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST) 
         
@@ -70,6 +70,8 @@ class ProductService:
     
     async def get_all_products(
         self,
+        tenant_id: str,
+        branch: Optional[str],
         limit: Optional[int] = None,
         offset:Optional[int] = None, 
         status: Optional[str] = None,
@@ -90,7 +92,7 @@ class ProductService:
         
        
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
             sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
             if limit is not None and offset is not None:
@@ -103,7 +105,7 @@ class ProductService:
             total = total[0]['count']
             
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
             sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
@@ -190,15 +192,15 @@ class ProductService:
         logger.info("Service: create_product success.")
         return dict(message_code=AppStatus.SUCCESS.message),product_create
     
-    async def update_product(self, product_id: str, obj_in):
+    async def update_product(self, product_id: str, obj_in, tenant_id: str, branch: str = None):
         logger.info("ProductService: get_product_by_id called.")
-        isValidProduct = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
+        isValidProduct = await crud.product.get_product_by_id(db=self.db, tenant_id=tenant_id, product_id=product_id, branch=branch)
         logger.info("ProductService: get_product_by_id called successfully.")
         
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
-        current_bar_code = await crud.product.get_product_by_barcode(self.db, obj_in.barcode,product_id)
+        current_bar_code = await crud.product.get_product_by_barcode(self.db, tenant_id, obj_in.barcode, product_id, branch)
         if current_bar_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
         
@@ -213,15 +215,15 @@ class ProductService:
         obj_update = await crud.product.get_product_by_id(self.db, product_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_product(self, product_id: str):
+    async def delete_product(self, product_id: str, tenant_id: str, branch: str = None):
         logger.info("ProductService: get_product_by_id called.")
-        isValidProduct = await crud.product.get_product_by_id(db=self.db, product_id=product_id)
+        isValidProduct = await crud.product.get_product_by_id(db=self.db, tenant_id=tenant_id, product_id=product_id, branch=branch)
         logger.info("ProductService: get_product_by_id called successfully.")
         
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
-        obj_del = await crud.product.get_product_by_id(self.db, product_id)
+        obj_del = await crud.product.get_product_by_id(self.db, tenant_id, product_id, branch)
         
         logger.info("ProductService: delete_product called.")
         result = await crud.product.delete_product(self.db, product_id)
@@ -230,8 +232,11 @@ class ProductService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
-    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
+        if branch is not None:
+            whereList.append(f"branch = '{branch}'")
         
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")
@@ -243,16 +248,22 @@ class ProductService:
             whereList.append(f"sale_price >= '{conditions['low_price']}' ")
         elif 'high_price' in conditions:
             whereList.append(f"sale_price <= '{conditions['high_price']}' ")
+            
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     
-    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
         conditions = list()
         conditions.append(f"p.id::text ilike '%{condition}%'")
         conditions.append(f"p.product_name ilike '%{condition}%'")
         conditions.append(f"p.barcode  ilike '%{condition}%'")
+        
+        whereCondition = ' OR '.join(conditions)
             
-        whereCondition = "WHERE " + ' OR '.join(conditions)
+        if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition
         
   

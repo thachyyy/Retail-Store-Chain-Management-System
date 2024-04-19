@@ -16,6 +16,7 @@ from app.models import Customer
 from app.schemas.customer import CustomerCreateParams, CustomerUpdate
 from app.services.customer import CustomerService
 from app.utils.response import make_response_object
+from app.models import Employee
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -23,18 +24,22 @@ router = APIRouter()
 @router.post("/customers")
 async def create_customer(
     customer_create: CustomerCreateParams,
+    user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    current_user = await user
+    
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: create_customer called.")
     
-    msg, customer_response = await customer_service.create_customer(customer_create)
+    msg, customer_response = await customer_service.create_customer(current_user.tenant_id, customer_create)
     logger.info("Endpoints: create_customer called successfully.")
     return make_response_object(customer_response, msg)
 
 @router.get("/customers")
 async def get_all_customers(
     db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
     limit: int = None,
     offset: int = None,
     gender: str = None,
@@ -44,37 +49,62 @@ async def get_all_customers(
     district: str = None,
     query_search: Optional[str] = None,
 ) -> Any:
+    
+    current_user = await user
+    
     customer_service = CustomerService(db=db)
     logger.info("Endpoints: get_all_customers called.")
     
-    msg, customer_response = await customer_service.get_all_customers(limit,offset, gender, start_date, end_date, province, district, query_search)
+    msg, customer_response = await customer_service.get_all_customers(current_user.tenant_id, limit,offset, gender, start_date, end_date, province, district, query_search)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
 
 @router.get("/customers/{id}")
-async def get_customer_by_id(id: str, db: Session = Depends(get_db)) -> Any:
+async def get_customer_by_id(
+    id: str, 
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    
+    current_user = await user
+    
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: get_customer_by_id called.")  
-    msg, customer_response = await customer_service.get_customer_by_id(id)
+    msg, customer_response = await customer_service.get_customer_by_id(current_user.tenant_id, id)
     logger.info("Endpoints: get_all_customers called successfully.")
     return make_response_object(customer_response, msg)
     
 @router.put("/customers/{customer_id}")
-async def update_customer(customer_id: str, customer_update: CustomerUpdate, db: Session = Depends(get_db)) -> Any:
+async def update_customer(
+    customer_id: str, 
+    customer_update: CustomerUpdate, 
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    
+    current_user = await user
+    
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: update_customer called.")
-    msg, customer_response = await customer_service.update_customer(customer_id, customer_update)
+    msg, customer_response = await customer_service.update_customer(current_user.tenant_id, customer_id, customer_update)
     logger.info("Endpoints: update_customer called successfully.")
     return make_response_object(customer_response, msg)
 
 @router.delete("/customers/{customer_id}")
-async def delete_customer(customer_id: str, db: Session = Depends(get_db)) -> Any:
+async def delete_customer(
+    customer_id: str, 
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    
+    current_user = await user
+    
     customer_service = CustomerService(db=db)
     
     logger.info("Endpoints: delete_customer called.")
-    msg, customer_response = await customer_service.delete_customer(customer_id)
+    msg, customer_response = await customer_service.delete_customer(current_user.tenant_id, customer_id)
     logger.info("Endpoints: delete_customer called successfully.")
     return make_response_object(customer_response, msg)
 

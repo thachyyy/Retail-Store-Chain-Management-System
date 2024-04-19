@@ -54,48 +54,113 @@ async def get_all_products(
     high_price: Optional[int] = None,
     categories: Optional[str] = None,
     query_search: Optional[str] = None,
-    db: Session = Depends(get_db)
+    branch_name: Optional[str] = None,
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
+    
+    current_user = await user
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
-    msg,product_response= await product_service.get_all_products(limit,offset,status,low_price,high_price,categories,query_search)
+    msg,product_response= await product_service.get_all_products(current_user.tenant_id, branch, limit,offset,status,low_price,high_price,categories,query_search)
     
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
 
 @router.get("/products/{product_id}")
-async def get_product_by_id(product_id: str, db: Session = Depends(get_db)) -> Any:
+async def get_product_by_id(
+    product_id: str, 
+    db: Session = Depends(get_db),
+    branch_name: Optional[str] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    current_user = await user
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: get_product_by_id called.")  
-    msg, product_response = await product_service.get_product_by_id(product_id)
+    msg, product_response = await product_service.get_product_by_id(current_user.tenant_id, branch, product_id)
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
 
 @router.get("/products/barcode/{barcode}")
-async def get_product_by_barcode(barcode: str, db: Session = Depends(get_db)) -> Any:
+async def get_product_by_barcode(
+    barcode: str, 
+    db: Session = Depends(get_db),
+    branch_name: Optional[str] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    current_user = await user
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: get_product_by_id called.")  
-    msg, product_response = await product_service.get_product_by_barcode(barcode)
+    msg, product_response = await product_service.get_product_by_barcode(barcode, current_user.tenant_id, branch)
     logger.info("Endpoints: get_all_products called successfully.")
     return make_response_object(product_response, msg)
      
 @router.put("/products/{product_id}")
-async def update_product(product_id: str, product_update: ProductUpdate, db: Session = Depends(get_db)) -> Any:
+async def update_product(
+    product_id: str, 
+    product_update: ProductUpdate, 
+    db: Session = Depends(get_db),
+    branch_name: Optional[str] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: update_product called.")
-    msg, product_response = await product_service.update_product(product_id, product_update)
+    msg, product_response = await product_service.update_product(product_id, product_update, current_user.tenant_id, branch)
     logger.info("Endpoints: update_product called successfully.")
     return make_response_object(product_response, msg)
 
 @router.delete("/products/{product_id}")
-async def delete_product(product_id: str, db: Session = Depends(get_db)) -> Any:
+async def delete_product(
+    product_id: str, 
+    db: Session = Depends(get_db),
+    branch_name: Optional[str] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+) -> Any:
+    
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     product_service = ProductService(db=db)
     
     logger.info("Endpoints: delete_product called.")
-    msg, product_response = await product_service.delete_product(product_id)
+    msg, product_response = await product_service.delete_product(product_id, current_user.tenant_id, branch)
     logger.info("Endpoints: delete_product called successfully.")
     return make_response_object(product_response, msg)
 

@@ -18,9 +18,9 @@ class CustomerService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def get_customer_by_id(self, customer_id: str):
+    async def get_customer_by_id(self, tenant_id: str, customer_id: str):
         logger.info("CustomerService: get_customer_by_id called.")
-        result = await crud.customer.get_customer_by_id(db=self.db, customer_id=customer_id)
+        result = await crud.customer.get_customer_by_id(db=self.db, tenant_id=tenant_id, customer_id=customer_id)
         logger.info("CustomerService: get_customer_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
@@ -28,6 +28,7 @@ class CustomerService:
     
     async def get_all_customers(
         self,
+        tenant_id: str,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
         gender: Optional[str] = None,
@@ -50,7 +51,7 @@ class CustomerService:
             conditions['district'] = district
             
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions)
             sql = f"SELECT * FROM public.customer {whereConditions};"
             
             if offset is not None and limit is not None:
@@ -64,7 +65,7 @@ class CustomerService:
             logger.info("CustomerService: filter_customer called successfully.")
             
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search)
             
             sql = f"SELECT * FROM public.customer {whereConditions};"
             
@@ -81,8 +82,8 @@ class CustomerService:
         else: 
             logger.info("CustomerService: get_all_customers called.")
             if limit is not None and offset is not None:
-                result, total = crud.customer.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            else: result, total = crud.customer.get_multi(db=self.db)
+                result, total = crud.customer.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id)
+            else: result, total = crud.customer.get_multi(db=self.db, tenant_id=tenant_id)
             logger.info("CustomerService: get_all_customers called successfully.")
 
         return dict(message_code=AppStatus.SUCCESS.message,total=total),result
@@ -102,9 +103,9 @@ class CustomerService:
     
             return 'CUS' + newID
         
-    async def create_customer(self, obj_in: CustomerCreateParams):
+    async def create_customer(self, tenant_id: str, obj_in: CustomerCreateParams):
         logger.info("CustomerService: get_customer_by_phone called.")
-        current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number)
+        current_phone_number = await crud.customer.get_customer_by_phone(self.db, tenant_id, obj_in.phone_number)
         logger.info("CustomerService: get_customer_by_phone called successfully.")
         
         if current_phone_number:
@@ -112,7 +113,7 @@ class CustomerService:
         
         if obj_in.email is not None:
             logger.info("CustomerService: get_customer_by_email called.")
-            current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email)
+            current_email = await crud.customer.get_customer_by_email(self.db, tenant_id, obj_in.email)
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
@@ -134,6 +135,7 @@ class CustomerService:
             province=obj_in.province,
             reward_point=obj_in.reward_point,
             note=obj_in.note,
+            tenant_id=tenant_id
         )
         
         logger.info("CustomerService: create called.")
@@ -144,9 +146,9 @@ class CustomerService:
         logger.info("Service: create_customer success.")
         return dict(message_code=AppStatus.SUCCESS.message), customer_create
     
-    async def update_customer(self, customer_id: str, obj_in: CustomerUpdate):
+    async def update_customer(self, tenant_id: str, customer_id: str, obj_in: CustomerUpdate):
         logger.info("CustomerService: get_customer_by_id called.")
-        isValidCustomer = await crud.customer.get_customer_by_id(db=self.db, customer_id=customer_id)
+        isValidCustomer = await crud.customer.get_customer_by_id(db=self.db, tenant_id=tenant_id, customer_id=customer_id)
         logger.info("CustomerService: get_customer_by_id called successfully.")
         
         if not isValidCustomer:
@@ -154,14 +156,14 @@ class CustomerService:
         
         if obj_in.phone_number is not None:
             logger.info("CustomerService: get_customer_by_phone called.")
-            current_phone_number = await crud.customer.get_customer_by_phone(self.db, obj_in.phone_number, customer_id)
+            current_phone_number = await crud.customer.get_customer_by_phone(self.db, tenant_id, obj_in.phone_number, customer_id)
             logger.info("CustomerService: get_customer_by_phone called successfully.")
             if current_phone_number:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
         
         if obj_in.email is not None:
             logger.info("CustomerService: get_customer_by_email called.")
-            current_email = await crud.customer.get_customer_by_email(self.db, obj_in.email, customer_id)
+            current_email = await crud.customer.get_customer_by_email(self.db, tenant_id, obj_in.email, customer_id)
             logger.info("CustomerService: get_customer_by_email called successfully.")
             if current_email:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
@@ -173,18 +175,18 @@ class CustomerService:
         result = await crud.customer.update_customer(db=self.db, customer_id=customer_id, customer_update=obj_in)
         logger.info("CustomerService: update_customer called successfully.")
         self.db.commit()
-        obj_update = await crud.customer.get_customer_by_id(self.db, customer_id)
+        obj_update = await crud.customer.get_customer_by_id(self.db, tenant_id, customer_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_customer(self, customer_id: str):
+    async def delete_customer(self, tenant_id: str, customer_id: str):
         logger.info("CustomerService: get_customer_by_id called.")
-        isValidCustomer = await crud.customer.get_customer_by_id(db=self.db, customer_id=customer_id)
+        isValidCustomer = await crud.customer.get_customer_by_id(db=self.db, tenant_id=tenant_id, customer_id=customer_id)
         logger.info("CustomerService: get_customer_by_id called successfully.")
         
         if not isValidCustomer:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CUSTOMER_NOT_FOUND)
         
-        obj_del = await crud.customer.get_customer_by_id(self.db, customer_id)
+        obj_del = await crud.customer.get_customer_by_id(self.db, tenant_id, customer_id)
         
         logger.info("CustomerService: delete_customer called.")
         result = await crud.customer.delete_customer(self.db, customer_id)
@@ -193,18 +195,20 @@ class CustomerService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
-    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str) -> str:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
         conditions.append(f"full_name ilike '%{condition}%'")
         conditions.append(f"phone_number ilike '%{condition}%'")
         conditions.append(f"address ilike '%{condition}%'")
             
-        whereCondition = "WHERE " + ' OR '.join(conditions)
+        whereCondition = ' OR '.join(conditions)
+        whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition
     
-    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict) -> str:
         whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
         
         if 'gender' in conditions:
             whereList.append(f"gender = '{conditions['gender']}'")
