@@ -76,6 +76,10 @@ class EmployeeService:
 
         logger.info("UserService: login success.")
         return user
+    
+    async def read_me(self, employee_id: str, tanant_id: str):
+        user = await crud.employee.get_employee_by_id(self.db, employee_id)
+        return dict(message_code=AppStatus.SUCCESS.message), user
         
     async def get_all_employees(
         self,

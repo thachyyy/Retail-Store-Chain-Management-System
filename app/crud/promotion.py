@@ -12,16 +12,16 @@ logger = logging.getLogger(__name__)
 
 class CRUDPromotion(CRUDBase[Promotion, PromotionCreate, PromotionUpdate]):
     @staticmethod
-    async def get_all_promotions(db: Session) -> Optional[Promotion]:
-        return db.query(Promotion).all()
+    async def get_all_promotions(db: Session, tenant_id: str, branch: str) -> Optional[Promotion]:
+        return db.query(Promotion).filter(Promotion.tenant_id == tenant_id, Promotion.branch == branch).all()
     
     @staticmethod
-    async def get_promotion_by_id(db: Session, promotion_id: str):
-        return db.query(Promotion).filter(Promotion.id == promotion_id).first()
+    async def get_promotion_by_id(db: Session, promotion_id: str, tenant_id: str):
+        return db.query(Promotion).filter(Promotion.id == promotion_id, Promotion.tenant_id == tenant_id).first()
     
     @staticmethod
-    async def get_promotion_by_code(db: Session, promotion_code: str) -> Optional[Promotion]:
-        return db.query(Promotion).filter(Promotion.promotion_code == promotion_code).first()
+    async def get_promotion_by_code(db: Session, promotion_code: str, tenant_id: str, branch: str) -> Optional[Promotion]:
+        return db.query(Promotion).filter(Promotion.promotion_code == promotion_code, Promotion.tenant_id == tenant_id, Promotion. branch == branch).first()
     
     @staticmethod
     async def get_last_id(db: Session):

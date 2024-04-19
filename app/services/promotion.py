@@ -16,16 +16,16 @@ class PromotionService:
     def __init__(self, db: Session):
         self.db = db
         
-    async def get_all_promotions(self):
+    async def get_all_promotions(self, tenant_id: str, branch: str = None):
         logger.info("PromotionService: get_all_promotions called.")
-        result = await crud.promotion.get_all_promotions(db=self.db)
+        result = await crud.promotion.get_all_promotions(db=self.db, tenant_id=tenant_id, branch=branch)
         logger.info("PromotionService: get_all_promotions called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
-    async def get_promotion_by_id(self, promotion_id: str):
+    async def get_promotion_by_id(self, promotion_id: str, tenant_id = str):
         logger.info("PromotionService: get_promotion_by_id called.")
-        result = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id)
+        result = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id, tenant_id=tenant_id)
         logger.info("PromotionService: get_promotion_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
@@ -45,9 +45,9 @@ class PromotionService:
     
             return 'PROMO' + newID
     
-    async def create_promotion(self, obj_in: PromotionCreateParams):
+    async def create_promotion(self, obj_in: PromotionCreateParams, tenant_id: str, branch: str):
         logger.info("PromotionService: get_promotion_by_code called.")
-        current_promotion_code = await crud.promotion.get_promotion_by_code(self.db, obj_in.promotion_code)
+        current_promotion_code = await crud.promotion.get_promotion_by_code(self.db, obj_in.promotion_code, tenant_id, branch)
         logger.info("PromotionService: get_promotion_by_code called successfully.")
         
         if current_promotion_code:
@@ -59,14 +59,14 @@ class PromotionService:
             id=newID,
             promotion_code=obj_in.promotion_code,
             promotion_name=obj_in.promotion_name,
-            promotion_type=obj_in.promotion_type,
-            promotion_value=obj_in.promotion_value,
-            max_discount_amount=obj_in.max_discount_amount,
+            discount_percent=obj_in.discount_percent,
+            min_total_valid=obj_in.min_total_valid,
+            remaining_number=obj_in.remaining_number,
             start_date=obj_in.start_date,
             end_date=obj_in.end_date,
             status=obj_in.status,
-            min_product_value=obj_in.min_product_value,
-            min_product_quantity=obj_in.min_product_quantity
+            tenant_id=tenant_id,
+            branch=branch
         )
         
         logger.info("PromotionService: create called.")
@@ -77,9 +77,9 @@ class PromotionService:
         logger.info("Service: create_promotion success.")
         return dict(message_code=AppStatus.SUCCESS.message)
     
-    async def update_promotion(self, promotion_id: str, obj_in: PromotionUpdate):
+    async def update_promotion(self, promotion_id: str, obj_in: PromotionUpdate, tenant_id: str):
         logger.info("PromotionService: get_promotion_by_id called.")
-        isValidPromotion = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id)
+        isValidPromotion = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id,tenant_id=tenant_id)
         logger.info("PromotionService: get_promotion_by_id called successfully.")
         
         if not isValidPromotion:
@@ -91,9 +91,9 @@ class PromotionService:
         self.db.commit()
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
         
-    async def delete_promotion(self, promotion_id: str):
+    async def delete_promotion(self, promotion_id: str, tenant_id: str):
         logger.info("PromotionService: get_promotion_by_id called.")
-        isValidPromotion = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id)
+        isValidPromotion = await crud.promotion.get_promotion_by_id(db=self.db, promotion_id=promotion_id,tenant_id=tenant_id)
         logger.info("PromotionService: get_promotion_by_id called successfully.")
         
         if not isValidPromotion:

@@ -85,6 +85,19 @@ async def refresh_token(decoded_refresh_token=Depends(verify_refresh_token),
     return make_response_object(data=dict(access_token=created_access_token,
                                           refresh_token=created_refresh_token),meta=msg)
 
+@router.get("/read_me")
+async def read_me(
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    current_user = await user
+    employee_service = EmployeeService(db=db)
+    
+    msg, user = await employee_service.read_me(current_user.id, current_user.tenant_id)
+    
+    return make_response_object(user, msg)
+    
+
 @router.post("/employees")
 async def create_employee(
     employee_create: EmployeeCreateParams,
