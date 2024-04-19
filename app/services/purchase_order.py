@@ -10,6 +10,7 @@ from app import crud
 from app.api.endpoints.batch import update_batch
 from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
 from app.constant.app_status import AppStatus
+from app.models.employee import Employee
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams
 from app.schemas.order_detail import OrderDetails
 from app.schemas.purchase_order import PurchaseOrderResponse, PurchaseOrderCreate, PurchaseOrderCreateParams
@@ -135,7 +136,7 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user:str|None = None):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user_id:str,tenant_id:str):
         newID = await self.gen_id()
         status = "Đã thanh toán" if paid else "Đang chờ xử lí"
 
@@ -155,8 +156,9 @@ class PurchaseOrderService:
         tax_percentage=obj_in.tax_percentage,
         status=status,  
         note=obj_in.note,
-        handle_by=user,
-        belong_to_customer=obj_in.belong_to_customer
+        handle_by=user_id,
+        belong_to_customer=obj_in.belong_to_customer,
+        tenant_id =tenant_id
         )
         
         # order_details_instances = [
@@ -173,7 +175,7 @@ class PurchaseOrderService:
         # Creating an instance of InvoiceForCustomerCreateParams with the list of OrderDetails instances
       
         logger.info("PurchaseOrderService: create called.")
-        result = await crud.purchase_order.create(db=self.db,paid=paid,obj_in=purchase_order_create,obj=obj_in.order_detail)
+        result = await crud.purchase_order.create(db=self.db,paid=paid,obj_in=purchase_order_create,obj=obj_in.order_detail,tenant_id=tenant_id)
         
         logger.info("PurchaseOrderService: create called successfully.")
         

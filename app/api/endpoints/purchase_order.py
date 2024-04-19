@@ -12,6 +12,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import PurchaseOrder
+from app.models.employee import Employee
 from app.models.order_detail import OrderDetail
 # from app.schemas import ChangePassword, PurchaseOrderResponse
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderCreateParams, PurchaseOrderUpdate
@@ -26,13 +27,14 @@ router = APIRouter()
 async def create_purchase_order(
     paid : bool,
     purchase_order_create: PurchaseOrderCreateParams, 
-    user:str = None,
+    user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    current_user = await user
     purchase_order_service = PurchaseOrderService(db=db)
     logger.info("Endpoints: create_purchase_order called.")
     
-    msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,paid,user)
+    msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,paid,current_user.id,current_user.tenant_id)
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 

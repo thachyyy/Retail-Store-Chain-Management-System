@@ -139,7 +139,8 @@ class InvoiceForCustomerService:
         
     async def create_invoice_for_customer(self, 
                                           paid:bool,
-                                          obj_in: InvoiceForCustomerCreateParams):
+                                          obj_in: InvoiceForCustomerCreateParams,
+                                          tenant_id:str):
         newID = await self.gen_id()
         if paid == True:
             status = "Đã thanh toán"
@@ -151,7 +152,8 @@ class InvoiceForCustomerService:
             status=status,
             payment_method=obj_in.payment_method,
             belong_to_order=obj_in.belong_to_order,
-            order_detail=obj_in.order_detail
+            order_detail=obj_in.order_detail,
+            tenant_id=tenant_id
         )   
         
         logger.info("InvoiceForCustomerService: create called.")

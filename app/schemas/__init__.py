@@ -17,3 +17,4 @@ from .promotion_for_order import *
 from .purchase_order import *
 from .tenant import *
 from .order_detail import *
+from .import_detail import *

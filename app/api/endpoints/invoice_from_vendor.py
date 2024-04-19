@@ -15,6 +15,7 @@ from app.models import InvoiceFromVendor
 from app.schemas.invoice_from_vendor import InvoiceFromVendorCreateParams, InvoiceFromVendorUpdate
 from app.services.invoice_from_vendor import InvoiceFromVendorService
 from app.utils.response import make_response_object
+from app.models import Employee
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

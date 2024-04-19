@@ -96,9 +96,9 @@ async def create_vendor(
     vendor_service = VendorService(db=db)
     logger.info("Endpoints: create_vendor called.")
     
-    vendor_response = await vendor_service.create_vendor(vendor_create)
+    msg,vendor_response = await vendor_service.create_vendor(current_user.tenant_id,vendor_create)
     logger.info("Endpoints: create_vendor called successfully.")
-    return make_response_object(vendor_response)
+    return make_response_object(vendor_response,msg)
 
 @router.put("/vendors/{vendor_id}")
 async def update_vendor(
@@ -137,17 +137,17 @@ async def delete_vendor(
     logger.info("Endpoints: delete_vendor called successfully.")
     return make_response_object(vendor_response, msg)
 
-@router.get("vendor/search")
-async def search_vendor(
-    db: Session = Depends(get_db), 
-    condition: Optional[str] = Query(None),
-    limit: Optional[int] = None,
-    offset:Optional[int] = None
-) -> Any:
-    vendor_service = VendorService(db=db)
+# @router.get("vendor/search")
+# async def search_vendor(
+#     db: Session = Depends(get_db), 
+#     condition: Optional[str] = Query(None),
+#     limit: Optional[int] = None,
+#     offset:Optional[int] = None
+# ) -> Any:
+#     vendor_service = VendorService(db=db)
     
-    logger.info("Endpoints: search_vendor called.")
-    msg, vendor_response = await vendor_service.search_vendor(condition, limit, offset)
-    logger.info("Endpoints: search_vendor called successfully.")
+#     logger.info("Endpoints: search_vendor called.")
+#     msg, vendor_response = await vendor_service.search_vendor(condition, limit, offset)
+#     logger.info("Endpoints: search_vendor called successfully.")
     
-    return make_response_object(vendor_response, msg)
+#     return make_response_object(vendor_response, msg)

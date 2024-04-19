@@ -6,6 +6,8 @@ from pydantic import UUID4
 
 from app import crud
 from app.constant.app_status import AppStatus
+from app.models.import_detail import ImportDetail
+from app.schemas.import_detail import ImportDetailCreate
 from app.schemas.import_order import ImportOrderCreateParams, ImportOrderCreate, ImportOrderUpdate
 from app.core.exceptions import error_exception_handler
 
@@ -44,10 +46,25 @@ class ImportOrderService:
     
             return 'IORDER' + newID
     
-    async def create_import_order(self, obj_in: ImportOrderCreateParams):
+    async def create_import_order(
+        self, 
+        obj_in: ImportOrderCreateParams,
+        user_name:str,
+        tenant_id:str,
+        db_contract: ImportDetail
+        ):
         
         newID = await self.gen_id()
-                    
+        import_order_create = ImportDetailCreate(
+            product_id = db_contract.product_id,
+            product_name= db_contract.product_name,
+            unit= db_contract.unit,
+            import_price= db_contract.import_price,
+            quantity= db_contract.quantity,
+            tenant_id = tenant_id
+        )    
+        import_detail = crud.import_detail.create(db=self.db, obj_in=import_order_create)
+        
         import_order_create = ImportOrderCreate(
             id=newID,
             is_contract=obj_in.is_contract,
@@ -57,11 +74,12 @@ class ImportOrderService:
             subtotal=obj_in.subtotal,
             promotion=obj_in.promotion,
             total=obj_in.total,
-            created_by=obj_in.created_by,
+            created_by=user_name,
             belong_to_vendor=obj_in.belong_to_vendor,
             belong_to_contract=obj_in.belong_to_contract,
-            belong_to_invoice=obj_in.belong_to_invoice  
+            tenant_id= tenant_id
         )
+        
         
         logger.info("ImportOrderService: create called.")
         result = crud.import_order.create(db=self.db, obj_in=import_order_create)
@@ -69,7 +87,7 @@ class ImportOrderService:
         
         self.db.commit()
         logger.info("Service: create_import_order success.")
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=import_order_create)
+        return dict(message_code=AppStatus.SUCCESS.message), import_order_create
     
     async def update_import_order(self, import_order_id: str, obj_in: ImportOrderUpdate):
         logger.info("ImportOrderService: get_import_order_by_id called.")

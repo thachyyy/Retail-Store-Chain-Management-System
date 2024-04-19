@@ -73,7 +73,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return result_as_dict, sum
     
     @staticmethod
-    async def create(db: Session, *,paid, obj_in: PurchaseOrderCreate,obj) -> PurchaseOrder:
+    async def create(db: Session, *,paid, obj_in: PurchaseOrderCreate,obj,tenant_id:str) -> PurchaseOrder:
         logger.info("CRUDPurchaseOrder: create called.")
         logger.debug("With: PurchaseOrderCreate - %s", obj_in.dict())
 
@@ -88,7 +88,8 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             batch_id = product.batch,
             product_id = product.product_id,
             product_name = product.product_name,
-            purchase_order_id = db_obj.id
+            purchase_order_id = db_obj.id,
+            tenant_id = tenant_id
             )
                for product in obj]
         
@@ -103,7 +104,8 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             status = obj_in.status,
             payment_method = "Tiền mặt",
             belong_to_order = obj_in.id,
-            order_detail = list_order
+            order_detail = list_order,
+            tenant_id = tenant_id
         )
         
         await create_invoice_for_customer(paid,invoice_for_customer_obj,db)

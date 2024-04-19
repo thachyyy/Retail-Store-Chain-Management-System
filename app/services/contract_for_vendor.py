@@ -20,14 +20,14 @@ class ContractForVendorService:
         result = await crud.contract_for_vendor.get_all_contract_for_vendors(db=self.db)
         logger.info("ContractForVendorService: get_all_contracts called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def get_contract_for_vendor_by_id(self, id: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
         result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, id=id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def gen_id(self):
         newID: str
@@ -44,13 +44,11 @@ class ContractForVendorService:
     
             return 'CONTVENDOR' + newID
     
-    async def create_contract_for_vendor(self, obj_in: ContractForVendorCreateParams):
-        # logger.info("ContractForVendorService: get_contract_by_name called.")
-        # current_contract_name = await crud.contract_for_vendor.get_contract_by_name(self.db, obj_in.name)
-        # logger.info("ContractForVendorService: get_contract_by_name called successfully.")
-        
-        # if current_contract_name:
-        #     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NAME_ALREADY_EXIST)
+    async def create_contract_for_vendor(
+        self, 
+        obj_in: ContractForVendorCreateParams,
+        tenant_id:str
+        ):
         newID = await self.gen_id()
         
         contract_for_vendor_create = ContractForVendorCreate(
@@ -61,7 +59,8 @@ class ContractForVendorService:
             minimum_order_quantity=obj_in.minimum_order_quantity,
             ordering_cycle_amount=obj_in.ordering_cycle_amount,
             ordering_cycle_quantity=obj_in.ordering_cycle_quantity,
-            belong_to_vendor=obj_in.belong_to_vendor
+            belong_to_vendor=obj_in.belong_to_vendor,
+            tenant_id = tenant_id
         )
         
         logger.info("ContractForVendorService: create called.")
@@ -70,7 +69,7 @@ class ContractForVendorService:
         
         self.db.commit()
         logger.info("Service: create_contract success.")
-        return dict(message_code=AppStatus.SUCCESS.message)
+        return dict(message_code=AppStatus.SUCCESS.message),contract_for_vendor_create
     
     # async def update_contract(self, name: str, obj_in: ContractForVendorUpdate):
     #     logger.info("ContractForVendorService: get_contract_by_name called.")
@@ -99,4 +98,4 @@ class ContractForVendorService:
         logger.info("ContractForVendorService: delete_contract_for_vendor called successfully.")
         
         self.db.commit()
-        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), dict(data=result)
+        return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), result

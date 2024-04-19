@@ -5,21 +5,22 @@ from datetime import date
 class ContractForVendorCreateParams(BaseModel):
     start_date: date
     end_date: date
-    minimum_order_amount: int
-    minimum_order_quantity: int
-    ordering_cycle_amount: int
-    ordering_cycle_quantity: int
+    minimum_order_amount: Optional[int]
+    minimum_order_quantity: Optional[int]
+    ordering_cycle_amount: Optional[int]
+    ordering_cycle_quantity: Optional[int]
     belong_to_vendor: str
     
 class ContractForVendorCreate(BaseModel):
     id: str
     start_date: date
     end_date: date
-    minimum_order_amount: int
-    minimum_order_quantity: int
-    ordering_cycle_amount: int
-    ordering_cycle_quantity: int
+    minimum_order_amount: Optional[int]
+    minimum_order_quantity: Optional[int]
+    ordering_cycle_amount: Optional[int]
+    ordering_cycle_quantity: Optional[int]
     belong_to_vendor: str
+    tenant_id :str
 
 class ContractForVendorUpdate(BaseModel):
     pass

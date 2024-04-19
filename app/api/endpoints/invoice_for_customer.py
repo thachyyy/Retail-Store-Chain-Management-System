@@ -13,6 +13,7 @@ from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.models import InvoiceForCustomer
 # from app.schemas import ChangePassword, InvoiceForCustomerResponse
+from app.models.employee import Employee
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams, InvoiceForCustomerUpdate
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.utils.response import make_response_object
@@ -25,12 +26,13 @@ router = APIRouter()
 async def create_invoice_for_customer(
     paid:bool,
     invoice_for_customer_create: InvoiceForCustomerCreateParams,
+    user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)
 ) -> Any:
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     logger.info("Endpoints: create_invoice_for_customer called.")
-    
-    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_create)
+    current_user = await user
+    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_create,current_user.tenant_id)
     logger.info("Endpoints: create_invoice_for_customer called successfully.")
     return make_response_object(invoice_for_customer_response)
 

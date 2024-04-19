@@ -6,7 +6,7 @@ class Status(str, enum.Enum):
     INACTIVE = "Dừng hợp tác"
 
 class VendorCreateParams(BaseModel):
-    company_name: str
+    company_name: Optional[str] = None
     vendor_name: str
     phone_number: Optional[str]
     email: Optional[EmailStr]
@@ -18,7 +18,7 @@ class VendorCreateParams(BaseModel):
 
 class VendorCreate(BaseModel):
     id: str
-    company_name: str
+    company_name: Optional[str] = None
     vendor_name: str
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -30,7 +30,7 @@ class VendorCreate(BaseModel):
     tenant_id: str
 
 class VendorUpdate(BaseModel):
-    company_name: Optional[str]
+    company_name: Optional[str] = None
     vendor_name: Optional[str]
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -40,7 +40,7 @@ class VendorUpdate(BaseModel):
     status: Optional[Status]
     note: Optional[str] = None
     
-    @validator('company_name', 'vendor_name', 'status', pre=True, always=False)
+    @validator('vendor_name', 'status', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")

@@ -23,3 +23,4 @@ from .import_order import ImportOrder
 from .order_detail import OrderDetail
 # from .branch_and_employee import BranchEmployee
 from .tenant import Tenant
+from .import_detail import ImportDetail
