@@ -31,6 +31,7 @@ class CustomerCreate(BaseModel):
     province: Optional[str] = None
     reward_point: Optional[int] = 0
     note: Optional[str] = None
+    tenant_id: str
     
 class CustomerUpdate(BaseModel):
     full_name: Optional[str]
