@@ -62,9 +62,6 @@ class BatchService:
             return 'LO' + newID
     
     async def create_batch(self, obj_in: BatchCreateParams, tenant_id: str, branch: str):
-        print(tenant_id,"tenant_id")
-        print(branch,"branch")
-        print(obj_in.product_id,"bj_in.product_idabccc")
         isValisProd = await crud.product.get_product_by_id(self.db,tenant_id=tenant_id, product_id=obj_in.product_id, branch=branch)
         if not isValisProd:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)

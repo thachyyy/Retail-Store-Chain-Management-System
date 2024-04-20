@@ -20,7 +20,6 @@ class Batch(Base):
     product_id = Column(String(255), ForeignKey('product.id'), unique = False, nullable = False)
     belong_to_receipt = Column(String(255), ForeignKey('import_order.id'), unique = False, nullable = True)
     tenant_id = Column(String, unique=False, nullable=False)
-    
     roduct = relationship('Product')
     import_order = relationship('ImportOrder')
     product = relationship('Product')
