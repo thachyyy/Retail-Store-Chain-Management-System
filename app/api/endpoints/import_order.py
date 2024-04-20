@@ -45,8 +45,8 @@ async def create_import_order(
     belong_to_contract: Optional[str],
     estimated_date: Optional[date],
     promotion: Optional[int],
-    branch_name:Optional[str],
-    file: Optional[UploadFile] = File(None),
+    branch_name:Optional[str] = None,
+    file: UploadFile = File(...),
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)
 ) -> Any:
