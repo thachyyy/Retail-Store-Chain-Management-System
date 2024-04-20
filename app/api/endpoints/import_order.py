@@ -71,6 +71,7 @@ async def create_import_order(
         # print(data_frame)
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
+    print("BRANCHHHHHHHHHH", branch)
     list_import = []
     for index, row in data_frame.iterrows():
             db_contract = ImportDetailCreateParams(

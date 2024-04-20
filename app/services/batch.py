@@ -74,7 +74,7 @@ class BatchService:
             import_price=obj_in.import_price,
             manufacturing_date=obj_in.manufacturing_date,
             expiry_date=obj_in.expiry_date,
-            belong_to_branch=branch,
+            branch=branch,
             belong_to_receipt=obj_in.belong_to_receipt,
             product_id=obj_in.product_id,
             tenant_id=tenant_id
