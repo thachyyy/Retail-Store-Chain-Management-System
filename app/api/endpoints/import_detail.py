@@ -32,7 +32,6 @@ class PaymentStatus(str,enum.Enum):
 async def create_import_detail(
     # import_detail_create: ImportDetailCreateParams,
     is_contract: bool,
-    delivery_status: str,
     payment_status: PaymentStatus,
     subtotal: int,
     total: int,
@@ -71,7 +70,6 @@ async def create_import_detail(
     import_detail_create = ImportDetailCreateParams(
                 is_contract=is_contract,
                 estimated_date=estimated_date,
-                delivery_status= delivery_status,
                 payment_status= payment_status,
                 subtotal= subtotal,
                 promotion= promotion,

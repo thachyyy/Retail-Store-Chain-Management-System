@@ -113,7 +113,6 @@ class ImportDetailService:
             id=newID,
             is_contract=obj_in.is_contract,
             estimated_date=obj_in.estimated_date,
-            delivery_status=obj_in.delivery_status,
             payment_status=obj_in.payment_status,
             subtotal=obj_in.subtotal,
             promotion=obj_in.promotion,

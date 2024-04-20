@@ -36,15 +36,14 @@ class PaymentStatus(str,enum.Enum):
 @router.post("/import_order")
 async def create_import_order(
     # import_order_create: ImportOrderCreateParams,
-    is_contract: bool,
-    delivery_status: str,
     payment_status: PaymentStatus,
     subtotal: int,
     total: int,
     belong_to_vendor: str,
-    belong_to_contract: Optional[str],
-    estimated_date: Optional[date],
-    promotion: Optional[int],
+    is_contract: Optional[bool] = None,
+    belong_to_contract: Optional[str] = None,
+    estimated_date: Optional[date] = None,
+    promotion: Optional[int] = None,
     branch:Optional[str] = None,
     file: UploadFile = File(...),
     user: Employee = Depends(oauth2.get_current_user), 
@@ -96,7 +95,6 @@ async def create_import_order(
     import_order_create = ImportOrderCreateParams(
                 is_contract=is_contract,
                 estimated_date=estimated_date,
-                delivery_status= delivery_status,
                 payment_status= payment_status,
                 subtotal= subtotal,
                 promotion= promotion,
