@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 import uuid
 
 from sqlalchemy.orm import Session
@@ -15,16 +16,24 @@ class ContractForVendorService:
     def __init__(self, db: Session):
         self.db = db
         
-    async def get_all_contract_for_vendors(self):
+    async def get_all_contract_for_vendors(
+        self,
+        tenant_id: str,
+        branch: str,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None):
         logger.info("ContractForVendorService: get_all_contracts called.")
-        result = await crud.contract_for_vendor.get_all_contract_for_vendors(db=self.db)
+        if limit is not None and offset is not None:
+                result, total = crud.contract_for_vendor.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
+        else: 
+            result, total = crud.contract_for_vendor.get_multi(db=self.db,tenant_id=tenant_id,branch=branch)
         logger.info("ContractForVendorService: get_all_contracts called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
-    async def get_contract_for_vendor_by_id(self, id: str):
+    async def get_contract_for_vendor_by_id(self, tenant_id: str, branch: str, id: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, id=id)
+        result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, tenant_id=tenant_id, branch=branch, id=id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
@@ -47,7 +56,8 @@ class ContractForVendorService:
     async def create_contract_for_vendor(
         self, 
         obj_in: ContractForVendorCreateParams,
-        tenant_id:str
+        tenant_id:str,
+        branch:str
         ):
         newID = await self.gen_id()
         
@@ -60,7 +70,8 @@ class ContractForVendorService:
             ordering_cycle_amount=obj_in.ordering_cycle_amount,
             ordering_cycle_quantity=obj_in.ordering_cycle_quantity,
             belong_to_vendor=obj_in.belong_to_vendor,
-            tenant_id = tenant_id
+            tenant_id = tenant_id,
+            branch=branch
         )
         
         logger.info("ContractForVendorService: create called.")

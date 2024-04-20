@@ -21,6 +21,7 @@ class ContractForVendorCreate(BaseModel):
     ordering_cycle_quantity: Optional[int]
     belong_to_vendor: str
     tenant_id :str
+    branch:str
 
 class ContractForVendorUpdate(BaseModel):
     pass

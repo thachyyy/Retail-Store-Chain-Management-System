@@ -15,8 +15,8 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         return db.query(ContractForVendor).all()
     
     @staticmethod
-    async def get_contract_for_vendor_by_id(db: Session, id: str):
-        return db.query(ContractForVendor).filter(ContractForVendor.id == id).first()
+    async def get_contract_for_vendor_by_id(db: Session, tenant_id: str, branch: str, id: str):
+        return db.query(ContractForVendor).filter(ContractForVendor.id == id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).first()
     
     @staticmethod
     async def get_last_id(db: Session):
