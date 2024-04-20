@@ -52,8 +52,8 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         update_data = batch_update.dict(exclude_unset=True)
         return db.query(Batch).filter(Batch.id == batch_id).update(update_data)
     @staticmethod
-    async def update_quantity(db: Session,batch_id:str, quantity:int) -> Optional[Batch]:
-        get_quantity= f"SELECT quantity FROM public.batch WHERE id = '{batch_id}';"
+    async def update_quantity(db: Session,batch_id:str, quantity:int,tenant_id:str) -> Optional[Batch]:
+        get_quantity= f"SELECT quantity FROM public.batch WHERE id = '{batch_id}' and tenant_id ='{tenant_id}' ;"
         current_quantity= db.execute(get_quantity)
         result = current_quantity.mappings().all()
 

@@ -89,10 +89,10 @@ class PurchaseOrderService:
             sql = f"SELECT COUNT(*) FROM public.purchase_order;"
             logger.info("PurchaseOrderService: get_all_purchase_order called.")
             if limit is not None and offset is not None:
-                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql, offset=offset*limit,limit=limit)
+                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql,tenant_id=tenant_id,branch=branch, offset=offset*limit,limit=limit)
                 total = total[0]['count']
             else: 
-                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql)
+                result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql,tenant_id=tenant_id,branch=branch)
                 total = total[0]['count']
             logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
@@ -145,18 +145,22 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user_id:str,tenant_id:str,branch:str):
+    async def create_purchase_order(self, 
+                                    obj_in: PurchaseOrderCreateParams,
+                                    paid: bool,
+                                    user_id:str,
+                                    tenant_id:str,
+                                    branch:str):
         newID = await self.gen_id()
         status = "Đã thanh toán" if paid else "Đang chờ xử lí"
 
         # Update batches if paid
         if paid:
             for item in obj_in.order_detail:
-                await update_batch(item.batch, item.quantity, db=self.db)
+                await update_batch(item.batch, item.quantity,tenant_id, db=self.db)
                 
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
-        # created_at=datetime.now(),
         estimated_delivery_date=obj_in.estimated_delivery_date,
         tax=obj_in.tax,
         subtotal=obj_in.subtotal,
@@ -171,21 +175,12 @@ class PurchaseOrderService:
         branch=branch
         )
         
-        # order_details_instances = [
-        #     OrderDetails(
-        #         quantity =product.quantity,
-        #         sub_total=product.sub_total,
-        #         price = product.price,
-        #         batch = product.batch,
-        #         product_id = product.product_id,
-        #         product_name=product.product_name,
-        #         )
-        # for product in obj_in.order_detail]
-
-        # Creating an instance of InvoiceForCustomerCreateParams with the list of OrderDetails instances
-      
         logger.info("PurchaseOrderService: create called.")
-        result = await crud.purchase_order.create(db=self.db,paid=paid,obj_in=purchase_order_create,obj=obj_in.order_detail,tenant_id=tenant_id)
+        result = await crud.purchase_order.create(db=self.db,
+                                                  paid=paid,
+                                                  obj_in=purchase_order_create,
+                                                  obj=obj_in.order_detail,
+                                                  tenant_id=tenant_id)
         
         logger.info("PurchaseOrderService: create called successfully.")
         

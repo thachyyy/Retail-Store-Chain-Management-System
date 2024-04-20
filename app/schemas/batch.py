@@ -9,6 +9,7 @@ class BatchCreateParams(BaseModel):
     belong_to_receipt: Optional[str]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
+
     class Config:
         orm_mode = True
     

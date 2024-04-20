@@ -11,8 +11,9 @@ class ImportDetailCreateParams(BaseModel):
     import_price: int 
     quantity: int
     tenant_id:str
+    branch:str
 class ImportDetailCreate(ImportDetailCreateParams):
-    id :str
+    id: str
     
   
 class ImportDetailUpdate(BaseModel):

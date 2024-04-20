@@ -16,8 +16,8 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         return db.query(ImportOrder).all()
     
     @staticmethod
-    async def get_import_order_by_id(db: Session, import_order_id: str):
-        return db.query(ImportOrder).filter(ImportOrder.id == import_order_id).first()
+    async def get_import_order_by_id(db: Session, id: str,branch: str, tenant_id: str):
+        return db.query(ImportOrder).filter(ImportOrder.id == id,ImportOrder.branch == branch,ImportOrder.tenant_id == tenant_id,).first()
     
     @staticmethod
     async def get_last_id(db: Session):
@@ -40,12 +40,12 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         return db_obj
  
     @staticmethod
-    async def update_import_order(db: Session, import_order_id: str, import_order_update: ImportOrderUpdate):
+    async def update_import_order(db: Session, id: str, import_order_update: ImportOrderUpdate):
         update_data = import_order_update.dict(exclude_unset=True)
-        return db.query(ImportOrder).filter(ImportOrder.id == import_order_id).update(update_data)
+        return db.query(ImportOrder).filter(ImportOrder.id == id).update(update_data)
     
     @staticmethod
-    async def delete_import_order(db: Session, import_order_id: str):
-        return db.query(ImportOrder).filter(ImportOrder.id == import_order_id).delete()
+    async def delete_import_order(db: Session, id: str):
+        return db.query(ImportOrder).filter(ImportOrder.id == id).delete()
     
 import_order = CRUDImportOrder(ImportOrder)

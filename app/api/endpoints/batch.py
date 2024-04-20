@@ -19,7 +19,7 @@ router = APIRouter()
 async def get_all_batches(
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
-    branch_id: Optional[str] = None,
+    branch: Optional[str] = None,
     limit: Optional[int] = None,
     offset:Optional[int] = None,
 ) -> Any:
@@ -29,10 +29,10 @@ async def get_all_batches(
     batch_service = BatchService(db=db)
     logger.info("Endpoints: get_all_batches called.")
     
-    if branch_id:
+    if branch:
         msg, batch_response = await batch_service.get_all_batches(
             tenant_id=current_user.tenant_id,
-            branch=branch_id,
+            branch=branch,
             limit=limit, 
             offset=offset
         )
@@ -85,7 +85,7 @@ async def create_batch(
     batch_service = BatchService(db=db)
     logger.info("Endpoints: create_batch called.")
     
-    msg, batch_response = await batch_service.create_batch(batch_create, current_user.tenant_id, current_user.branch_id)
+    msg, batch_response = await batch_service.create_batch(batch_create, current_user.tenant_id, current_user.branch)
     logger.info("Endpoints: create_batch called successfully.")
     return make_response_object(batch_response, msg)
 
@@ -99,11 +99,11 @@ async def update_batch(batch_id: str, batch_update: BatchUpdate, db: Session = D
     return make_response_object(batch_response, msg)
 
 @router.put("/batches/update_quantity/{batch_id}")
-async def update_batch(batch_id: str,quantity:int, db: Session = Depends(get_db)) -> Any:
+async def update_batch(batch_id: str,quantity:int,tenant_id:str ,db: Session = Depends(get_db)) -> Any:
     batch_service = BatchService(db=db)
     
     logger.info("Endpoints: update_batch called.")
-    msg, batch_response = await batch_service.update_quantity(batch_id, quantity)
+    msg, batch_response = await batch_service.update_quantity(batch_id, quantity,tenant_id)
     logger.info("Endpoints: update_batch called successfully.")
     return make_response_object(batch_response, msg)
 

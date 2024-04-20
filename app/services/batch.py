@@ -61,8 +61,11 @@ class BatchService:
     
             return 'LO' + newID
     
-    async def create_batch(self, obj_in: BatchCreateParams, tenant_id: str, branch_id: str):
-        isValisProd = await crud.product.get_product_by_id(self.db, obj_in.product_id)
+    async def create_batch(self, obj_in: BatchCreateParams, tenant_id: str, branch: str):
+        print(tenant_id,"tenant_id")
+        print(branch,"branch")
+        print(obj_in.product_id,"bj_in.product_idabccc")
+        isValisProd = await crud.product.get_product_by_id(self.db,tenant_id=tenant_id, product_id=obj_in.product_id, branch=branch)
         if not isValisProd:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
@@ -74,7 +77,7 @@ class BatchService:
             import_price=obj_in.import_price,
             manufacturing_date=obj_in.manufacturing_date,
             expiry_date=obj_in.expiry_date,
-            belong_to_branch=branch_id,
+            belong_to_branch=branch,
             belong_to_receipt=obj_in.belong_to_receipt,
             product_id=obj_in.product_id,
             tenant_id=tenant_id
@@ -103,9 +106,9 @@ class BatchService:
         obj_update = await crud.batch.get_batch_by_id(self.db, batch_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
     
-    async def update_quantity(self, batch_id: str, quantity:int):
+    async def update_quantity(self, batch_id: str, quantity:int,tenant_id:str):
         logger.info("BatchService: get_batch_by_id called.")
-        isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
+        isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id,tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_id called successfully.")
         
         
@@ -113,10 +116,10 @@ class BatchService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BATCH_NOT_FOUND)
 
         logger.info("BatchService: update_batch called.")
-        result = await crud.batch.update_quantity(db=self.db, batch_id=batch_id, quantity=quantity)
+        result = await crud.batch.update_quantity(db=self.db, batch_id=batch_id, quantity=quantity,tenant_id=tenant_id)
         logger.info("BatchService: update_batch called successfully.")
         self.db.commit()
-        obj_update = await crud.batch.get_batch_by_id(self.db, batch_id)
+        obj_update = await crud.batch.get_batch_by_id(self.db, batch_id,tenant_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update    
     async def delete_batch(self, batch_id: str):
         logger.info("BatchService: get_batch_by_id called.")

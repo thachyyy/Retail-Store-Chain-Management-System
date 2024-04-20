@@ -33,7 +33,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         except Exception as error:
             logger.error("User service: get by ID failed.", exc_info=error)
             return None
-    def  get_multi(
+    def get_multi(
             self, db: Session, *, skip: int = None, limit: int = None, tenant_id: str, branch: str = None
     ) -> Any:
         print("Chi nhanh:", branch)

@@ -21,7 +21,7 @@ from app.api.endpoints import promotion_belong_to_branch
 from app.api.endpoints import promotion_for_order
 from app.api.endpoints import purchase_order
 from app.api.endpoints import order_detail
-
+from app.api.endpoints import import_detail
 
 
 router = APIRouter()
@@ -36,6 +36,7 @@ router.include_router(customer.router, prefix="", tags=["customers"])
 router.include_router(employee.router, prefix="", tags=["employees"])
 router.include_router(branch.router, prefix="", tags=["branches"])
 router.include_router(import_order.router, prefix="", tags=["import_order"])
+router.include_router(import_detail.router, prefix="", tags=["import_detail"])
 router.include_router(contract_for_product.router, prefix="", tags=["contract_for_product"])
 router.include_router(contract_for_vendor.router, prefix="", tags=["contracts_for_vendor"])
 router.include_router(invoice_for_customer.router, prefix="", tags=["invoice_for_customer"])

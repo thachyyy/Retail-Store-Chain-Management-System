@@ -77,7 +77,7 @@ class BranchService:
     
     async def get_branch_by_id(self, branch_id: str, tenant_id: str):
         logger.info("BranchService: get_branch_by_id called.")
-        result = await crud.branch.get_branch_by_id(db=self.db, branch_id=branch_id)
+        result = await crud.branch.get_branch_by_id(db=self.db, branch_id=branch_id,tenant_id=tenant_id)
         logger.info("BranchService: get_branch_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)

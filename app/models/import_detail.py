@@ -13,5 +13,6 @@ class ImportDetail(Base):
     unit = Column(String(255),nullable=False)
     import_price = Column(Integer)
     quantity = Column(Integer)
+    branch = Column(String,unique =False,nullable =True)
     tenant_id = Column(String, unique=False, nullable=False)
 

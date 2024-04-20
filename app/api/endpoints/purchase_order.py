@@ -36,6 +36,7 @@ async def create_purchase_order(
 ) -> Any:
     current_user = await user
     
+    #Lấy chi nhánh current_user làm việc
     if branch_name:
         branch = branch_name
     else:
@@ -45,7 +46,12 @@ async def create_purchase_order(
     purchase_order_service = PurchaseOrderService(db=db)
     logger.info("Endpoints: create_purchase_order called.")
     
-    msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,paid,current_user.id,current_user.tenant_id,branch)
+    msg, purchase_order_response = await purchase_order_service.create_purchase_order(
+        purchase_order_create,
+        paid,
+        current_user.id,
+        current_user.tenant_id,
+        branch)
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
 
@@ -71,11 +77,12 @@ async def create_purchase_order(
     msg, purchase_order_response = await purchase_order_service.create_purchase_order(purchase_order_create,paid,current_user.id,current_user.tenant_id,branch)
     logger.info("Endpoints: create_purchase_order called successfully.")
     return make_response_object(purchase_order_response, msg)
+
 @router.get("/purchase_order", summary="Lấy thông tin tất cả đơn đặt hàng")
 async def get_all_purchase_order(
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: str = None,
+    branch_name: Optional[str] = None,
     limit: int = None,
     offset: int = None,
     status:Optional[str] = None,
@@ -97,7 +104,7 @@ async def get_all_purchase_order(
     logger.info("Endpoints: get_all_purchase_order called.")
     
     msg, purchase_order_response = await purchase_order_service.get_all_purchase_orders(
-        current_user.tanant_id,
+        current_user.tenant_id,
         branch,
         limit,
         offset,

@@ -16,7 +16,7 @@ class CRUDImportDetail(CRUDBase[ImportDetail, ImportDetailCreate, ImportDetailUp
         return db.query(ImportDetail).all()
     
     @staticmethod
-    async def get_import_detail_by_id(db: Session, import_detail_id: str):
+    async def get_import_detail_by_id(db: Session, import_detail_id: int):
         return db.query(ImportDetail).filter(ImportDetail.id == import_detail_id).first()
     
     @staticmethod

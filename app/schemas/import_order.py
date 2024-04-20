@@ -1,7 +1,7 @@
 import enum
 from typing import List, Optional, Literal
 from pydantic import BaseModel, UUID4
-from datetime import date
+from datetime import date, datetime
 
 class PaymentStatus(str,enum.Enum):
     PAID = "Đã thanh toán"
@@ -16,7 +16,8 @@ class ImportOrderCreateParams(BaseModel):
     belong_to_contract: Optional[str]
     estimated_date: Optional[date]
     promotion: Optional[int]
-    # import_details : Optional[List[int]]
+    list_import : Optional[List[int]]
+    branch:str
     
 class ImportOrderCreate(BaseModel):
     id: str
@@ -32,8 +33,8 @@ class ImportOrderCreate(BaseModel):
     estimated_date: Optional[date]
     promotion: Optional[int]
     tenant_id :str
-    # import_details : List[int]
-    
+    list_import : List[int]
+    branch:str
 class ImportOrderUpdate(BaseModel):
     is_contract: Optional[bool]
     estimated_date: Optional[date]
@@ -47,4 +48,8 @@ class ImportOrderUpdate(BaseModel):
     belong_to_vendor: Optional[str]
     belong_to_contract: Optional[str]
     
+class InvoiceOrderResponse(ImportOrderCreate):
+    created_at: datetime
+    updated_at: Optional[datetime]
+  
     

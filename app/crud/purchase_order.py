@@ -10,6 +10,7 @@ from app.models.order_detail import OrderDetail
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreateParams
 from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderUpdate
 from app.crud.base import CRUDBase
+from app.services.invoice_for_customer import InvoiceForCustomerService
 from ..models import PurchaseOrder
 
 from app.core.exceptions import error_exception_handler
@@ -20,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrderUpdate]):    
     @staticmethod
-    async def get_all_purchase_orders(db: Session,sql:str,offset:int= None,limit :int = None) -> Optional[PurchaseOrder]:
+    async def get_all_purchase_orders(db: Session,sql:str,tenant_id:str,branch:str,offset:int= None,limit :int = None) -> Optional[PurchaseOrder]:
         total = db.execute(sql)
         result_as_dict = total.mappings().all()
         
-        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),joinedload(PurchaseOrder.employee))
-
+        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),joinedload(PurchaseOrder.employee)).filter(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.branch == branch)
+        
         
         if limit is not None and offset is not None:
             response = response.offset(offset).limit(limit)
@@ -73,7 +74,12 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return result_as_dict, sum
     
     @staticmethod
-    async def create(db: Session, *,paid, obj_in: PurchaseOrderCreate,obj,tenant_id:str) -> PurchaseOrder:
+    async def create(db: Session, *,
+                     paid, 
+                     obj_in: PurchaseOrderCreate,
+                     obj,
+                     tenant_id:str
+                     ) -> PurchaseOrder:
         logger.info("CRUDPurchaseOrder: create called.")
         logger.debug("With: PurchaseOrderCreate - %s", obj_in.dict())
 
@@ -89,7 +95,8 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             product_id = product.product_id,
             product_name = product.product_name,
             purchase_order_id = db_obj.id,
-            tenant_id = tenant_id
+            tenant_id = tenant_id,
+            branch = obj_in.branch
             )
                for product in obj]
         
@@ -99,17 +106,19 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         list_order = []
         for item in order_obj:
             list_order += [item.id]
+        
         invoice_for_customer_obj = InvoiceForCustomerCreateParams(
             total=obj_in.total,
             status = obj_in.status,
             payment_method = "Tiền mặt",
             belong_to_order = obj_in.id,
             order_detail = list_order,
-            tenant_id = tenant_id
+            tenant_id = tenant_id,
         )
         
-        await create_invoice_for_customer(paid,invoice_for_customer_obj,db)
-        
+
+        invoice_for_customer_service = InvoiceForCustomerService(db=db)
+        await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_obj,tenant_id,obj_in.branch)
         logger.info("CRUDPurchaseOrder: create called successfully.")
         return order_obj
 

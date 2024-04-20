@@ -110,6 +110,8 @@ class InvoiceForCustomerService:
             payment_method=obj_in.payment_method,
             status=obj_in.status,
             belong_to_order= obj_in.belong_to_order,
+            tenant_id = obj_in.tenant_id,
+            branch= obj_in.branch,
             order_detail=[]
         )
         # lenght_order_details = len(obj_in.order_detail)
