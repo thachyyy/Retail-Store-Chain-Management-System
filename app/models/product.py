@@ -11,7 +11,7 @@ class Product(Base):
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
-    barcode = Column(String(255), unique=True, nullable= False)
+    barcode = Column(String(255), unique=True,nullable= False)
     product_name = Column(String(255),nullable=False)
     description = Column(String(255),nullable=True)
     brand = Column(String(255),nullable=True,index = True)

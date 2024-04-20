@@ -23,12 +23,12 @@ class ProductService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def generate_barcode(self,bar_code: str):
-        barcode_format = barcode.get_barcode_class('ean8')
-        barcode_image = barcode_format(bar_code, writer=ImageWriter())
-        filename = f"{uuid4()}"
-        barcode_image.save(os.path.join(BARCODE_DIR, filename))
-        return filename
+    # async def generate_barcode(self,bar_code: str):
+    #     barcode_format = barcode.get_barcode_class('ean8')
+    #     barcode_image = barcode_format(bar_code, writer=ImageWriter())
+    #     filename = f"{uuid4()}"
+    #     barcode_image.save(os.path.join(BARCODE_DIR, filename))
+    #     return filename
 
     async def get_product_by_id(self,tenant_id: str, branch: str, product_id: str):
         logger.info("ProductService: get_product_by_id called.")
@@ -93,10 +93,10 @@ class ProductService:
        
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
-            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
             
             total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
 
@@ -107,10 +107,10 @@ class ProductService:
         elif query_search:
             whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
-            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             
             if limit is not None and offset is not None:
-                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
             total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
@@ -119,14 +119,14 @@ class ProductService:
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else:
-            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
+            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
             # logger.info("ProductService: get_all_products called.")
             # if limit is not None and offset is not None:
             #     result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
             # else: result, total = crud.product.get_multi(db=self.db)
             
             if limit is not None and offset is not None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
+                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
             
             total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
             
@@ -216,7 +216,7 @@ class ProductService:
         result = await crud.product.update_product(db=self.db, product_id=product_id, product_update=obj_in)
         logger.info("ProductService: update_product called successfully.")
         self.db.commit()
-        obj_update = await crud.product.get_product_by_id(self.db, product_id)
+        obj_update = await crud.product.get_product_by_id(db=self.db, tenant_id=tenant_id, product_id=product_id, branch=branch)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_product(self, product_id: str, tenant_id: str, branch: str = None):
@@ -227,7 +227,7 @@ class ProductService:
         if not isValidProduct:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         
-        obj_del = await crud.product.get_product_by_id(self.db, tenant_id, product_id, branch)
+        obj_del = await crud.product.get_product_by_id(db=self.db, tenant_id=tenant_id, product_id=product_id, branch=branch)
         
         logger.info("ProductService: delete_product called.")
         result = await crud.product.delete_product(self.db, product_id)

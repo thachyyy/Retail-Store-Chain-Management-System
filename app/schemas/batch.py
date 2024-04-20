@@ -17,7 +17,7 @@ class BatchCreate(BaseModel):
     id: str
     quantity: int
     import_price: int
-    belong_to_branch: str
+    branch: str
     product_id:str 
     belong_to_receipt: Optional[str]
     manufacturing_date: Optional[date]
@@ -29,12 +29,12 @@ class BatchUpdate(BaseModel):
     quantity: Optional[int]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
-    belong_to_branch: Optional[str]
+    branch: Optional[str]
     belong_to_receipt: Optional[str]
     product_id: Optional[str]
     
     
-    @validator('quantity', 'import_price', 'belong_to_branch', 'product_id', pre=True, always=False)
+    @validator('quantity', 'import_price', 'branch', 'product_id', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
             raise ValueError(f"{field.name} cannot be null")
