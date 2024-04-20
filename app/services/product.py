@@ -238,20 +238,20 @@ class ProductService:
     
     async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
-        whereList.append(f"tenant_id = '{tenant_id}'")
+        whereList.append(f"p.tenant_id = '{tenant_id}'")
         if branch is not None:
-            whereList.append(f"branch = '{branch}'")
+            whereList.append(f"p.branch = '{branch}'")
         
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"p.status = '{conditions['status']}'")
         if 'categories' in conditions:
-            whereList.append(f"categories_id = '{conditions['categories']}'")
+            whereList.append(f"p.categories_id = '{conditions['categories']}'")
         if 'low_price' in conditions and 'high_price' in conditions:
-            whereList.append(f"sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
+            whereList.append(f"p.sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
         elif 'low_price' in conditions:
-            whereList.append(f"sale_price >= '{conditions['low_price']}' ")
+            whereList.append(f"p.sale_price >= '{conditions['low_price']}' ")
         elif 'high_price' in conditions:
-            whereList.append(f"sale_price <= '{conditions['high_price']}' ")
+            whereList.append(f"p.sale_price <= '{conditions['high_price']}' ")
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
@@ -265,9 +265,9 @@ class ProductService:
         whereCondition = ' OR '.join(conditions)
             
         if branch is not None:
-            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+            whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}' AND p.branch = '{branch}'"
         else:
-            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
+            whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}'"
         return whereCondition
         
   
