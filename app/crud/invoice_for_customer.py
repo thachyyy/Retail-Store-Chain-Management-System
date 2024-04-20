@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCreate, InvoiceForCustomerUpdate]):    
     @staticmethod
-    async def get_all_invoice_for_customers(db: Session,sql:str, offset: int = None, limit: int = None, tenant_id: str, branch: str) -> Optional[InvoiceForCustomer]:
+    async def get_all_invoice_for_customers(db: Session, tenant_id: str, branch: str, sql:str, offset: int = None, limit: int = None) -> Optional[InvoiceForCustomer]:
         
         total = db.execute(sql)
         result_as_dict = total.mappings().all()
