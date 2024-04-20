@@ -119,16 +119,20 @@ class ProductService:
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else:
-            sql_join = "SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id;"
+            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
             # logger.info("ProductService: get_all_products called.")
             # if limit is not None and offset is not None:
             #     result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
             # else: result, total = crud.product.get_multi(db=self.db)
             
             if limit is not None and offset is not None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id LIMIT {limit} OFFSET {offset*limit};"
+                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.belong_to_branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
             
-            total = "SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id;"
+            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
+            
+            print("SQL here:", sql_join)
+            print("TOTAL here:", total)
+            
             result, total = await crud.product.get_all_product(self.db, total, sql_join)
             total = total[0]['count']
             logger.info("ProductService: get_all_products called successfully.")
