@@ -41,8 +41,8 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         return db.query(PurchaseOrder).filter(PurchaseOrder.email == email).first()
     
     @staticmethod
-    async def get_purchase_order_by_id(db: Session, purchase_order_id: str):
-        return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).first()
+    async def get_purchase_order_by_id(db: Session, purchase_order_id: str, tenant_id: str):
+        return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_last_id(db: Session):

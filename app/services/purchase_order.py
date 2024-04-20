@@ -23,15 +23,17 @@ class PurchaseOrderService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def get_purchase_order_by_id(self, purchase_order_id: str):
+    async def get_purchase_order_by_id(self, purchase_order_id: str, tenant_id: str):
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
-        result = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id)
+        result = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id, tenant_id=tenant_id)
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
    
     async def get_all_purchase_orders(
         self, 
+        tenant_id: str,
+        branch: Optional[str],
         limit: Optional[int] = None,
         offset:Optional[int] = None,
         status:Optional[str] = None,
@@ -56,7 +58,7 @@ class PurchaseOrderService:
         
         
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
             sql = f"SELECT * FROM public.purchase_order {whereConditions};"
             
             if offset is not None and limit is not None:
@@ -70,7 +72,7 @@ class PurchaseOrderService:
             logger.info("PurchaseOrderService: filter_purchase_order called successfully.")
             
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
             sql = f"SELECT * FROM public.purchase_order {whereConditions};"
             
@@ -96,29 +98,36 @@ class PurchaseOrderService:
 
         
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
-    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
         conditions = list()
-        conditions.append(f"id::text ilike '%{condition}%'")
-        conditions.append(f"full_name::text ilike '%{condition}%'")
+        conditions.append(f"handle_by ilike '%{condition}%'")
+        conditions.append(f"belong_to_customer ilike '%{condition}%'")
+        
+        whereCondition = ' OR '.join(conditions)
+        if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
+        return whereCondition
     
-    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
+        if branch is not None:
+            whereList.append(f"branch = '{branch}'")
         
         # filter using '='
-        if 'role' in conditions:
-            whereList.append(f"role = '{conditions['role']}'")
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")
-        
-        # filter using 'ilike'
-        if 'id' in conditions:
-            whereList.append(f"id ilike '%{conditions['id']}%'")
-        if 'full_name' in conditions:
-            whereList.append(f"full_name ilike '%{conditions['full_name']}%'")
-        if 'email' in conditions:
-            whereList.append(f"email ilike '%{conditions['email']}%'")
-        
-            
+        if 'gt_total' in conditions:
+            whereList.append(f"total >= '{conditions['gt_total']}'")
+        if 'lt_total' in conditions:
+            whereList.append(f"total <= '{conditions['lt_total']}'")
+        if 'start_date' in conditions:
+            whereList.append(f"created_at >= '{conditions['start_date']}'")
+        if 'end_date' in conditions:
+            whereList.append(f"created_at <= '{conditions['end_date']}'")
+         
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     async def gen_id(self):
@@ -136,7 +145,7 @@ class PurchaseOrderService:
     
             return 'ORDER' + newID
         
-    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user_id:str,tenant_id:str):
+    async def create_purchase_order(self, obj_in: PurchaseOrderCreateParams,paid: bool,user_id:str,tenant_id:str,branch:str):
         newID = await self.gen_id()
         status = "Đã thanh toán" if paid else "Đang chờ xử lí"
 
@@ -158,7 +167,8 @@ class PurchaseOrderService:
         note=obj_in.note,
         handle_by=user_id,
         belong_to_customer=obj_in.belong_to_customer,
-        tenant_id =tenant_id
+        tenant_id =tenant_id,
+        branch=branch
         )
         
         # order_details_instances = [
@@ -185,9 +195,9 @@ class PurchaseOrderService:
         logger.info("Service: create_purchase_order success.")
         return dict(message_code=AppStatus.SUCCESS.message), purchase_order_create
 
-    async def update_purchase_order(self, purchase_order_id: str, obj_in):
+    async def update_purchase_order(self, purchase_order_id: str, obj_in, tenant_id: str):
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
-        isValidPurchaseOrder = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id)
+        isValidPurchaseOrder = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id, tenant_id=tenant_id)
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
         if not isValidPurchaseOrder:
@@ -199,9 +209,9 @@ class PurchaseOrderService:
         self.db.commit()
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
-    async def delete_purchase_order(self, purchase_order_id: str):
+    async def delete_purchase_order(self, purchase_order_id: str, tenant_id: str):
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
-        isValidPurchaseOrder = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id)
+        isValidPurchaseOrder = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id, tenant_id=tenant_id)
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
         if not isValidPurchaseOrder:

@@ -35,6 +35,8 @@ class PurchaseOrderCreate(BaseModel):
     status: Optional[Status] = Field(default= Status.WAITING)
     note: Optional[str]
     belong_to_customer: Optional[str]= Field(None)
+    tenant_id: str
+    branch: str
     
 class PurchaseOrderUpdate(BaseModel):
     estimated_delivery_date: Optional[datetime] = None
