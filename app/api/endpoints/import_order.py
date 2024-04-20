@@ -132,10 +132,12 @@ async def get_all_import_order(
     import_order_service = ImportOrderService(db=db)
     logger.info("Endpoints: get_all_import_orders called.")
     
-    msg, import_order_response = await import_order_service.get_all_import_orders(tenant_id=current_user.tenant_id,
-            branch=branch,
-            limit=limit, 
-            offset=offset)
+    msg, import_order_response = await import_order_service.get_all_import_orders(
+        tenant_id=current_user.tenant_id,
+        branch=branch,
+        limit=limit, 
+        offset=offset
+    )
     logger.info("Endpoints: get_all_import_orders called successfully.")
     return make_response_object(import_order_response, msg)
 

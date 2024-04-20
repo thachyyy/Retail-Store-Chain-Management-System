@@ -38,7 +38,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> Any:
         print("Chi nhanh:", branch)
         if branch:
-            query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id, self.model.belong_to_branch == branch)
+            query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id, self.model.branch == branch)
         else:  
             query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id)
         count = query_set.count()

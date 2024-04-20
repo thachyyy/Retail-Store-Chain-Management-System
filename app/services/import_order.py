@@ -24,50 +24,56 @@ class ImportOrderService:
         branch: Optional[str] = None,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
-        query_search: Optional[str] = None
+        # query_search: Optional[str] = None
         ):
-        conditions = dict()
+        # conditions = dict()
         
               
-        if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
-            sql = f"SELECT * FROM public.import_order {whereConditions};"
+        # if conditions:
+        #     whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
+        #     sql = f"SELECT * FROM public.import_order {whereConditions};"
             
-            if offset is not None and limit is not None:
-                sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+        #     if offset is not None and limit is not None:
+        #         sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
 
-            total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
+        #     total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
             
-            logger.info("ImportOrderService: filter_import_order called.")
-            result,total = await crud.import_order.get_import_order_by_conditions(self.db, sql=sql, total=total)
-            total = total[0]['count']
-            logger.info("ImportOrderService: filter_import_order called successfully.")
-        elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
+        #     logger.info("ImportOrderService: filter_import_order called.")
+        #     result,total = await crud.import_order.get_import_order_by_conditions(self.db, sql=sql, total=total)
+        #     total = total[0]['count']
+        #     logger.info("ImportOrderService: filter_import_order called successfully.")
+        # elif query_search:
+        #     whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
-            sql = f"SELECT * FROM public.import_order {whereConditions};"
+        #     sql = f"SELECT * FROM public.import_order {whereConditions};"
             
-            if limit is not None and offset is not None:
-                sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+        #     if limit is not None and offset is not None:
+        #         sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
-            total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
+        #     total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
 
-            logger.info("ImportOrderService: filter_import_order called.")
-            result,total= await crud.customer.get_customer_by_conditions(self.db, sql=sql,total = total)
-            total = total[0]['count']
+        #     logger.info("ImportOrderService: filter_import_order called.")
+        #     result,total= await crud.customer.get_customer_by_conditions(self.db, sql=sql,total = total)
+        #     total = total[0]['count']
+        # else: 
+        #     logger.info("ImportOrderService: get_all_import_orders called.")
+        #     if limit is not None and offset is not None:
+        #         result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
+        #     else: 
+        #         result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
+        #     logger.info("ImportOrderService: get_all_import_orders called successfully.")
+        logger.info("ImportOrderService: get_all_import_orders called.")
+        if limit is not None and offset is not None:
+            result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
         else: 
-            logger.info("ImportOrderService: get_all_import_orders called.")
-            if limit is not None and offset is not None:
-                result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
-            else: 
-                result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
-            logger.info("ImportOrderService: get_all_import_orders called successfully.")
+            result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
+        logger.info("ImportOrderService: get_all_import_orders called successfully.")
             
-            response = []
-            for x in result:
-                r = await self.make_response_import_order(x)
-                response.append(r)
+        response = []
+        for x in result:
+            r = await self.make_response_import_order(x)
+            response.append(r)
         return dict(message_code=AppStatus.SUCCESS.message,total=total), response
     
     async def make_response_import_order(self, obj_in):

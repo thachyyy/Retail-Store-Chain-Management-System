@@ -24,4 +24,8 @@ class CRUDTenant(CRUDBase[Tenant, TenantCreate, TenantUpdate]):
         logger.info("CRUDTenant: create called successfully.")
         return db_obj
     
+    @staticmethod
+    async def get_tenant_by_id(db: Session, tenant_id: str):
+        return db.query(Tenant).filter(Tenant.tenant_id == tenant_id).first()
+    
 tenant = CRUDTenant(Tenant)

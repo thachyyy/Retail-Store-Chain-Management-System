@@ -25,6 +25,10 @@ class EmployeeService:
     async def create_user(self, obj_in):
         logger.info("EmployeeService: get_info called.")
         current_email = await crud.employee.get_employee_by_email(self.db, obj_in.email.lower())
+        current_tenant = await crud.tenant.get_tenant_by_id(self.db, obj_in.branch_name)
+        
+        if current_tenant:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NAME_ALREADY_EXIST)
         
         if current_email and current_email.hashed_password:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
