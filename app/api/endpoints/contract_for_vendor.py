@@ -27,10 +27,14 @@ async def create_contract_for_vendor(
     db: Session = Depends(get_db)
 ) -> Any:
     current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     if branch:
         branch= branch
     else:
         branch = current_user.branch
+    
     contract_for_vendor_service = ContractForVendorService(db=db)
     logger.info("Endpoints: create_contract_for_vendor called.")
     
@@ -45,7 +49,11 @@ async def get_all_contract_for_vendors(
     limit: Optional[int] = None,
     offset:Optional[int] = None,
     db: Session = Depends(get_db)) -> Any:
+    
     current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     contract_for_vendor_service = ContractForVendorService(db=db)
     logger.info("Endpoints: get_all_contract_for_vendors called.")
     
@@ -59,6 +67,10 @@ async def get_contract_for_vendor_by_id(
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)) -> Any:
     current_user = await user
+    
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     contract_for_vendor_service = ContractForVendorService(db=db)
     if branch:
         branch = branch
@@ -77,6 +89,10 @@ async def update_contract_for_vendor(
     db: Session = Depends(get_db)) -> Any:
     contract_for_vendor_service = ContractForVendorService(db=db)
     current_user = await user
+
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     logger.info("Endpoints: update_contract_for_vendor called.")
     msg, contract_for_vendor_response = await contract_for_vendor_service.update_contract_for_vendor(name, contract_for_vendor_update)
     logger.info("Endpoints: update_contract_for_vendor called successfully.")
@@ -87,7 +103,10 @@ async def delete_contract_for_vendor(
     id: str, 
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)) -> Any:
-    
+    current_user = await user
+
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     contract_for_vendor_service = ContractForVendorService(db=db)
     
     logger.info("Endpoints: delete_contract_for_vendor called.")
