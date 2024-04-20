@@ -33,7 +33,7 @@ router = APIRouter()
 class PaymentStatus(str,enum.Enum):
     PAID = "Đã thanh toán"
     WAITING = "Chưa thanh toán"
-@router.post("/import_order")
+@router.post("/import_orders")
 async def create_import_order(
     # import_order_create: ImportOrderCreateParams,
     payment_status: PaymentStatus,
