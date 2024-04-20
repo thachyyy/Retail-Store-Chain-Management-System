@@ -106,12 +106,15 @@ class ImportOrderService:
             
         return response
     
-    async def get_import_order_by_id(self, id: str):
+    async def get_import_order_by_id(self, id: str, tenant_id: str, branch: str):
         logger.info("ImportOrderService: get_import_order_by_id called.")
-        result = await crud.import_order.get_import_order_by_id(db=self.db, id=id)
+        result = await crud.import_order.get_import_order_by_id(db=self.db, id=id, branch=branch, tenant_id=tenant_id)
         logger.info("ImportOrderService: get_import_order_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
+        r = await self.make_response_import_order(result)
+        return dict(message_code=AppStatus.SUCCESS.message), r
+        
+        # return dict(message_code=AppStatus.SUCCESS.message), dict(data=result)
     
     async def gen_id(self):
         newID: str

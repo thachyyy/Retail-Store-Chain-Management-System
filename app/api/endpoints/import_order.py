@@ -145,13 +145,18 @@ async def get_all_import_order(
 async def get_import_order_by_id(
     id: str,
     user: Employee = Depends(oauth2.get_current_user), 
+    branch: Optional[str] = None,
     db: Session = Depends(get_db)) -> Any:
     import_order_service = ImportOrderService(db=db)
     current_user = await user
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    if branch:
+        branch_name = branch
+    else:
+        branch_name = current_user.branch
     logger.info("Endpoints: get_import_order_by_id called.")  
-    msg, import_order_response = await import_order_service.get_import_order_by_id(id)
+    msg, import_order_response = await import_order_service.get_import_order_by_id(id, current_user.tenant_id, branch_name)
     logger.info("Endpoints: get_import_order_by_id called successfully.")
     return make_response_object(import_order_response, msg)
 
