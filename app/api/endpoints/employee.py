@@ -123,7 +123,7 @@ async def create_employee(
 @router.get("/employees")
 async def get_all_employees(
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     db: Session = Depends(get_db),
     limit: int = None,
     offset: int = None,
@@ -154,8 +154,8 @@ async def get_all_employees(
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: get_all_employees called.")
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     
     msg, employee_response = await employee_service.get_all_employees(
         current_user.tenant_id,
@@ -182,7 +182,7 @@ async def get_all_employees(
 
 @router.get("/employees/work_on_branch")
 async def get_employee_by_branch_name(
-    branch_name: str, 
+    branch: str, 
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
@@ -194,7 +194,7 @@ async def get_employee_by_branch_name(
     employee_service = EmployeeService(db=db)
     
     logger.info("Endpoints: get_employee_by_branch_name called.")  
-    msg, employee_response = await employee_service.get_employee_by_branch_name(branch_name)
+    msg, employee_response = await employee_service.get_employee_by_branch_name(branch)
     logger.info("Endpoints: get_employee_by_branch_name called successfully.")
     return make_response_object(employee_response, msg)
     
@@ -203,7 +203,7 @@ async def get_employee_by_branch_name(
 async def get_employee_by_id(
     employee_id: str, 
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: str = None,
+    branch: str = None,
     db: Session = Depends(get_db)
 ) -> Any:
     
@@ -211,8 +211,8 @@ async def get_employee_by_id(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     

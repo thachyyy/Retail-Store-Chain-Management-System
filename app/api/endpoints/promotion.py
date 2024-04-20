@@ -23,7 +23,7 @@ router = APIRouter()
 async def create_promotion(
     promotion_create: PromotionCreateParams,
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: str = None,
+    branch: str = None,
     db: Session = Depends(get_db)
 ) -> Any:
     current_user = await user
@@ -31,8 +31,8 @@ async def create_promotion(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
         
@@ -47,13 +47,13 @@ async def create_promotion(
 @router.get("/promotions")
 async def get_all_promotions(
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> Any:
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     

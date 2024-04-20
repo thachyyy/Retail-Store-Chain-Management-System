@@ -22,7 +22,7 @@ router = APIRouter()
 @router.post("/categories")
 async def create_categories(
     categories_create: CategoriesCreateParams,
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
@@ -30,8 +30,8 @@ async def create_categories(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -45,7 +45,7 @@ async def create_categories(
 @router.get("/categories")
 async def get_all_categories(
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
     limit: Optional[int] = None,
     offset:Optional[int] = None,
@@ -54,8 +54,8 @@ async def get_all_categories(
     
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -70,14 +70,14 @@ async def get_all_categories(
 async def get_categories_by_id(
     id: str, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -93,7 +93,7 @@ async def update_categories(
     id: str, 
     categories_update: CategoriesUpdate, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     current_user = await user
@@ -101,8 +101,8 @@ async def update_categories(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -117,7 +117,7 @@ async def update_categories(
 async def delete_categories(
     id: str, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     
@@ -126,8 +126,8 @@ async def delete_categories(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     

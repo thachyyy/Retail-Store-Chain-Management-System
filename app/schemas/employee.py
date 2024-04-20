@@ -19,7 +19,7 @@ class EmployeeRegister(BaseModel):
     full_name: str
     email: EmailStr
     phone_number: str
-    branch_name: str
+    branch: str
     password: str
     password_confirm: str
     

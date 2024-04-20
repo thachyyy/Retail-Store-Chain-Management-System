@@ -93,7 +93,8 @@ class ImportOrderService:
             belong_to_vendor=obj_in.belong_to_vendor,
             belong_to_contract=obj_in.belong_to_contract,
             tenant_id= obj_in.tenant_id,
-            list_import=[]
+            list_import=[],
+            branch= obj_in.branch
         )
        
         for id in obj_in.list_import:

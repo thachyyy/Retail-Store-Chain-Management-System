@@ -51,12 +51,12 @@ class EmployeeService:
             role="Quản lý",
             status="Đang làm việc",
             hashed_password=hashed_password,
-            tenant_id=obj_in.branch_name
+            tenant_id=obj_in.branch
         )
         result = await crud.employee.create(db=self.db, obj_in=user_create)
         
         tenant_create = TenantCreate(
-            tenant_id=obj_in.branch_name,
+            tenant_id=obj_in.branch,
             email=obj_in.email,
             full_name=obj_in.full_name,
         )
@@ -371,8 +371,8 @@ class EmployeeService:
             whereList.append(f"address ilike '%{conditions['address']}%'")
         if 'note' in conditions:
             whereList.append(f"note ilike '%{conditions['note']}%'")
-        if 'branch_name' in conditions:
-            whereList.append(f"branch_name ilike '%{conditions['branch_name']}%'")
+        if 'branch' in conditions:
+            whereList.append(f"branch_name ilike '%{conditions['branch']}%'")
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions

@@ -27,13 +27,13 @@ async def create_invoice_for_customer(
     paid:bool,
     invoice_for_customer_create: InvoiceForCustomerCreateParams,
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> Any:
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -47,7 +47,7 @@ async def create_invoice_for_customer(
 async def get_all_invoice_for_customers(
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     limit: Optional[int] = None,
     offset:Optional[int] = None,
     status:Optional[str] = None,
@@ -59,8 +59,8 @@ async def get_all_invoice_for_customers(
 ) -> Any:
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
         

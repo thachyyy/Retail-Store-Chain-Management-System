@@ -31,14 +31,14 @@ async def create_purchase_order(
     paid : bool,
     purchase_order_create: PurchaseOrderCreateParams, 
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: str = None,
+    branch: str = None,
     db: Session = Depends(get_db),
 ) -> Any:
     current_user = await user
     
     #Lấy chi nhánh current_user làm việc
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -60,14 +60,14 @@ async def create_purchase_order(
     purchase_order_create: str,
     paid: bool,
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: str = None,
+    branch: str = None,
     db: Session = Depends(get_db)
 ) -> Any:
     
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -82,7 +82,7 @@ async def create_purchase_order(
 async def get_all_purchase_order(
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     limit: int = None,
     offset: int = None,
     status:Optional[str] = None,
@@ -95,8 +95,8 @@ async def get_all_purchase_order(
     
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     

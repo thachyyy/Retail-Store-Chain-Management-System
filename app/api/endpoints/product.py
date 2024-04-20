@@ -54,15 +54,15 @@ async def get_all_products(
     high_price: Optional[int] = None,
     categories: Optional[str] = None,
     query_search: Optional[str] = None,
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -77,13 +77,13 @@ async def get_all_products(
 async def get_product_by_id(
     product_id: str, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -98,13 +98,13 @@ async def get_product_by_id(
 async def get_product_by_barcode(
     barcode: str, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     current_user = await user
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -120,7 +120,7 @@ async def update_product(
     product_id: str, 
     product_update: ProductUpdate, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
 
@@ -128,8 +128,8 @@ async def update_product(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     
@@ -144,7 +144,7 @@ async def update_product(
 async def delete_product(
     product_id: str, 
     db: Session = Depends(get_db),
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
 ) -> Any:
     
@@ -152,8 +152,8 @@ async def delete_product(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    if branch_name:
-        branch = branch_name
+    if branch:
+        branch = branch
     else:
         branch = current_user.branch
     

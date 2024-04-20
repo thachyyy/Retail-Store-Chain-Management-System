@@ -93,15 +93,17 @@ async def get_all_import_detail(
     user: Employee = Depends(oauth2.get_current_user), 
     limit: int = None,
     offset: int = None,
-    branch_name: Optional[str] = None,
+    branch: Optional[str] = None,
     db: Session = Depends(get_db)) -> Any:
     import_detail_service = ImportDetailService(db=db)
     logger.info("Endpoints: get_all_import_detail called.")
     current_user = await user
     
-    branch = current_user.branch
-    if branch_name:
-        branch = branch_name
+    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
     msg, import_detail_response = await import_detail_service.get_all_import_details(current_user.tenant_id,branch,limit,offset)
     logger.info("Endpoints: get_all_import_details called successfully.")
     return make_response_object(import_detail_response, msg)
