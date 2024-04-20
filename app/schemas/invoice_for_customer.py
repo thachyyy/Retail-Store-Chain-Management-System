@@ -27,6 +27,7 @@ class InvoiceForCustomerCreate(BaseModel):
     belong_to_order: str
     order_detail: List[int]
     tenant_id :str
+    branch: str
 
     
 class InvoiceForCustomerUpdate(BaseModel):

@@ -20,9 +20,9 @@ class InvoiceForCustomerService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def get_invoice_for_customer_by_id(self, invoice_for_customer_id: str):
+    async def get_invoice_for_customer_by_id(self, invoice_for_customer_id: str, tenant_id: str):
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called.")
-        result = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id)
+        result = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id, tenant_id=tenant_id)
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called successfully.")
         response = []
         
@@ -32,6 +32,8 @@ class InvoiceForCustomerService:
     
     async def get_all_invoice_for_customers(
         self,
+        tenant_id: str,
+        branch: Optional[str] = None,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
         status:Optional[str] = None,
@@ -55,7 +57,7 @@ class InvoiceForCustomerService:
         
         
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(conditions)
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
             sql = f"SELECT * FROM public.invoice_for_customer {whereConditions};"
             
             if limit is not None and offset is not None:
@@ -67,7 +69,7 @@ class InvoiceForCustomerService:
             result,total= await crud.invoice_for_customer.get_invoice_for_customer_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(query_search)
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
             sql = f"SELECT * FROM public.invoice_for_customer {whereConditions};"
             
@@ -84,10 +86,10 @@ class InvoiceForCustomerService:
             logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called.")
             sql = f"SELECT COUNT(*) FROM public.invoice_for_customer;"
             if limit is not None and offset is not None:
-                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,offset=offset*limit,limit=limit)
+                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,offset=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
                 total = total[0]['count']
             else: 
-                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql)             
+                result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,tenant_id=tenant_id,branch=branch)             
                 total = total[0]['count']
                 logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called successfully.")
                 
@@ -140,7 +142,9 @@ class InvoiceForCustomerService:
     async def create_invoice_for_customer(self, 
                                           paid:bool,
                                           obj_in: InvoiceForCustomerCreateParams,
-                                          tenant_id:str):
+                                          tenant_id:str,
+                                          branch: str
+    ):
         newID = await self.gen_id()
         if paid == True:
             status = "Đã thanh toán"
@@ -153,7 +157,8 @@ class InvoiceForCustomerService:
             payment_method=obj_in.payment_method,
             belong_to_order=obj_in.belong_to_order,
             order_detail=obj_in.order_detail,
-            tenant_id=tenant_id
+            tenant_id=tenant_id,
+            branch=branch
         )   
         
         logger.info("InvoiceForCustomerService: create called.")
@@ -164,9 +169,9 @@ class InvoiceForCustomerService:
         logger.info("Service: create_invoice_for_customer success.")
         return dict(message_code=AppStatus.SUCCESS.message), invoice_for_customer_create
     
-    async def update_invoice_for_customer(self, invoice_for_customer_id: str, obj_in: InvoiceForCustomerUpdate):
+    async def update_invoice_for_customer(self, invoice_for_customer_id: str, obj_in: InvoiceForCustomerUpdate, tenant_id: str):
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called.")
-        isValidInvoiceForCustomer = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id)
+        isValidInvoiceForCustomer = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id,tenant_id=tenant_id)
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called successfully.")
         
         if not isValidInvoiceForCustomer:
@@ -184,9 +189,9 @@ class InvoiceForCustomerService:
         obj_update = await crud.invoice_for_customer.update_invoice_for_customer(self.db, invoice_for_customer_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
-    async def delete_invoice_for_customer(self, invoice_for_customer_id: str):
+    async def delete_invoice_for_customer(self, invoice_for_customer_id: str, tenant_id: str):
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called.")
-        isValidInvoiceForCustomer = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id)
+        isValidInvoiceForCustomer = await crud.invoice_for_customer.get_invoice_for_customer_by_id(db=self.db, invoice_for_customer_id=invoice_for_customer_id, tenant_id=tenant_id)
         logger.info("InvoiceForCustomerService: get_invoice_for_customer_by_id called successfully.")
         
         if not isValidInvoiceForCustomer:
@@ -201,14 +206,18 @@ class InvoiceForCustomerService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
-    async def whereConditionBuilderForSearch(self, condition: str) -> str:
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
             
-        whereCondition = "WHERE " + ' OR '.join(conditions)
+        whereCondition = ' OR '.join(conditions)
+        if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition
     
-    async def whereConditionBuilderForFilter(self, conditions: dict) -> str:
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
         
         if 'status' in conditions:

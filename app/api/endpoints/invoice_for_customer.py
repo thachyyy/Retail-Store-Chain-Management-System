@@ -26,19 +26,28 @@ router = APIRouter()
 async def create_invoice_for_customer(
     paid:bool,
     invoice_for_customer_create: InvoiceForCustomerCreateParams,
-    user: Employee = Depends(oauth2.get_current_user), 
+    user: Employee = Depends(oauth2.get_current_user),
+    branch_name: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> Any:
+    current_user = await user
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+    
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     logger.info("Endpoints: create_invoice_for_customer called.")
-    current_user = await user
-    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_create,current_user.tenant_id)
+    msg, invoice_for_customer_response = await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_create,current_user.tenant_id,branch)
     logger.info("Endpoints: create_invoice_for_customer called successfully.")
-    return make_response_object(invoice_for_customer_response)
+    return make_response_object(invoice_for_customer_response, msg)
 
 @router.get("/invoice_for_customers")
 async def get_all_invoice_for_customers(
     db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+    branch_name: Optional[str] = None,
     limit: Optional[int] = None,
     offset:Optional[int] = None,
     status:Optional[str] = None,
@@ -48,10 +57,19 @@ async def get_all_invoice_for_customers(
     end_date:Optional[date] = None,
     query_search:Optional[str] = None
 ) -> Any:
+    current_user = await user
+    
+    if branch_name:
+        branch = branch_name
+    else:
+        branch = current_user.branch
+        
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     logger.info("Endpoints: get_all_invoice_for_customers called.")
     
     msg, invoice_for_customer_response = await invoice_for_customer_service.get_all_invoice_for_customers(
+        current_user.tenant_id,
+        branch,
         limit=limit,
         offset=offset,
         status=status,
@@ -65,28 +83,48 @@ async def get_all_invoice_for_customers(
     return make_response_object(invoice_for_customer_response, msg)
 
 @router.get("/invoice_for_customers/{invoice_for_customer_id}")
-async def get_invoice_for_customer_by_id(invoice_for_customer_id: str, db: Session = Depends(get_db)) -> Any:
+async def get_invoice_for_customer_by_id(
+    invoice_for_customer_id: str, 
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+    ) -> Any:
+    current_user = await user
+        
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     
     logger.info("Endpoints: get_invoice_for_customer_by_id called.")  
-    msg, invoice_for_customer_response = await invoice_for_customer_service.get_invoice_for_customer_by_id(invoice_for_customer_id)
+    msg, invoice_for_customer_response = await invoice_for_customer_service.get_invoice_for_customer_by_id(invoice_for_customer_id,current_user.tenant_id)
     logger.info("Endpoints: get_all_invoice_for_customers called successfully.")
     return make_response_object(invoice_for_customer_response, msg)
     
 @router.put("/invoice_for_customers/{invoice_for_customer_id}")
-async def update_invoice_for_customer(invoice_for_customer_id: str, invoice_for_customer_update: InvoiceForCustomerUpdate, db: Session = Depends(get_db)) -> Any:
+async def update_invoice_for_customer(
+    invoice_for_customer_id: str, 
+    invoice_for_customer_update: InvoiceForCustomerUpdate, 
+    db: Session = Depends(get_db),
+    user: Employee = Depends(oauth2.get_current_user),
+    ) -> Any:
+    current_user = await user
+
+        
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     
     logger.info("Endpoints: update_invoice_for_customer called.")
-    msg, invoice_for_customer_response = await invoice_for_customer_service.update_invoice_for_customer(invoice_for_customer_id, invoice_for_customer_update)
+    msg, invoice_for_customer_response = await invoice_for_customer_service.update_invoice_for_customer(invoice_for_customer_id, invoice_for_customer_update, current_user.tenant_id)
     logger.info("Endpoints: update_invoice_for_customer called successfully.")
     return make_response_object(invoice_for_customer_response, msg)
 
 @router.delete("/invoice_for_customers/{invoice_for_customer_id}")
-async def delete_invoice_for_customer(invoice_for_customer_id: str, db: Session = Depends(get_db)) -> Any:
+async def delete_invoice_for_customer(
+    invoice_for_customer_id: str, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    current_user = await user
+    
     invoice_for_customer_service = InvoiceForCustomerService(db=db)
     
     logger.info("Endpoints: delete_invoice_for_customer called.")
-    msg, invoice_for_customer_response = await invoice_for_customer_service.delete_invoice_for_customer(invoice_for_customer_id)
+    msg, invoice_for_customer_response = await invoice_for_customer_service.delete_invoice_for_customer(invoice_for_customer_id,current_user.tenant_id)
     logger.info("Endpoints: delete_invoice_for_customer called successfully.")
     return make_response_object(invoice_for_customer_response, msg)
