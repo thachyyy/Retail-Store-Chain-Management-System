@@ -22,6 +22,7 @@ class BatchCreate(BaseModel):
     belong_to_receipt: Optional[str]
     manufacturing_date: Optional[date]
     expiry_date: Optional[date]
+    status: int
     tenant_id: str
     
 class BatchUpdate(BaseModel):

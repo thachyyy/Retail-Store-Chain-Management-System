@@ -77,6 +77,7 @@ class BatchService:
             branch=branch,
             belong_to_receipt=obj_in.belong_to_receipt,
             product_id=obj_in.product_id,
+            status=0,
             tenant_id=tenant_id
         )
         

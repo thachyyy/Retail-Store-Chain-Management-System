@@ -4,6 +4,12 @@ from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+'''
+    Định nghĩa status:
+    0: cần kiểm tra hsd
+    1: đã xử lý xong, không cần kiểm tra hsd nữa
+'''
+
 class Batch(Base):
     __tablename__ = "batch"
     
@@ -18,6 +24,7 @@ class Batch(Base):
     product_id = Column(String(255), ForeignKey('product.id'), unique = False, nullable = False)
     belong_to_receipt = Column(String(255), ForeignKey('import_order.id'), unique = False, nullable = True)
     tenant_id = Column(String, unique=False, nullable=False)
+    status = Column(Integer)
     
     purchase_order = relationship("OrderDetail", back_populates="batch")
     import_order = relationship('ImportOrder')
