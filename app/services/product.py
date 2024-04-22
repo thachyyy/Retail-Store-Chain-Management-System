@@ -130,8 +130,8 @@ class ProductService:
             
             total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
             
-            print("SQL here:", sql_join)
-            print("TOTAL here:", total)
+            # print("SQL here:", sql_join)
+            # print("TOTAL here:", total)
             
             result, total = await crud.product.get_all_product(self.db, total, sql_join)
             total = total[0]['count']

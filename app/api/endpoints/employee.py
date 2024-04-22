@@ -101,22 +101,34 @@ async def read_me(
 @router.post("/employees")
 async def create_employee(
     employee_create: EmployeeCreateParams,
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
     current_user = await user
+    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
     
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     if current_user.role == "Quản lý chi nhánh":
         if employee_create.role == "Quản lý" or employee_create.role == "Quản lý chi nhánh":
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+        employee_service = EmployeeService(db=db)
+        logger.info("Endpoints: create_employee called.")
+    
+        msg,employee_response = await employee_service.create_employee(current_user.tenant_id, employee_create, branch)
+        logger.info("Endpoints: create_employee called successfully.")
+        return make_response_object(employee_response,msg)
     
     
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: create_employee called.")
     
-    msg,employee_response = await employee_service.create_employee(current_user.tenant_id, employee_create)
+    msg,employee_response = await employee_service.create_employee(current_user.tenant_id, employee_create, branch)
     logger.info("Endpoints: create_employee called successfully.")
     return make_response_object(employee_response,msg)
 

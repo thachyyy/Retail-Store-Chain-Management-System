@@ -51,7 +51,7 @@ async def get_all_branches(
 ) -> Any:
     
     current_user = await user
-    if current_user.role == "Nhân viên":
+    if current_user.role == "Quản lý":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
     branch_service = BranchService(db=db)

@@ -213,7 +213,7 @@ class EmployeeService:
     
             return 'EMP' + newID
     
-    async def create_employee(self, tenant_id: str, obj_in: EmployeeCreateParams):
+    async def create_employee(self, tenant_id: str, obj_in: EmployeeCreateParams, branch: str):
         logger.info("EmployeeService: get_employee_by_email called.")
         current_employee_email = await crud.employee.get_employee_by_email(self.db, obj_in.email)
         logger.info("EmployeeService: get_employee_by_email called successfully.")
@@ -259,7 +259,7 @@ class EmployeeService:
             district=obj_in.district,
             province=obj_in.province,
             status=obj_in.status,
-            branch=obj_in.branch,
+            branch=branch,
             note=obj_in.note,
             tenant_id=tenant_id
         )
