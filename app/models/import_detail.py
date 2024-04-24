@@ -12,6 +12,7 @@ class ImportDetail(Base):
     product_name = Column(String)
     unit = Column(String(255),nullable=False)
     import_price = Column(Integer)
+    expiry_date = Column(Date,unique=False,nullable = True)
     quantity = Column(Integer)
     branch = Column(String,unique =False,nullable =True)
     tenant_id = Column(String, unique=False, nullable=False)

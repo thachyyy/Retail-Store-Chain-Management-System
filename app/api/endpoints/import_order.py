@@ -70,7 +70,6 @@ async def create_import_order(
         # print(data_frame)
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
-    print("BRANCHHHHHHHHHH", branch)
     list_import = []
     for index, row in data_frame.iterrows():
             db_contract = ImportDetailCreateParams(
@@ -79,6 +78,8 @@ async def create_import_order(
                 unit = row['Đơn vị tính'],
                 import_price = row['Giá nhập'],
                 quantity = row['Số lượng'],
+                # manufacturing_date = row['Ngày sản xuất'],
+                expiry_date = row['Hạn sử dụng'],
                 tenant_id= current_user.tenant_id,
                 branch = branch
             )
@@ -87,7 +88,8 @@ async def create_import_order(
             batch_obj = BatchCreateParams(
                 product_id = import_detail.product_id,
                 quantity = import_detail.quantity,
-                import_price = import_detail.import_price
+                import_price = import_detail.import_price,
+                expiry_date = import_detail.expiry_date
             )
             batch_service = BatchService(db=db)
             await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
