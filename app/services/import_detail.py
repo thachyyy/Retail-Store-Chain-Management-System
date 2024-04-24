@@ -105,6 +105,7 @@ class ImportDetailService:
                 unit= db_contract.unit,
                 import_price= db_contract.import_price,
                 quantity= db_contract.quantity,
+                expiry_date= db_contract.expiry_date,
                 tenant_id = tenant_id
             )    
             import_detail = crud.import_detail.create(db=self.db, obj_in=import_detail_obj)

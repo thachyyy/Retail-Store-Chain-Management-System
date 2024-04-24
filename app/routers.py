@@ -22,6 +22,7 @@ from app.api.endpoints import promotion_for_order
 from app.api.endpoints import purchase_order
 from app.api.endpoints import order_detail
 from app.api.endpoints import import_detail
+from app.api.endpoints import dashboard
 from app.api.endpoints import noti
 from app.api.endpoints import report
 
@@ -29,6 +30,7 @@ from app.api.endpoints import report
 router = APIRouter()
 
 # router.include_router(user.router, prefix="", tags=["users"])
+router.include_router(dashboard.router, prefix="", tags=["dashboard"])
 router.include_router(product.router, prefix="", tags=["products"])
 router.include_router(categories.router, prefix="", tags=["categories"])
 router.include_router(batch.router, prefix="", tags=["batch"])

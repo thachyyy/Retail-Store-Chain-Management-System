@@ -1,8 +1,10 @@
+from datetime import date, datetime
 import logging
 
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session,joinedload
 from app.models.order_detail import OrderDetail
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreate, InvoiceForCustomerUpdate
@@ -14,6 +16,24 @@ logger = logging.getLogger(__name__)
 
 
 class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCreate, InvoiceForCustomerUpdate]):    
+    @staticmethod
+    async def get_total_sale_by_branch(db:Session, tenant_id: str , branch:str,start_date:date ,end_date:date):
+        start_datetime = datetime.combine(start_date, datetime.min.time())  # Sets time to 00:00:00
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        
+        query = db.query(InvoiceForCustomer).filter( \
+        InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
+        InvoiceForCustomer.tenant_id == tenant_id,
+        InvoiceForCustomer.branch == branch)
+        
+        total_sale = db.query(func.sum(InvoiceForCustomer.total)).filter( \
+        InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
+        InvoiceForCustomer.tenant_id == tenant_id,
+        InvoiceForCustomer.branch == branch).scalar()
+        if total_sale is None:
+            total_sale = 0 
+        return query.all(),total_sale        
+                           
     @staticmethod
     async def get_all_invoice_for_customers(db: Session, tenant_id: str, branch: str, sql:str, offset: int = None, limit: int = None) -> Optional[InvoiceForCustomer]:
         

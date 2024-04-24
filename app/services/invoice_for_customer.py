@@ -94,10 +94,10 @@ class InvoiceForCustomerService:
                 logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called successfully.")
                 
                 
-            response = []
-            for x in result:
-                r = await self.make_response_invoice(x)
-                response.append(r)
+        response = []
+        for x in result:
+            r = await self.make_response_invoice(x)
+            response.append(r)
         
         return dict(message_code=AppStatus.SUCCESS.message, total=total), response
     
