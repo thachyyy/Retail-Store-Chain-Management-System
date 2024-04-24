@@ -36,7 +36,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get_multi(
             self, db: Session, *, skip: int = None, limit: int = None, tenant_id: str, branch: str = None
     ) -> Any:
-        print("Chi nhanh:", branch)
         if branch:
             query_set = db.query(self.model).filter(self.model.tenant_id == tenant_id, self.model.branch == branch)
         else:  

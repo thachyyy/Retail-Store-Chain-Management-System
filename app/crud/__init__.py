@@ -21,3 +21,7 @@ from .purchase_order import *
 from .tenant import *
 from .order_detail import *
 from .import_detail import *
+<<<<<<< HEAD
+=======
+from .noti import *
+>>>>>>> 345869a155ce30df922654cd814b781f5ce8071b

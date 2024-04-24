@@ -23,6 +23,7 @@ from app.api.endpoints import purchase_order
 from app.api.endpoints import order_detail
 from app.api.endpoints import import_detail
 from app.api.endpoints import dashboard
+from app.api.endpoints import noti
 
 
 router = APIRouter()
@@ -43,6 +44,7 @@ router.include_router(contract_for_product.router, prefix="", tags=["contract_fo
 router.include_router(contract_for_vendor.router, prefix="", tags=["contracts_for_vendor"])
 router.include_router(invoice_for_customer.router, prefix="", tags=["invoice_for_customer"])
 router.include_router(invoice_from_vendor.router, prefix="", tags=["invoice_from_vendor"])
+router.include_router(noti.router, prefix="", tags=["noti"])
 router.include_router(order_of_batch.router, prefix="", tags=["order_of_batch"])
 router.include_router(product_of_import_order.router, prefix="", tags=["product_of_import_order"])
 router.include_router(promotion_for_order.router, prefix="", tags=["promotion_for_order"])

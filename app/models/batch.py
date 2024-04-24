@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 '''
     Định nghĩa status:
     0: cần kiểm tra hsd
-    1: đã xử lý xong, không cần kiểm tra hsd nữa
+    1: hết hsd, đã xử lý xong, không cần kiểm tra hsd nữa
 '''
 
 class Batch(Base):
