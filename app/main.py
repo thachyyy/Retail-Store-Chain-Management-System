@@ -13,6 +13,8 @@ from app.core.middleware import router_middleware
 from app.core.settings import settings
 from app.routers import router
 
+from app.services.noti import scheduler
+
 app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG, version=settings.VERSION,   
               docs_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.DOCS,
               redoc_url=None if settings.PROJECT_BUILD_TYPE == ProjectBuildType.PRODUCTION else SwaggerPathURL.RE_DOC)
@@ -43,6 +45,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+scheduler.start()
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", reload=True)

@@ -5,9 +5,8 @@ from .base import Base
 
 '''
     Định nghĩa cột status:
-    0: sắp tới hết hạn
-    1: hết hạn
-    2: đã xử lý xong, không cần thông báo nữa
+    0: sắp tới hết hạn, hết hạn
+    1: đã xử lý xong, không cần thông báo nữa
 '''
 
 class Noti(Base):
@@ -22,3 +21,5 @@ class Noti(Base):
     quantity = Column(Integer)
     message = Column(String)
     status = Column(Integer)
+    tenant_id = Column(String, nullable=False)
+    branch = Column(String, nullable=False)
