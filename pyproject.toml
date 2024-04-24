@@ -38,6 +38,7 @@ pydantic = "1.10.13"
 dnspython = "2.6.1"
 email-validator = "2.1.1"
 apscheduler = "^3.10.4"
+pdfkit = "^1.0.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 

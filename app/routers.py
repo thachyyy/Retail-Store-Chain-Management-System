@@ -23,6 +23,7 @@ from app.api.endpoints import purchase_order
 from app.api.endpoints import order_detail
 from app.api.endpoints import import_detail
 from app.api.endpoints import noti
+from app.api.endpoints import report
 
 
 router = APIRouter()
@@ -49,3 +50,5 @@ router.include_router(promotion_for_order.router, prefix="", tags=["promotion_fo
 router.include_router(promotion_belong_to_branch.router, prefix="", tags=["promotion_belong_to_branch"])
 router.include_router(promotion.router, prefix="", tags=["promotions"])
 router.include_router(vendor.router, prefix="", tags=["vendors"])
+router.include_router(report.router, prefix="", tags=["reports"])
+
