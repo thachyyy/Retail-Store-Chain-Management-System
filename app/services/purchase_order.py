@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 import uuid
+import math
 
 from datetime import date
 from sqlalchemy.orm import Session
@@ -186,6 +187,10 @@ class PurchaseOrderService:
         
         self.db.commit()
         
+        if obj_in.belong_to_customer:
+            reward_point = math.floor(obj_in.total)
+            crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, reward_point)
+                    
        
         logger.info("Service: create_purchase_order success.")
         return dict(message_code=AppStatus.SUCCESS.message), purchase_order_create
