@@ -54,6 +54,9 @@ class ReportService:
         </head>
         <body>"""
         
+        if branch is None:
+          branch = "Toàn bộ các chi nhánh"
+        
         html_output += f"""
         <h1>BÁO CÁO HÀNG LƯỢNG HÀNG TỒN KHO</h1>
         <h2>{branch}</h2>
@@ -90,7 +93,7 @@ class ReportService:
         pdf = pdfkit.from_string(html_output, False)
         
         headers = {
-            'Content-Disposition': f"attachment;filename=report-inventory-quantity-{branch}.pdf"
+            'Content-Disposition': f"attachment;filename=report-inventory-quantity.pdf"
         }
         
         logger.info("ReportService: report_inventory_quantity is called successfully.")

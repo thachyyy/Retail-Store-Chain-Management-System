@@ -16,13 +16,22 @@ class CRUDReport():
     async def report_inventory_quantity(db: Session, tenant_id: str, branch: str = None):
         try:
             logger.info("CRUDReport: report_inventory_quantity is called.")
-            sql = f"""
-                SELECT b.product_id, p.product_name , SUM(b.quantity) AS total_quantity
-                FROM public.batch b 
-                JOIN product p ON p.id = b.product_id 
-                where b.tenant_id = '{tenant_id}' and b.branch = '{branch}'
-                GROUP BY b.product_id, p.product_name ;
-            """
+            if branch:
+                sql = f"""
+                    SELECT b.product_id, p.product_name , SUM(b.quantity) AS total_quantity
+                    FROM public.batch b 
+                    JOIN product p ON p.id = b.product_id 
+                    where b.tenant_id = '{tenant_id}' and b.branch = '{branch}'
+                    GROUP BY b.product_id, p.product_name ;
+                """
+            else:
+                sql = f"""
+                    SELECT b.product_id, p.product_name , SUM(b.quantity) AS total_quantity
+                    FROM public.batch b 
+                    JOIN product p ON p.id = b.product_id 
+                    where b.tenant_id = '{tenant_id}'
+                    GROUP BY b.product_id, p.product_name ;
+                """
 
             results = db.execute(sql)
             result_list = [dict(row) for row in results]
