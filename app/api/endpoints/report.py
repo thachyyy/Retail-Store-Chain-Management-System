@@ -30,13 +30,32 @@ async def gen_pdf(
 ):
     current_user = await user
     
-    print("day ne", current_user.role)
-    
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
     report_service = ReportService(db=db)
     
     res = await report_service.gen_pdf(name=name)
+    
+    return res
+
+@router.get("/report/inventory_quantity")
+async def report_inventory_quantity(
+    branch: str = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+):
+    current_user = await user
+    
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    if branch:
+        branch = branch
+    else:
+        branch= current_user.branch
+        
+    report_service = ReportService(db=db)
+    res = await report_service.report_inventory_quantity(current_user.id, current_user.tenant_id, branch)
     
     return res
