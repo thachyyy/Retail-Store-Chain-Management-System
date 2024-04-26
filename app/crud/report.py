@@ -7,7 +7,7 @@ from app.core.exceptions import error_exception_handler
 
 from app.schemas.report import ReportCreate, ReportUpdate
 from app.crud.base import CRUDBase
-# from ..models import Report
+from datetime import date
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,48 @@ class CRUDReport():
             return result_list
         except Exception as e:
             print("Execption in report_inventory_quantity:", e)
+            
+    @staticmethod
+    async def sales_report_by_branch(db: Session, tenant_id: str, start_date: date, end_date: date):
+        try:
+            logger.info("CRUDReport: sales_report_by_branch is called.")
+            sql = f"""
+            SELECT po.branch, COUNT(*), sum(po.total)
+            FROM purchase_order po
+            WHERE po.tenant_id = '{tenant_id}'
+                AND po.status = 'Đã thanh toán'
+                AND po.created_at >= '{start_date}'
+                AND po.created_at <= '{end_date}'
+            GROUP BY po.branch;
+            """
+            
+            results = db.execute(sql)
+            result_list = [dict(row) for row in results]
+            logger.info("CRUDReport: sales_report_by_branch is called successfully.")
+            return result_list
+        except Exception as e:
+            print("Execption in sales_report_by_branch:", e)
+            
+    # @staticmethod
+    # async def sales_report_by_product(db: Session, tenant_id: str, branch: str, start_date: date, end_date: date):
+    #     try:
+    #         logger.info("CRUDReport: sales_report_by_branch is called.")
+    #         sql = f"""
+    #         SELECT po.branch, COUNT(*), sum(po.total)
+    #         FROM purchase_order po
+    #         WHERE po.tenant_id = '{tenant_id}'
+    #             AND po.status = 'Đã thanh toán'
+    #             AND po.created_at >= '{start_date}'
+    #             AND po.created_at <= '{end_date}'
+    #         GROUP BY po.branch;
+    #         """
+            
+    #         results = db.execute(sql)
+    #         result_list = [dict(row) for row in results]
+    #         logger.info("CRUDReport: sales_report_by_branch is called successfully.")
+    #         return result_list
+    #     except Exception as e:
+    #         print("Execption in sales_report_by_branch:", e)
             
     @staticmethod
     async def get_user_name(db: Session, user_id: str):

@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 import pdfkit
 from starlette.responses import FileResponse
 from fastapi.responses import Response
-from datetime import date
+from datetime import date, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +24,11 @@ class ReportService:
         logger.info("ReportService: report_inventory_quantity is called.")
         user_name = await crud.report.get_user_name(self.db, user_id)
         list_result = await crud.report.report_inventory_quantity(self.db, tenant_id, branch)
-        for row in list_result:
-            print("product_id", row['product_id'])
-            print("product_name", row['product_name'])
-            print("total_quantity", row['total_quantity'])
-            print("----------------------------------")
+        # for row in list_result:
+            # print("product_id", row['product_id'])
+            # print("product_name", row['product_name'])
+            # print("total_quantity", row['total_quantity'])
+            # print("----------------------------------")
             
         time_report = date.today()
         # Bắt đầu tạo mã HTML
@@ -88,7 +88,7 @@ class ReportService:
             </html>
             """
       
-        print("html output", html_output)
+        # print("html output", html_output)
         
         pdf = pdfkit.from_string(html_output, False)
         
@@ -99,123 +99,81 @@ class ReportService:
         logger.info("ReportService: report_inventory_quantity is called successfully.")
         return Response(content=pdf, headers=headers, media_type='application/pdf')
         
-    async def gen_pdf(self, name: str):
-        html = """
+
+    async def sales_report_by_branch(self, user_id: str, start_date: date, end_date: date, tenant_id: str):
+        logger.info("ReportService: report_inventory_quantity is called.")
+        user_name = await crud.report.get_user_name(self.db, user_id)
+        
+        end_date += timedelta(days=1)
+        list_result = await crud.report.sales_report_by_branch(self.db, tenant_id, start_date, end_date)
+        time_report = date.today()
+        
+        
+        # Bắt đầu tạo mã HTML
+        html_output = """
         <!DOCTYPE html>
         <html lang="en">
         <head>
         <meta charset="UTF-8">
-        <title>Báo cáo bán hàng</title>
+        <title>Báo Cáo Doanh Thu Theo Cửa Hàng</title>
         <style>
-          table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-          }
-          th, td {
-            padding: 5px;
-            text-align: left;
-          }
-          th {
-            background-color: #f2f2f2;
-          }
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
         </style>
         </head>
-        <body>
-
-        <h2>Báo cáo bán hàng tháng 4</h2>
-
+        <body>"""
+        
+        end_date -= timedelta(days=1)
+        html_output += f"""
+        <h1>BÁO CÁO DOANH THU THEO CỬA HÀNG</h1>
+        <p>Người tạo báo cáo: {user_name}</p>
+        <p>Ngày xuất báo cáo: {time_report}</p>
+        <p>Khoảng thời gian: {start_date} đến {end_date}</p>
         <table>
-          <tr>
-            <th>Tên chi nhánh</th>
-            <th>Tổng doanh số bán hàng</th>
-            <th>Tổng lợi nhuận</th>
-            <th>Thời gian</th>
-          </tr>
-          <tr>
-            <td>Chi nhánh 1</td>
-            <td>10.000.000đ</td>
-            <td>7.000.000đ</td>
-            <td>Tháng 4</td>
-          </tr>
-          <tr>
-            <td>Chi nhánh 2</td>
-            <td>12.500.000đ</td>
-            <td>9.500.000đ</td>
-            <td>Tháng 4</td>
-          </tr>
-        </table>
-
-        <br>
-
-        <h2>Chi tiết bán hàng chi nhánh 1</h2>
-
-        <table>
-          <tr>
-            <th>Tên sản phẩm</th>
-            <th>Số lượng bán</th>
-            <th>Doanh thu</th>
-            <th>Lợi nhuận</th>
-            <th>Lượng hàng tồn kho</th>
-            <th>Thời gian</th>
-          </tr>
-          <tr>
-            <td>SP1</td>
-            <td>150</td>
-            <td>4.500.000đ</td>
-            <td>3.500.000đ</td>
-            <td>80</td>
-            <td>Tháng 4</td>
-          </tr>
-          <tr>
-            <td>SP2</td>
-            <td>75</td>
-            <td>5.500.000đ</td>
-            <td>3.500.000đ</td>
-            <td>15</td>
-            <td>Tháng 4</td>
-          </tr>
-        </table>
-
-        <br>
-
-        <h2>Chi tiết bán hàng chi nhánh 2</h2>
-
-        <table>
-          <tr>
-            <th>Tên sản phẩm</th>
-            <th>Số lượng bán</th>
-            <th>Doanh thu</th>
-            <th>Lợi nhuận</th>
-            <th>Lượng hàng tồn kho</th>
-            <th>Thời gian</th>
-          </tr>
-          <tr>
-            <td>SP1</td>
-            <td>100</td>
-            <td>8.000.000đ</td>
-            <td>5.500.000đ</td>
-            <td>15</td>
-            <td>Tháng 4</td>
-          </tr>
-          <tr>
-            <td>SP2</td>
-            <td>50</td>
-            <td>4.500.000đ</td>
-            <td>4.500.000đ</td>
-            <td>20</td>
-            <td>Tháng 4</td>
-          </tr>
-        </table>
-
-        </body>
-        </html>
-
+            <tr>
+                <th>Cửa hàng</th>
+                <th>Đơn bán hàng</th>
+                <th>Doanh thu</th>
+            </tr>
         """
-        pdf = pdfkit.from_string(html, False)
+        
+        # Thêm dòng cho mỗi hàng dữ liệu
+        for item in list_result:
+            html_output += f"""
+            <tr>
+                <td>{item['branch']}</td>
+                <td>{item['count']}</td>
+                <td>{item['sum']}</td>
+            </tr>
+            """
+
+        # Kết thúc HTML
+        html_output += """
+            </table>
+
+            </body>
+            </html>
+            """
+            
+        # print("html output", html_output)
+        
+        pdf = pdfkit.from_string(html_output, False)
         
         headers = {
-            'Content-Disposition': f"attachment;filename={name}.pdf"
+            'Content-Disposition': f"attachment;filename=sales-report-by-branch.pdf"
         }
         
+        logger.info("ReportService: report_inventory_quantity is called successfully.")
         return Response(content=pdf, headers=headers, media_type='application/pdf')
-
+    
+    # async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
+    #     pass

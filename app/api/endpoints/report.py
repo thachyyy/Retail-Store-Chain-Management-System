@@ -18,26 +18,10 @@ from fastapi.responses import StreamingResponse
 import pdfkit
 from starlette.responses import FileResponse
 from fastapi.responses import Response
+from datetime import date
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-@router.get("/report")
-async def gen_pdf(
-    name: str,
-    user: Employee = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db)
-):
-    current_user = await user
-    
-    if current_user.role == "Nhân viên":
-        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
-    
-    report_service = ReportService(db=db)
-    
-    res = await report_service.gen_pdf(name=name)
-    
-    return res
 
 @router.get("/report/inventory_quantity")
 async def report_inventory_quantity(
@@ -57,5 +41,21 @@ async def report_inventory_quantity(
         
     report_service = ReportService(db=db)
     res = await report_service.report_inventory_quantity(current_user.id, current_user.tenant_id, branch)
+    
+    return res
+
+@router.get("/report/sales_by_branch")
+async def sales_report_by_branch(
+    start_date: date,
+    end_date: date,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+):
+    current_user = await user
+    if current_user.role != "Quản lý":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    report_service = ReportService(db=db)
+    res = await report_service.sales_report_by_branch(current_user.id, start_date, end_date, current_user.tenant_id)
     
     return res
