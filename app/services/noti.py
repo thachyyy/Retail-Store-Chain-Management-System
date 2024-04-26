@@ -105,8 +105,8 @@ try:
     # Sử dụng session db ở đây
     noti_service = NotiService(db=db)
     scheduler = BackgroundScheduler()
-    # scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
-    scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
+    scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
+    # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
     
 finally:
     # Đảm bảo việc dọn dẹp được thực hiện thủ công vì bạn không có FastAPI để làm điều này
