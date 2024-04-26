@@ -39,6 +39,24 @@ class ProductCreate(BaseModel):
     tenant_id: str
     branch: str
     
+class ProductResponse(BaseModel):
+    id: str
+    barcode: str 
+    product_name: str
+    unit: str
+    sale_price: int
+    status: Status
+    last_purchase_price: Optional[int] = None
+    description: Optional[str] = None
+    brand: Optional[str] = None 
+    note: Optional[str] = None 
+    categories_id: Optional[str] = None
+    contract_for_vendor_id: Optional[str] = None
+    promotion_id: Optional[str] = None
+    has_promotion: Optional[bool] = None 
+    tenant_id: str
+    branch: str
+
 class ProductUpdate(BaseModel):
     barcode: Optional[str] 
     product_name: Optional[str] 
@@ -61,9 +79,4 @@ class ProductUpdate(BaseModel):
             raise ValueError(f"{field.name} cannot be null")
         return value
 
-
-
-class ProductResponse(ProductCreate):
-    class Config:
-        orm_mode = True
         

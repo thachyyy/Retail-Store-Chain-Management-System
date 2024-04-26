@@ -70,6 +70,13 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.id == product_id, Product.tenant_id == tenant_id, Product.branch == branch).first()
     
     @staticmethod
+    async def get_categories_name(db: Session, categories_id: str, tenant_id: str, branch: str = None):
+        sql = f"SELECT name FROM public.categories WHERE id = '{categories_id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
+        result = db.execute(sql).fetchone()
+        name = result[0]
+        return name
+    
+    @staticmethod
     async def get_last_id(db: Session):
         sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM product;"
         last_id = db.execute(sql).scalar_one_or_none()

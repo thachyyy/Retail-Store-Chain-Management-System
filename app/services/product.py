@@ -8,7 +8,7 @@ from pydantic import UUID4
 from uuid import uuid4
 from app import crud
 from app.constant.app_status import AppStatus
-from app.schemas.product import ProductResponse, ProductCreate,  ProductCreateParams
+from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 import barcode
@@ -36,7 +36,29 @@ class ProductService:
         logger.info("ProductService: get_product_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        categories_name = await crud.product.get_categories_name(self.db, result.categories_id, tenant_id, branch)
+        
+        response = ProductResponse(
+            id=result.id,
+            barcode=result.barcode,
+            product_name=result.product_name,
+            unit=result.unit,
+            sale_price=result.sale_price,
+            status=result.status,
+            last_purchase_price=result.last_purchase_price,
+            description=result.description,
+            branch=result.branch,
+            note=result.note,
+            categories_id=categories_name,
+            contract_for_vendor_id=result.contract_for_vendor_id,
+            promotion_id=result.promotion_id,
+            has_promotion=result.has_promotion,
+            tenant_id=result.tenant_id,
+            brand=result.branch
+        )
+        
+        
+        return dict(message_code=AppStatus.SUCCESS.message), response
     
     
     async def get_product_by_barcode(self, barcode: str, tenant_id: str, branch: str = None):
