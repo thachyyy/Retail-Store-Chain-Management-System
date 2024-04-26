@@ -36,15 +36,12 @@ class PaymentStatus(str,enum.Enum):
 @router.post("/import_orders")
 async def create_import_order(
     # import_order_create: ImportOrderCreateParams,
-    payment_status: PaymentStatus,
-    subtotal: int,
-    total: int,
     belong_to_vendor: str,
+    branch:Optional[str] = None,
     is_contract: Optional[bool] = None,
     belong_to_contract: Optional[str] = None,
     estimated_date: Optional[date] = None,
-    promotion: Optional[int] = None,
-    branch:Optional[str] = None,
+    note:Optional[str] = None,
     file: UploadFile = File(...),
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)
@@ -71,6 +68,7 @@ async def create_import_order(
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
     list_import = []
+    total = 0 
     for index, row in data_frame.iterrows():
             db_contract = ImportDetailCreateParams(
                 product_id=row['Mã sản phẩm'],
@@ -80,11 +78,14 @@ async def create_import_order(
                 quantity = row['Số lượng'],
                 # manufacturing_date = row['Ngày sản xuất'],
                 expiry_date = row['Hạn sử dụng'],
+                sub_total = row ['Tạm tính'],
                 tenant_id= current_user.tenant_id,
-                branch = branch
+                branch = branch,
             )
+            
             import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
             list_import += [import_detail.id]
+            total +=import_detail.sub_total
             batch_obj = BatchCreateParams(
                 product_id = import_detail.product_id,
                 quantity = import_detail.quantity,
@@ -96,18 +97,17 @@ async def create_import_order(
     # print("alsd",list_import)
     import_order_create = ImportOrderCreateParams(
                 is_contract=is_contract,
-                estimated_date=estimated_date,
-                payment_status= payment_status,
-                subtotal= subtotal,
-                promotion= promotion,
-                total= total,
-                status="Đã nhập hàng" ,
-                created_by=current_user.id,
                 belong_to_vendor= belong_to_vendor,
                 belong_to_contract= belong_to_contract,
+                branch = branch,
+                estimated_date=estimated_date,
+                payment_status= "Đã thanh toán",
+                total = total,
+                note = note,
+                status="Đã nhập hàng" ,
+                created_by=current_user.id,
                 tenant_id= current_user.tenant_id,
-                list_import = list_import,
-                branch = branch
+                list_import = list_import
     )
                 
             

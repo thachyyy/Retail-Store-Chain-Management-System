@@ -12,6 +12,7 @@ class ImportDetailCreateParams(BaseModel):
     quantity: int
     tenant_id:str
     branch:str
+    sub_total:int
     # manufacturing_date:date
     expiry_date : date
 class ImportDetailCreate(ImportDetailCreateParams):

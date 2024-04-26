@@ -14,6 +14,7 @@ class ImportDetail(Base):
     import_price = Column(Integer)
     expiry_date = Column(Date,unique=False,nullable = True)
     quantity = Column(Integer)
+    sub_total = Column(Integer)
     branch = Column(String,unique =False,nullable =True)
     tenant_id = Column(String, unique=False, nullable=False)
 
