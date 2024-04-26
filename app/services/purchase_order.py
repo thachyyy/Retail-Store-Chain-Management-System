@@ -87,7 +87,7 @@ class PurchaseOrderService:
             result,total= await crud.purchase_order.get_purchase_order_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else: 
-            sql = f"SELECT COUNT(*) FROM public.purchase_order;"
+            sql = f"SELECT COUNT(*) FROM public.purchase_order WHERE tenant_id = '{tenant_id}' AND branch = '{branch}';"
             logger.info("PurchaseOrderService: get_all_purchase_order called.")
             if limit is not None and offset is not None:
                 result, total = await crud.purchase_order.get_all_purchase_orders(db=self.db,sql=sql,tenant_id=tenant_id,branch=branch, offset=offset*limit,limit=limit)
@@ -106,7 +106,7 @@ class PurchaseOrderService:
         
         whereCondition = ' OR '.join(conditions)
         if branch is not None:
-            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND branch = '{branch}'"
         else:
             whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition
