@@ -40,14 +40,14 @@ class NotiService:
                     )
                     
                     result = crud.noti.updateNoti(self.db, tenant_id, batch_id, noti_update)
-                    print("code co chay den day", batch_id)
                     
-            
+                    
             logger.info("Lấy ra danh sách các lô hàng gần hết hạn sử dụng.")
             batches = crud.noti.get_expiring_batches(self.db)
-            
             logger.info("Kiểm tra từng lô hàng đã tồn tại trong bảng thông báo chưa.")
+            
             for batch in batches:
+                logger.info(f"Kiểm tra từng lô hàng {batch['id']} đã tồn tại trong bảng thông báo chưa.")
                 isExist = crud.noti.isExist(self.db, batch['id'])
                 product_name = crud.noti.get_product_name(self.db, batch['product_id'])
                 time_left = batch['expiry_date'] - date.today()
@@ -69,12 +69,12 @@ class NotiService:
                     )
                     result = crud.noti.create(db=self.db, obj_in=noti_create)
                     self.db.commit()
-                    return dict(message_code=AppStatus.SUCCESS.message), result
+                    # return dict(message_code=AppStatus.SUCCESS.message), result
                 
                 else:
                     logger.info(f"Lô hàng {batch['id']} đã có trong bảng Noti, sẽ được cập nhật lại thông tin.")
                     
-                    if time_left.days == 0:
+                    if time_left.days <= 0:
                         msg = f"Sản phẩm {product_name} trong lô {batch['id']} đã hết hạn sử dụng."
                         status = 1
                     else: status = 0
@@ -87,8 +87,9 @@ class NotiService:
                     
                     result = crud.noti.updateNoti(self.db, tenant_id, batch['id'], noti_update)
                     self.db.commit()
-                    # crud.noti.update_status_in_batch(self.db, tenant_id, batch['id'])
-                    # self.db.commit()
+                    if time_left.days <= 0 or batch['quantity'] == 0:
+                        crud.noti.update_status_in_batch(self.db, tenant_id, batch['id'])
+                        self.db.commit()
             # return dict(message_code=AppStatus.SUCCESS.message), result
         except Exception as e:
             print("Exception here:", e)
@@ -104,8 +105,8 @@ try:
     # Sử dụng session db ở đây
     noti_service = NotiService(db=db)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
-    # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=5)
+    # scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
+    scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
     
 finally:
     # Đảm bảo việc dọn dẹp được thực hiện thủ công vì bạn không có FastAPI để làm điều này
