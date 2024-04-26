@@ -7,6 +7,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 class OrderDetail(Base):
     __tablename__ = 'order'
     id = Column(Integer, primary_key= True,autoincrement= True)
+    created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
+    updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     batch_id = Column(ForeignKey('batch.id'))
     purchase_order_id = Column(ForeignKey('purchase_order.id'))
     quantity = Column(Integer,nullable= False)
