@@ -84,7 +84,7 @@ class InvoiceForCustomerService:
             total = total[0]['count']
         else: 
             logger.info("InvoiceForCustomerService: get_all_invoice_for_customer called.")
-            sql = f"SELECT COUNT(*) FROM public.invoice_for_customer;"
+            sql = f"SELECT COUNT(*) FROM public.invoice_for_customer WHERE tenant_id = '{tenant_id}' AND branch = '{branch}';"
             if limit is not None and offset is not None:
                 result, total = await crud.invoice_for_customer.get_all_invoice_for_customers(db=self.db,sql=sql,offset=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
                 total = total[0]['count']
@@ -214,13 +214,16 @@ class InvoiceForCustomerService:
             
         whereCondition = ' OR '.join(conditions)
         if branch is not None:
-            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND branch = '{branch}'"
         else:
             whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition
     
     async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
+        if branch is not None:
+            whereList.append(f"branch = '{branch}'")
         
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")

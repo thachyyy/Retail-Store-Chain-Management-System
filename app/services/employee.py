@@ -333,7 +333,7 @@ class EmployeeService:
         
         whereCondition = ' OR '.join(conditions)
         if branch is not None:
-            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND = '{branch}'"
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND branch = '{branch}'"
         else:
             whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
         return whereCondition

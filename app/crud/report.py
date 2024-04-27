@@ -61,27 +61,16 @@ class CRUDReport():
         except Exception as e:
             print("Execption in sales_report_by_branch:", e)
             
-    # @staticmethod
-    # async def sales_report_by_product(db: Session, tenant_id: str, branch: str, start_date: date, end_date: date):
-    #     try:
-    #         logger.info("CRUDReport: sales_report_by_branch is called.")
-    #         sql = f"""
-    #         SELECT po.branch, COUNT(*), sum(po.total)
-    #         FROM purchase_order po
-    #         WHERE po.tenant_id = '{tenant_id}'
-    #             AND po.status = 'Đã thanh toán'
-    #             AND po.created_at >= '{start_date}'
-    #             AND po.created_at <= '{end_date}'
-    #         GROUP BY po.branch;
-    #         """
+    @staticmethod
+    async def get_price_and_name_by_product_id(db: Session, product_id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"SELECT product_name, sale_price FROM public.product WHERE id = '{product_id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
+        else:
+            sql = f"SELECT product_name, sale_price FROM public.product WHERE id = '{product_id}' AND tenant_id = '{tenant_id}';"
             
-    #         results = db.execute(sql)
-    #         result_list = [dict(row) for row in results]
-    #         logger.info("CRUDReport: sales_report_by_branch is called successfully.")
-    #         return result_list
-    #     except Exception as e:
-    #         print("Execption in sales_report_by_branch:", e)
-            
+        result = db.execute(sql).fetchone()
+        return result[0], result[1]
+                    
     @staticmethod
     async def get_user_name(db: Session, user_id: str):
         sql = f"SELECT full_name FROM public.employee WHERE id = '{user_id}';"
