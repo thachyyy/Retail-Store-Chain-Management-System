@@ -25,11 +25,6 @@ class ReportService:
         logger.info("ReportService: report_inventory_quantity is called.")
         user_name = await crud.report.get_user_name(self.db, user_id)
         list_result = await crud.report.report_inventory_quantity(self.db, tenant_id, branch)
-        # for row in list_result:
-            # print("product_id", row['product_id'])
-            # print("product_name", row['product_name'])
-            # print("total_quantity", row['total_quantity'])
-            # print("----------------------------------")
             
         time_report = date.today()
         # Bắt đầu tạo mã HTML
@@ -56,7 +51,7 @@ class ReportService:
         <body>"""
         
         if branch is None:
-          branch = "Toàn bộ các chi nhánh"
+          branch = "Tất cả chi nhánh"
         
         html_output += f"""
         <h1>BÁO CÁO HÀNG LƯỢNG HÀNG TỒN KHO</h1>
@@ -278,4 +273,81 @@ class ReportService:
         }
         
         logger.info("ReportService: sales_report_by_product is called successfully.")
+        return Response(content=pdf, headers=headers, media_type='application/pdf')
+    
+    async def sales_report_by_customer(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
+        logger.info("ServiceReport: sales_report_by_customer is called.")
+        
+        user_name = await crud.report.get_user_name(self.db, user_id)
+        end_date += timedelta(days=1)
+        result_list = await crud.report.sales_report_by_customer(self.db, start_date, end_date, tenant_id, branch)
+        
+        
+        time_report = date.today()
+        # Bắt đầu tạo mã HTML
+        html_output = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <title>Báo Cáo Doanh Thu Theo Khách Hàng</title>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        </head>
+        <body>"""
+        
+        end_date -= timedelta(days=1)
+        if branch is None:
+            branch = "Tất cả chi nhánh"
+        html_output += f"""
+        <h1>BÁO CÁO DOANH THU THEO KHÁCH HÀNG</h1>
+        <p>Chi nhánh: {branch}</p>
+        <p>Người tạo báo cáo: {user_name}</p>
+        <p>Ngày xuất báo cáo: {time_report}</p>
+        <p>Khoảng thời gian: {start_date} đến {end_date}</p>
+        <table>
+            <tr>
+                <th>Mã khách hàng</th>
+                <th>Tên khách hàng</th>
+                <th>Doanh thu</th>
+            </tr>
+        """
+        
+        # Thêm dòng cho mỗi hàng dữ liệu
+        for item in result_list:
+            html_output += f"""
+            <tr>
+                <td>{item['customer_id']}</td>
+                <td>{item['full_name']}</td>
+                <td>{item['sum']}</td>
+            </tr>
+            """
+
+        # Kết thúc HTML
+        html_output += """
+            </table>
+
+            </body>
+            </html>
+            """
+        
+        pdf = pdfkit.from_string(html_output, False)
+        
+        headers = {
+            'Content-Disposition': f"attachment;filename=sales-report-by-customer.pdf"
+        }
+        
+        logger.info("ServiceReport: sales_report_by_customer is called successfully.")
+
         return Response(content=pdf, headers=headers, media_type='application/pdf')

@@ -77,5 +77,33 @@ class CRUDReport():
         result = db.execute(sql).fetchone()
         return result[0]
     
+    @staticmethod
+    async def sales_report_by_customer(db: Session, start_date: date, end_date: date, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"""SELECT po.belong_to_customer as customer_id, c.full_name, sum(total)
+                      FROM purchase_order po
+                      JOIN customer c on po.belong_to_customer = c.id
+                      WHERE po.tenant_id = '{tenant_id}'
+                        AND po.branch = '{branch}'
+                        AND po.created_at >= '{start_date}'
+                        AND po.created_at <= '{end_date}'
+                        AND po.belong_to_customer is not null
+                        GROUP BY po.belong_to_customer, c.id;
+            """
+        else:
+            sql = f"""SELECT po.belong_to_customer as customer_id, c.full_name, sum(total)
+                      FROM purchase_order po
+                      JOIN customer c on po.belong_to_customer = c.id
+                      WHERE po.tenant_id = '{tenant_id}'
+                        AND po.created_at >= '{start_date}'
+                        AND po.created_at <= '{end_date}'
+                        AND po.belong_to_customer is not null
+                        GROUP BY po.belong_to_customer, c.id;
+            """
+
+        results = db.execute(sql)
+        result_list = [dict(row) for row in results]
+        
+        return result_list
     
 report = CRUDReport()
