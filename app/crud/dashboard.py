@@ -70,4 +70,23 @@ class CRUDDashboard():
         result = db.execute(sql).fetchone()
         return result[0]
     
+    @staticmethod
+    async def get_import_price(db: Session, batch_id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"""SELECT import_price
+                      FROM public.batch
+                      WHERE tenant_id = '{tenant_id}'
+                            AND branch = '{branch}'
+                            AND id = '{batch_id}';
+            """
+        else:
+            sql = f"""SELECT import_price
+                      FROM public.batch
+                      WHERE tenant_id = '{tenant_id}'
+                            AND id = '{batch_id}';
+            """
+            
+        result = db.execute(sql).fetchone()
+        return result[0]
+    
 dashboard = CRUDDashboard()

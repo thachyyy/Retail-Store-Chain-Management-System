@@ -41,6 +41,12 @@ class DashboardService:
         # -------------------------------------------------------
         
         
+        # get avg price - giá trị đơn hàng trung bình
+        avg = total_sales / total_order
+        avg_price = round(avg, 2)
+        # -------------------------------------------------------
+                
+        
         # get product_sold
         invoice_service = InvoiceForCustomerService(db=self.db)
         msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
@@ -65,12 +71,45 @@ class DashboardService:
         # -------------------------------------------------------
         
         
+        # get avg product - kích thước giỏ hàng trung bình
+        avg_prod = product_sold / total_order
+        avg_product = round(avg_prod)
+        # -------------------------------------------------------
+        
+        
         # get total new customer
         total_new_customer = await crud.dashboard.get_total_new_customer(self.db, start_date, end_date, tenant_id, branch)
         # -------------------------------------------------------
+        
+        
+        # get cost
+        list_batch = dict()
+        for invoice in list_invoice:
+            for order_detail in invoice.order_detail:
+                if order_detail.batch_id in list_batch:
+                    list_batch[order_detail.batch_id][1] += order_detail.quantity
+                else:
+                    import_price = await crud.dashboard.get_import_price(self.db, order_detail.batch_id, tenant_id, branch)
+                    list_batch[order_detail.batch_id] = [import_price, order_detail.quantity]
+                    
+        cost = 0
+        for batch in list_batch.items():
+            cost += batch[1][0] * batch[1][1]
+        # -------------------------------------------------------
+        
+        
+        # get profit
+        profit = total_sales - cost
+        # -------------------------------------------------------
+        
+        
         response = dict()
         response['total_sales'] = total_sales
+        response['cost'] = cost
+        response['profit'] = profit
         response['total_order'] = total_order
+        response['avg_price'] = avg_price
+        response['avg_product'] = avg_product
         response['product_sold'] = product_sold
         response['new_customer'] = total_new_customer
         
