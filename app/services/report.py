@@ -179,8 +179,12 @@ class ReportService:
         invoice_service = InvoiceForCustomerService(db=self.db)
         user_name = await crud.report.get_user_name(self.db, user_id)
         end_date += timedelta(days=1)
-        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(tenant_id=tenant_id, branch=branch, start_date=start_date, end_date=end_date)
-        print("HEREE", branch, list_invoice)
+        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
+            tenant_id=tenant_id, 
+            branch=branch, 
+            start_date=start_date, 
+            end_date=end_date
+        )
         list_product_quantity = dict()
         
         for invoice in list_invoice:
@@ -202,7 +206,7 @@ class ReportService:
             revenue = price * quantity
             
             details.append(revenue)
-        # tính lợi nhuận lấy số lượng nhân (giá bán - giá nhập)
+        # tính lợi nhuận lấy số lượng nhân (giá bán - giá nhập) // chưa làm
         # tạo html
         time_report = date.today()
         # Bắt đầu tạo mã HTML

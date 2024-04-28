@@ -143,3 +143,26 @@ async def get_total_sale_by_branch(
     logger.info("Endpoints: get_total_sale_by_branch called successfully.")
     return {"sum": sum }
 
+@router.get("/dashboards/sales_summary")
+async def sales_summary(
+    start_date: date,
+    end_date: date,
+    branch = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)    
+):
+    logger.info("DashboardEndpoint: sales_summary is called.")
+    current_user = await user
+    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
+    
+    dashboard_service = DashboardService(db=db)
+    
+    res = await dashboard_service.sales_summary(start_date, end_date, current_user.tenant_id, branch)
+    
+    logger.info("DashboardEndpoint: sales_summary is called successfully.")
+    
+    return {"data": res}
