@@ -24,3 +24,4 @@ from .import_detail import *
 from .noti import *
 from .report import *
 from .dashboard import *
+from .inventory_check import *

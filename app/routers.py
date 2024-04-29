@@ -25,6 +25,7 @@ from app.api.endpoints import import_detail
 from app.api.endpoints import dashboard
 from app.api.endpoints import noti
 from app.api.endpoints import report
+from app.api.endpoints import inventory_check
 
 
 router = APIRouter()
@@ -53,4 +54,5 @@ router.include_router(promotion_belong_to_branch.router, prefix="", tags=["promo
 router.include_router(promotion.router, prefix="", tags=["promotions"])
 router.include_router(vendor.router, prefix="", tags=["vendors"])
 router.include_router(report.router, prefix="", tags=["reports"])
+router.include_router(inventory_check.router, prefix="", tags=["inventory_check"])
 
