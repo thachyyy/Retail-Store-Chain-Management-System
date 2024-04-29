@@ -169,7 +169,7 @@ class ReportService:
         logger.info("ReportService: report_inventory_quantity is called successfully.")
         return Response(content=pdf, headers=headers, media_type='application/pdf')
     
-    async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
+    async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str = None):
         logger.info("ServiceReport: sales_report_by_product is called.")
         invoice_service = InvoiceForCustomerService(db=self.db)
         user_name = await crud.report.get_user_name(self.db, user_id)
