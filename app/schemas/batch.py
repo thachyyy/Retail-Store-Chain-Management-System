@@ -1,6 +1,6 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, UUID4, EmailStr, validator
-from datetime import date
+from datetime import date, datetime
 
 class BatchCreateParams(BaseModel):
     quantity: int
@@ -33,7 +33,7 @@ class BatchUpdate(BaseModel):
     branch: Optional[str]
     belong_to_receipt: Optional[str]
     product_id: Optional[str]
-    
+    created_at: Optional[datetime]
     
     @validator('quantity', 'import_price', 'branch', 'product_id', pre=True, always=False)
     def check_not_null(cls, value, field):

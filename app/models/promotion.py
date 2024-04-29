@@ -25,7 +25,7 @@ class Promotion(Base):
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
-    promotion_code = Column(String(20), nullable=False, unique=True)
+    promotion_code = Column(String(20), nullable=False, unique = True)
     promotion_name = Column(String(255), nullable=False)
     discount_percent = Column(Integer)
     discount_value_max = Column(Integer)

@@ -82,7 +82,9 @@ async def create_import_order(
                 tenant_id= current_user.tenant_id,
                 branch = branch,
             )
-            
+            isValisProd = await crud.product.check_product_exist(db,id=db_contract.product_id,name=db_contract.product_name,tenant_id=current_user.tenant_id,branch=branch)
+            if not isValisProd:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
             import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
             list_import += [import_detail.id]
             total +=import_detail.sub_total
@@ -172,7 +174,7 @@ async def update_import_order(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     import_order_service = ImportOrderService(db=db)
-    current_user = await user
+    
     logger.info("Endpoints: update_import_order called.")
     msg, import_order_response = await import_order_service.update_import_order(id,branch,import_order_update,current_user.tenant_id)
     logger.info("Endpoints: update_import_order called successfully.")

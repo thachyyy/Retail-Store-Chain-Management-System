@@ -6,8 +6,8 @@ from .base import Base
 #     __tablename__ = "user"
 
 #     id = Column(String(255), primary_key=True)
-#     username = Column(String(42), unique=True, nullable=False, index=True)
-#     email = Column(String(255), unique=True, nullable=False, index=True)
+#     username = Column(String(42), unique = True, nullable=False, index=True)
+#     email = Column(String(255), unique = True, nullable=False, index=True)
 #     profile_image = Column(String(255), nullable=False)
 #     hashed_password = Column(String)
 #     first_name = Column(String(255))

@@ -194,6 +194,8 @@ async def get_sell_through_rate(
             list_product += [product.id]
     
     result = []
+    flag = 0
+    latest_batch = datetime.now()
     for id in list_product:
         inventory = 0
         sales_total = 0
@@ -208,14 +210,17 @@ async def get_sell_through_rate(
             offset=offset,
             query_search = id)
         
-        flag = 0
+       
+        
+        latest_import = 0
         for batch in batch_response[1]:
             if flag == 1:
-                latest_batch =  batch.created_at.date()
+                latest_batch =  batch.created_at
                 latest_import = batch.quantity
+                
             if flag == 0:
                 # Ngày nhập mới nhất
-                newest_batch = batch.created_at.date()
+                newest_batch = batch.created_at
                 flag += 1 
             
            
@@ -234,6 +239,8 @@ async def get_sell_through_rate(
         # print("inventory",inventory)
         # print("sales_total",sales_total)
         # print("sold",sold)
+        print("latest_batch",latest_batch)
+        print("newest_batch",newest_batch)
         sold_in_range = 0    
         if latest_batch:
             invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
@@ -241,10 +248,13 @@ async def get_sell_through_rate(
             for order_detail in invoice.order_detail:
                 if order_detail.product_id == id:
                     sold_in_range += order_detail.quantity
-                    
-        sell_rate = (sold_in_range / latest_import)*100
-        
-        
+        if latest_import > 0:
+            print("sold_in_range",sold_in_range)
+            print("latest_import",latest_import)
+            sell_rate = (sold_in_range / (latest_import+sold))*100
+        else: 
+            return 0
+            
         new_item = {
             "product_name": product.product_name,
             "sale_price": product.sale_price,

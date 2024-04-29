@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from typing import Any, Optional
 
 from app.api.depends import oauth2
+from app.constant.app_status import AppStatus
+from app.core.exceptions import error_exception_handler
 from app.db.database import get_db
 from app.services.batch import BatchService
 from app.utils.response import make_response_object
@@ -89,11 +91,20 @@ async def create_batch(
     return make_response_object(batch_response, msg)
 
 @router.put("/batches/{batch_id}")
-async def update_batch(batch_id: str, batch_update: BatchUpdate, db: Session = Depends(get_db)) -> Any:
+async def update_batch(
+    batch_id: str, 
+    batch_update: BatchUpdate, 
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)) -> Any:
+    
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
     batch_service = BatchService(db=db)
     
     logger.info("Endpoints: update_batch called.")
-    msg, batch_response = await batch_service.update_batch(batch_id, batch_update)
+    msg, batch_response = await batch_service.update_batch(batch_id, batch_update,current_user.tenant_id)
     logger.info("Endpoints: update_batch called successfully.")
     return make_response_object(batch_response, msg)
 

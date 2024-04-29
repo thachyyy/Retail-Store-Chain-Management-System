@@ -180,11 +180,16 @@ class ProductService:
         logger.info("ProductService: get_product_by_barcode called.")
         #Generate random barcode
         # random_barcode = await self.generate_random_number()
+    
         current_bar_code = await crud.product.get_product_by_barcode(self.db, tenant_id, obj_in.barcode,branch)
         if current_bar_code:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BARCODE_ALREADY_EXIST)
         
-        logger.info("ProductService: get_product_by_barcode called successfully.")
+        
+        current_product_name = await crud.product.get_product_by_name(self.db, tenant_id, obj_in.product_name,branch)
+        if current_product_name:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NAME_ALREADY_EXIST)
+      
 
         newID = await self.gen_id()
        

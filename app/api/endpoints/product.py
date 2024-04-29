@@ -37,11 +37,11 @@ async def create_product(
     logger.info("Endpoints: create_product called.")
     
     if current_user.branch:
-        branch_name_detail = current_user.branch
+        branch = current_user.branch
     else:
-        branch_name_detail = branch
+        branch = branch
 
-    msg, product_response = await product_service.create_product(product_create, current_user.tenant_id, branch_name_detail)
+    msg, product_response = await product_service.create_product(product_create, current_user.tenant_id, branch)
     logger.info("Endpoints: create_product called successfully.")
     return make_response_object(product_response,msg)
 

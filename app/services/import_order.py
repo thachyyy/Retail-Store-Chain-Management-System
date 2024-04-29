@@ -137,17 +137,6 @@ class ImportOrderService:
         ):
         
         newID = await self.gen_id()
-        # if db_contract:
-        #     print("GET db_contract")
-        #     import_detail_obj = ImportDetailCreateParams(
-        #         product_id = db_contract.product_id,
-        #         product_name= db_contract.product_name,
-        #         unit= db_contract.unit,
-        #         import_price= db_contract.import_price,
-        #         quantity= db_contract.quantity,
-        #         tenant_id = tenant_id
-        #     )    
-        #     import_detail = crud.import_detail.create(db=self.db, obj_in=import_detail_obj)
         
         import_order_obj = ImportOrderCreate(
             id=newID,
@@ -160,8 +149,8 @@ class ImportOrderService:
             belong_to_vendor=obj_in.belong_to_vendor,
             belong_to_contract=obj_in.belong_to_contract,
             tenant_id= tenant_id,
-            list_import=obj_in.list_import,
-            branch=obj_in.branch
+            branch=obj_in.branch,
+            list_import=obj_in.list_import
         )
         
         

@@ -55,7 +55,7 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         return db_obj
     
     @staticmethod
-    async def update_batch(db: Session, batch_id: str, batch_update: BatchUpdate):
+    async def update_batch(db: Session, batch_id: str, batch_update: BatchUpdate, tenant_id: str):
         update_data = batch_update.dict(exclude_unset=True)
         return db.query(Batch).filter(Batch.id == batch_id).update(update_data)
     @staticmethod

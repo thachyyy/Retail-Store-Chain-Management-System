@@ -17,7 +17,7 @@ class ContractForVendor(Base):
     ordering_cycle_amount = Column(Integer, unique = False, nullable = True)
     ordering_cycle_quantity = Column(Integer, unique = False, nullable = True)
     tenant_id = Column(String, unique=False, nullable=False)
-    branch = Column(String,unique= False,nullable=True)
+    branch = Column(String,unique = False,nullable=True)
     belong_to_vendor = Column(String(255), unique = False, nullable = False)
     
     # vendor = relationship('Vendor')

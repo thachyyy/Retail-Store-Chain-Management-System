@@ -9,7 +9,7 @@ class SystemSettings(Base):
     id = Column(
         String,
         primary_key=True,
-        unique=True,
+        unique = True,
         server_default=text("uuid_generate_v4()"),
     )
     is_maintain = Column(Boolean, nullable=False, default=False)

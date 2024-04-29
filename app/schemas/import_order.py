@@ -40,6 +40,7 @@ class ImportOrderUpdate(BaseModel):
     created_by: Optional[str]
     belong_to_vendor: Optional[str]
     belong_to_contract: Optional[str]
+    created_at:Optional[datetime]
     
 class InvoiceOrderResponse(ImportOrderCreate):
     created_at: datetime
