@@ -22,6 +22,7 @@ async def get_all_batches(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
     offset:Optional[int] = None,
+    query_search: Optional[str] = None
 ) -> Any:
     
     current_user = await user
@@ -29,20 +30,18 @@ async def get_all_batches(
     batch_service = BatchService(db=db)
     logger.info("Endpoints: get_all_batches called.")
     
-    if branch:
-        msg, batch_response = await batch_service.get_all_batches(
+    if current_user.branch:
+        branch = current_user.branch
+    else:
+        branch = branch
+    
+    msg, batch_response = await batch_service.get_all_batches(
             tenant_id=current_user.tenant_id,
             branch=branch,
             limit=limit, 
-            offset=offset
-        )
-    else:
-        msg, batch_response = await batch_service.get_all_batches(
-            tenant_id=current_user.tenant_id,
-            branch=current_user.branch,
-            limit=limit, 
-            offset=offset
-        )
+            offset=offset,
+            query_search = query_search)
+   
     logger.info("Endpoints: get_all_batches called successfully.")
     return make_response_object(batch_response, msg)
 

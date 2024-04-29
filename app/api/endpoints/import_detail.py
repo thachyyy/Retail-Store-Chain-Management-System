@@ -102,6 +102,7 @@ async def get_all_import_detail(
         branch = branch
     else:
         branch = current_user.branch
+        
     msg, import_detail_response = await import_detail_service.get_all_import_details(current_user.tenant_id,branch,limit,offset)
     logger.info("Endpoints: get_all_import_details called successfully.")
     return make_response_object(import_detail_response, msg)

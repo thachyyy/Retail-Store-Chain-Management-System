@@ -23,13 +23,31 @@ class BatchService:
         branch: str,
         limit: Optional[int] = None,
         offset:Optional[int] = None,
-    ):
+        query_search : Optional[str] = None):
         logger.info("BatchService: get_all_batches called.")
-        if limit is not None and offset is not None:
-            result, total = crud.batch.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
-        else: result, total = crud.batch.get_multi(db=self.db,tenant_id=tenant_id,branch=branch)
-        logger.info("BatchService: get_all_batches called successfully.")
         
+        if query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search,branch)
+            
+            # list newest batch to oldest batch
+            sql = f"SELECT * FROM public.batch {whereConditions} ORDER BY created_at DESC;"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.batch {whereConditions} LIMIT {limit} OFFSET {offset*limit} ;"
+                
+            
+            total = f"SELECT COUNT(*) FROM public.batch {whereConditions};"
+
+            logger.info("BatchService: filter_batch called.")
+            result,total= await crud.batch.get_batch_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+        else:
+            if limit is not None and offset is not None:
+                result, total = crud.batch.get_multi(db=self.db, skip=offset*limit,limit=limit,tenant_id=tenant_id,branch=branch)
+            else: 
+                result, total = crud.batch.get_multi(db=self.db,tenant_id=tenant_id,branch=branch)
+            logger.info("BatchService: get_all_batches called successfully.")
+            
         return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def get_batch_by_id(self, batch_id: str, tenant_id: str):
@@ -121,7 +139,7 @@ class BatchService:
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update    
     async def delete_batch(self, batch_id: str):
         logger.info("BatchService: get_batch_by_id called.")
-        isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id)
+        isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id, tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_id called successfully.")
         
         if not isValidBatch:
@@ -136,3 +154,16 @@ class BatchService:
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), obj_del
     
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        conditions.append(f"product_id::text ilike '%{condition}%'")
+        conditions.append(f"created_at::text ilike '%{condition}%'")
+        # conditions.append(f"product_name ilike '%{condition}%'")
+        whereCondition = ' OR '.join(conditions)
+            
+        if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND branch = '{branch}'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
+        return whereCondition

@@ -116,3 +116,32 @@ class DashboardService:
         logger.info("DashboardService: sales_summary is called successfully.")
         return response
         
+    async def sales_report_by_product(self, tenant_id: str, branch: str):
+        logger.info("ServiceReport: sales_report_by_product is called.")
+        invoice_service = InvoiceForCustomerService(db=self.db)
+        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
+            tenant_id=tenant_id, 
+            branch=branch
+        )
+        list_product_quantity = dict()
+        
+        for invoice in list_invoice:
+            for order_detail in invoice.order_detail:
+                if order_detail.product_id in list_product_quantity:
+                    list_product_quantity[order_detail.product_id][2] += order_detail.quantity
+                else:
+                    quantity = order_detail.quantity
+                    name, price = await crud.report.get_price_and_name_by_product_id(self.db, order_detail.product_id, tenant_id, branch)
+                    list_product_quantity[order_detail.product_id] = [name, price, quantity]
+            # print("list product:", list_product_quantity)
+        
+        # tính doanh thu bằng số lượng nhân giá bán
+        for product_id, details in list_product_quantity.items():
+            name = details[0]
+            price = details[1]
+            quantity = details[2]
+            
+            revenue = price * quantity
+            
+            details.append(revenue)
+        return list_product_quantity

@@ -27,6 +27,13 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         return db.query(Batch).filter(Batch.product_id == product_id, Batch.tenant_id == tenant_id).all()
     
     @staticmethod
+    async def get_batch_by_conditions(db: Session, sql: str, total: str):        
+        result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
+        result_as_dict = result.mappings().all()
+        return result_as_dict, sum 
+    @staticmethod
     async def get_last_id(db: Session):
         sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM batch;"
         last_id = db.execute(sql).scalar_one_or_none()

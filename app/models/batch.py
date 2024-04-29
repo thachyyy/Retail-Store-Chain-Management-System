@@ -25,7 +25,6 @@ class Batch(Base):
     belong_to_receipt = Column(String(255), ForeignKey('import_order.id'), unique = False, nullable = True)
     tenant_id = Column(String, unique=False, nullable=False)
     status = Column(Integer)
-    
     purchase_order = relationship("OrderDetail", back_populates="batch")
     import_order = relationship('ImportOrder')
     product = relationship('Product')

@@ -16,8 +16,10 @@ from app.db.database import get_db
 # from app.models import Dashboard
 # from app.schemas import ChangePassword, DashboardResponse
 # from app.schemas.dashboard import DashboardCreateParams, DashboardUpdate
+from app.services.batch import BatchService
 from app.services.dashboard import DashboardService
 from app.services.invoice_for_customer import InvoiceForCustomerService
+from app.services.product import ProductService
 from app.utils.response import make_response_object
 from app.models import Employee
 
@@ -61,7 +63,7 @@ def get_last_month():
     first_day_last_month = last_day_last_month.replace(day=1)
     return first_day_last_month, last_day_last_month
 
-@router.get("/dashboards")
+@router.get("/dashboards/get_total_sale_by_branch")
 async def get_total_sale_by_branch(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
     datetime: Optional[DateTime] = None,
@@ -133,16 +135,138 @@ async def get_total_sale_by_branch(
         
     invoice_service = InvoiceForCustomerService(db=db)
     list_invoice = await invoice_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
-    sum = 0
+    sales_total = 0
     for invoice in list_invoice[1]:
-        sum += invoice.total
+        sales_total += invoice.total
     
     logger.info("DashboardService: get_total_sale_by_id called successfully.")
     
     # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(tenant_id,branch)
     logger.info("Endpoints: get_total_sale_by_branch called successfully.")
-    return {"sum": sum }
+    return {"sales_total": sales_total }
 
+@router.get("/dashboards/sales_summary")
+async def sales_summary(
+    start_date: date,
+    end_date: date,
+    branch = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)    
+):
+    logger.info("DashboardEndpoint: sales_summary is called.")
+    current_user = await user
+    
+@router.get("/dashboards/get_sell_through_rate")
+async def get_sell_through_rate(
+    branch: Optional[str] = None,
+    limit: Optional[int] = None,
+    offset : Optional[int] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
+        
+        
+    invoice_for_customer_service = InvoiceForCustomerService(db=db)
+    
+    
+    product_service = ProductService(db=db)
+    logger.info("Endpoints: get_all_products called.")
+    product_response= await product_service.get_all_products(current_user.tenant_id, branch)
+    logger.info("Endpoints: get_all_products called successfully.")
+    #product_name
+    #sale_price 
+    #ton kho  -> tong so luong cac lo
+    #da ban -> invoice.quantity
+    #doanh thu -> invoice.total
+    #ti le ban het -> (sold / received (newest received)) * 100
+
+    # 
+    list_product = []
+    for product in product_response[1]:
+        if product.id not in list_product:
+            list_product += [product.id]
+    
+    result = []
+    for id in list_product:
+        inventory = 0
+        sales_total = 0
+        sold = 0
+        product = await crud.product.get_product_by_id(db=db,tenant_id=current_user.tenant_id,branch=branch,product_id=id)
+        batch_service = BatchService(db=db)
+        
+        # Danh sách Lô theo thứ tự Lô mới nhất -> cũ nhất
+        batch_response = await batch_service.get_all_batches(tenant_id=current_user.tenant_id,
+            branch=branch,
+            limit=limit, 
+            offset=offset,
+            query_search = id)
+        
+        flag = 0
+        for batch in batch_response[1]:
+            if flag == 1:
+                latest_batch =  batch.created_at.date()
+                latest_import = batch.quantity
+            if flag == 0:
+                # Ngày nhập mới nhất
+                newest_batch = batch.created_at.date()
+                flag += 1 
+            
+           
+            inventory += batch.quantity
+        # list_invoice_in_= await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch, start_date=latest_batch,end_date=)
+            
+        list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
+        
+        for invoice in list_invoice[1]:
+            for order_detail in invoice.order_detail:
+                if order_detail.product_id == id:
+                    sales_total += order_detail.price * order_detail.quantity
+                    sold += order_detail.quantity
+        # print("product_name",product.product_name)
+        # print("sale_price",product.sale_price)
+        # print("inventory",inventory)
+        # print("sales_total",sales_total)
+        # print("sold",sold)
+        sold_in_range = 0    
+        if latest_batch:
+            invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
+        for invoice in invoice_in_range[1]:
+            for order_detail in invoice.order_detail:
+                if order_detail.product_id == id:
+                    sold_in_range += order_detail.quantity
+                    
+        sell_rate = (sold_in_range / latest_import)*100
+        
+        
+        new_item = {
+            "product_name": product.product_name,
+            "sale_price": product.sale_price,
+            "inventory": inventory,
+            "sales_total": sales_total,
+            "sold": sold,
+            "sell_rate": sell_rate
+        }
+        for item in result:
+            if item["product_name"] == new_item["product_name"]: 
+                item['sale_price'] += new_item["sale_price"]
+                item['sales_total'] += new_item["sales_total"]
+                item['inventory'] += new_item["inventory"]
+                item['sold'] += new_item["sold"]
+                item['sell_rate'] += new_item["sell_rate"]
+                break
+        else:    
+            result.append(new_item)
+        # dashboard_service = DashboardService(db=db)
+        # list_sales_by_product = await dashboard_service.sales_report_by_product(current_user.tenant_id,branch)
+    return result
+    
 @router.get("/dashboards/sales_summary")
 async def sales_summary(
     start_date: date,
@@ -166,3 +290,5 @@ async def sales_summary(
     logger.info("DashboardEndpoint: sales_summary is called successfully.")
     
     return {"data": res}
+    
+    
