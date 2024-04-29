@@ -248,12 +248,11 @@ async def get_sell_through_rate(
             for order_detail in invoice.order_detail:
                 if order_detail.product_id == id:
                     sold_in_range += order_detail.quantity
-        if latest_import > 0:
-            print("sold_in_range",sold_in_range)
-            print("latest_import",latest_import)
-            sell_rate = (sold_in_range / (latest_import+sold))*100
-        else: 
-            return 0
+      
+        print("sold_in_range",sold_in_range)
+        print("latest_import",latest_import)
+        sell_rate = (sold_in_range / (latest_import+sold))*100
+        
             
         new_item = {
             "product_name": product.product_name,
