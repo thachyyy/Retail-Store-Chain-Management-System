@@ -161,13 +161,13 @@ async def get_all_employees(
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
-    branch = current_user.branch
-    
     employee_service = EmployeeService(db=db)
     logger.info("Endpoints: get_all_employees called.")
     
     if branch:
         branch = branch
+    else:
+        branch = current_user.branch
     
     msg, employee_response = await employee_service.get_all_employees(
         current_user.tenant_id,
