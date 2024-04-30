@@ -8,10 +8,13 @@ from pydantic import UUID4
 
 from app import crud
 from app.services.invoice_for_customer import InvoiceForCustomerService
+from app.services.batch import BatchService
 from app.constant.app_status import AppStatus
 # from app.schemas.dashboard import DashboardResponse, DashboardCreate, DashboardCreateParams, DashboardUpdate
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
+
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -145,3 +148,39 @@ class DashboardService:
             
             details.append(revenue)
         return list_product_quantity
+    
+    # async def get_sell_through_rate1(self, tenant_id: str, branch: str):
+    #     invoice_for_customer_service = InvoiceForCustomerService(db=self.db)
+    #     product_response= await crud.dashboard.get_all_product_id_name_price(self.db, tenant_id, branch)
+        
+    #     result = []
+    #     flag = 0
+    #     latest_batch = datetime.now()
+    #     batch_service = BatchService(db=self.db)
+        
+    #     for prod in product_response:
+    #         inventory = 0
+    #         sales_total = 0
+    #         sold = 0
+            
+    #         msg, batch_response = await batch_service.get_all_batches(tenant_id=tenant_id,
+    #                                                              branch=branch,
+    #                                                              query_search = prod['id'])
+            
+    #         latest_import = 0
+    #         for batch in batch_response:
+    #             if flag == 1:
+    #                 latest_batch =  batch.created_at
+    #                 latest_import = batch.quantity
+                    
+    #             if flag == 0:
+    #                 # Ngày nhập mới nhất
+    #                 newest_batch = batch.created_at
+    #                 flag += 1
+
+    #             print("flaggggg", flag)
+    #             print("latest_batchhhhhhh", latest_batch)
+    #             print("newest_batchhhhh", newest_batch)
+    #             print("latest_importttttttt", latest_import)
+        
+    #     return "Success"

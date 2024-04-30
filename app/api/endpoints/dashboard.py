@@ -23,6 +23,8 @@ from app.services.product import ProductService
 from app.utils.response import make_response_object
 from app.models import Employee
 
+import time
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 import enum
@@ -156,6 +158,20 @@ async def sales_summary(
     logger.info("DashboardEndpoint: sales_summary is called.")
     current_user = await user
     
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
+    
+    dashboard_service = DashboardService(db=db)
+    
+    res = await dashboard_service.sales_summary(start_date, end_date, current_user.tenant_id, branch)
+    
+    return res
+    
 @router.get("/dashboards/get_sell_through_rate")
 async def get_sell_through_rate(
     branch: Optional[str] = None,
@@ -164,6 +180,9 @@ async def get_sell_through_rate(
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    
+    start_time = time.time()
+    
     current_user = await user
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
@@ -221,7 +240,7 @@ async def get_sell_through_rate(
             if flag == 0:
                 # Ngày nhập mới nhất
                 newest_batch = batch.created_at
-                flag += 1 
+                flag += 1
             
            
             inventory += batch.quantity
@@ -249,8 +268,8 @@ async def get_sell_through_rate(
                 if order_detail.product_id == id:
                     sold_in_range += order_detail.quantity
         if latest_import > 0:
-            print("sold_in_range",sold_in_range)
-            print("latest_import",latest_import)
+            # print("sold_in_range",sold_in_range)
+            # print("latest_import",latest_import)
             sell_rate = (sold_in_range / (latest_import+sold))*100
         else: 
             sell_rate = 0
@@ -275,7 +294,76 @@ async def get_sell_through_rate(
             result.append(new_item)
         # dashboard_service = DashboardService(db=db)
         # list_sales_by_product = await dashboard_service.sales_report_by_product(current_user.tenant_id,branch)
+        
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+    
     return result
+
+
+# @router.get("/dashboards/get_sell_through_rate1")
+# async def get_sell_through_rate1(
+#     branch: Optional[str] = None,
+#     limit: Optional[int] = None,
+#     offset : Optional[int] = None,
+#     user: Employee = Depends(oauth2.get_current_user),
+#     db: Session = Depends(get_db)
+# ) -> Any:
+#     start_time = time.time()
+    
+#     current_user = await user
+#     if current_user.role == "Nhân viên":
+#         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+#     branch = branch or current_user.branch
+    
+#     invoice_service = InvoiceForCustomerService(db=db)
+#     product_service = ProductService(db=db)
+#     batch_service = BatchService(db=db)
+    
+#     logger.info("Fetching all products and batches.")
+#     products = await product_service.get_all_products(current_user.tenant_id, branch)
+#     batches = await batch_service.get_all_batches(tenant_id=current_user.tenant_id, branch=branch, limit=limit, offset=offset)
+    
+#     logger.info("Fetching all invoices.")
+#     invoices = await invoice_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
+    
+#     results = []
+#     for product in products[1]:
+#         product_id = product['id']
+        
+#         # for batch in batches[1]:
+#         #     print("aaaaaaaaaaaaaaaaaaaa", batch.product_id)
+        
+#         product_batches = [batch for batch in batches[1] if batch.product_id == product_id]
+#         product_invoices = [invoice for invoice in invoices[1] if any(detail.product_id == product_id for detail in invoice.order_detail)]
+        
+#         inventory = sum(batch.quantity for batch in product_batches)
+#         sold = sum(detail.quantity for invoice in product_invoices for detail in invoice.order_detail if detail.product_id == product_id)
+#         sales_total = sum(detail.price * detail.quantity for invoice in product_invoices for detail in invoice.order_detail if detail.product_id == product_id)
+        
+#         sell_rate = (sold / inventory * 100) if inventory else 0
+        
+#         results.append({
+#             "product_name": product.product_name,
+#             "sale_price": product.sale_price,
+#             "inventory": inventory,
+#             "sales_total": sales_total,
+#             "sold": sold,
+#             "sell_rate": sell_rate
+#         })
+        
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+#     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+#     return results
+
+    
+    
+
+
+
     
 @router.get("/dashboards/sales_summary")
 async def sales_summary(

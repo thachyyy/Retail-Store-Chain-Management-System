@@ -134,7 +134,7 @@ class BatchService:
         self.db.commit()
         obj_update = await crud.batch.get_batch_by_id(self.db, batch_id,tenant_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update    
-    async def delete_batch(self, batch_id: str):
+    async def delete_batch(self, tenant_id: str, batch_id: str):
         logger.info("BatchService: get_batch_by_id called.")
         isValidBatch = await crud.batch.get_batch_by_id(db=self.db, batch_id=batch_id, tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_id called successfully.")
