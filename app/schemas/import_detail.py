@@ -10,11 +10,12 @@ class ImportDetailCreateParams(BaseModel):
     unit: str
     import_price: int 
     quantity: int
-    expiry_date : date
+    # manufacturing_date: date
+    expiry_date : Optional[date] = None
     sub_total:int
     tenant_id:str
     branch:str
-    # manufacturing_date:date
+    # manufacturing_date: date
 class ImportDetailCreate(ImportDetailCreateParams):
     id: str
     
