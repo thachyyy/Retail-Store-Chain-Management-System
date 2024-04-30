@@ -234,10 +234,10 @@ class BranchService:
         conditions.append(f"name_display ilike '%{condition}%'")
         conditions.append(f"address ilike '%{condition}%'")
         
-        manager_id_list = await self.get_manager_id_by_name(condition)
+        # manager_id_list = await self.get_manager_id_by_name(condition)
         
-        for id in manager_id_list:
-            conditions.append(f"manager_id ilike '%{id}%'")
+        # for id in manager_id_list:
+        #     conditions.append(f"manager_id ilike '%{id}%'")
             
         whereCondition = ' OR '.join(conditions)
         whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
