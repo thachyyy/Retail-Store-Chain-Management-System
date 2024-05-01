@@ -84,6 +84,17 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             return "Success"
         except Exception as e:
             raise e
+        
+    @staticmethod
+    async def get_current_reward_point(db: Session, customer_id: str):
+        logger.info("CRUDPurchaseOrder: get_current_reward_point is called.")
+        try:
+            sql = f"SELECT reward_point FROM public.customer WHERE id = '{customer_id}';"
+            result = db.execute(sql).fetchone()
+            logger.info("CRUDPurchaseOrder: get_current_reward_point is called successfully.")
+            return result
+        except Exception as e:
+            raise e
     
     @staticmethod
     async def create(db: Session, *,
