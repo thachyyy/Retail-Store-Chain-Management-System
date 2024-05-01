@@ -188,8 +188,9 @@ class PurchaseOrderService:
         self.db.commit()
         
         if obj_in.belong_to_customer:
-            reward_point = math.floor(obj_in.total)
-            crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, reward_point)
+            reward_point = math.floor(obj_in.total*0.01)
+            print("code is hereeeee", reward_point)
+            await crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, reward_point)
                     
        
         logger.info("Service: create_purchase_order success.")
