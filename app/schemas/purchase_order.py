@@ -19,6 +19,7 @@ class PurchaseOrderCreateParams(BaseModel):
     tax: Optional[int] = None
     note: Optional[str] = None
     promote: Optional[int] = None
+    reward_point_used: Optional[int] = None
     # status: Status = Field(default= Status.WAITING)
     belong_to_customer : Optional[str] = Field(None)
     order_detail: List[OrderDetails]

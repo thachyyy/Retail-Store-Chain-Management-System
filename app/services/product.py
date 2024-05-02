@@ -36,7 +36,7 @@ class ProductService:
         logger.info("ProductService: get_product_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
-        categories_name = await crud.product.get_categories_name(self.db, result.categories_id, tenant_id, branch)
+        # categories_name = await crud.product.get_categories_name(self.db, result.categories_id, tenant_id, branch)
         
         response = ProductResponse(
             id=result.id,
@@ -49,7 +49,7 @@ class ProductService:
             description=result.description,
             branch=result.branch,
             note=result.note,
-            categories_id=categories_name,
+            categories_id=result.categories_id,
             contract_for_vendor_id=result.contract_for_vendor_id,
             promotion_id=result.promotion_id,
             has_promotion=result.has_promotion,

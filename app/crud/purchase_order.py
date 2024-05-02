@@ -77,11 +77,22 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
     async def update_reward_point(db: Session, customer_id: str, reward_point: int):
         logger.info("CRUDPurchaseOrder: update reward point is called.")
         try:
-            sql = f"UPDATE public.customer SET reward_point = '{reward_point}' WHERE customer_id = '{customer_id}';"
+            sql = f"UPDATE public.customer SET reward_point = '{reward_point}' WHERE id = '{customer_id}';"
             db.execute(sql)
             db.commit()
             logger.info("CRUDPurchaseOrder: update reward point is called successfully.")
             return "Success"
+        except Exception as e:
+            raise e
+        
+    @staticmethod
+    async def get_current_reward_point(db: Session, customer_id: str):
+        logger.info("CRUDPurchaseOrder: get_current_reward_point is called.")
+        try:
+            sql = f"SELECT reward_point FROM public.customer WHERE id = '{customer_id}';"
+            result = db.execute(sql).fetchone()
+            logger.info("CRUDPurchaseOrder: get_current_reward_point is called successfully.")
+            return result
         except Exception as e:
             raise e
     

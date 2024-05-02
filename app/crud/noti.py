@@ -29,7 +29,7 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
         return query_set.all(), count
         
     @staticmethod
-    def get_expiring_batches(db: Session):
+    def     get_expiring_batches(db: Session):
         logger.info("CRUDNoti: get_expiring_batches is called.")
         near_expiry_date = datetime.now() + timedelta(days=7)
         sql = f"SELECT * FROM public.batch WHERE expiry_date is not null AND expiry_date <= '{near_expiry_date}' AND quantity > 0 AND status = 0;"

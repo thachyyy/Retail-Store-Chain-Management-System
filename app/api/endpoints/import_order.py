@@ -64,12 +64,13 @@ async def create_import_order(
     try:
         contents = await file.read()
         data_frame = pd.read_excel(BytesIO(contents), engine='openpyxl')
-        # print(data_frame)
+        print(data_frame)
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
     list_import = []
     total = 0 
     for index, row in data_frame.iterrows():
+            row['Hạn sử dụng'] = None if pd.isna(row['Hạn sử dụng']) else row['Hạn sử dụng']
             db_contract = ImportDetailCreateParams(
                 product_id=row['Mã sản phẩm'],
                 product_name= row['Tên sản phẩm'],
@@ -78,7 +79,7 @@ async def create_import_order(
                 quantity = row['Số lượng'],
                 # manufacturing_date = row['Ngày sản xuất'],
                 expiry_date = row['Hạn sử dụng'],
-                sub_total = row ['Tạm tính'],
+                sub_total = int(row['Tạm tính']),
                 tenant_id= current_user.tenant_id,
                 branch = branch,
             )

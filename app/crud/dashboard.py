@@ -89,4 +89,17 @@ class CRUDDashboard():
         result = db.execute(sql).fetchone()
         return result[0]
     
+    # @staticmethod
+    # async def get_all_product_id_name_price(db: Session, tenant_id: str, branch: str = None):
+    #     sql = f"""SELECT id, product_name, sale_price
+    #               FROM public.product
+    #               WHERE tenant_id = '{tenant_id}'
+    #                 AND branch = '{branch}';
+    #     """
+        
+    #     results = db.execute(sql)
+    #     result_list = [dict(row) for row in results]
+        
+    #     return result_list
+    
 dashboard = CRUDDashboard()
