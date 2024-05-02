@@ -19,5 +19,8 @@ class ContractForVendor(Base):
     tenant_id = Column(String, unique=False, nullable=False)
     branch = Column(String,unique = False,nullable=True)
     belong_to_vendor = Column(String(255), unique = False, nullable = False)
+    latest_import = Column(String, nullable=True)
+    next_import = Column(String, nullable=True)
+    period = Column(Integer, nullable=True)
     
     # vendor = relationship('Vendor')

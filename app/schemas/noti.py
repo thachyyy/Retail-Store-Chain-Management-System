@@ -6,12 +6,13 @@ class NotiCreateParams(BaseModel):
     pass
 
 class NotiCreate(BaseModel):
-    product_id: str
-    product_name: str
-    batch_id: str
-    quantity: int
-    message: str
-    status: int
+    product_id: Optional[str]
+    product_name: Optional[str]
+    batch_id: Optional[str]
+    quantity: Optional[str]
+    message: Optional[str]
+    status: Optional[int]
+    contract_id: Optional[str]
     tenant_id: str
     branch: str
     

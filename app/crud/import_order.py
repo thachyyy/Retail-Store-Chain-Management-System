@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 from sqlalchemy.orm import Session
 from pydantic import UUID4
+from datetime import date
 
 from app.schemas.import_order import ImportOrderCreate, ImportOrderUpdate
 from app.crud.base import CRUDBase
@@ -47,5 +48,24 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
     @staticmethod
     async def delete_import_order(db: Session, id: str):
         return db.query(ImportOrder).filter(ImportOrder.id == id).delete()
+    
+    @staticmethod
+    async def get_period_contract(db: Session, id: str):
+        sql = f"SELECT period FROM public.contract_for_vendor WHERE id = '{id}';"
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None
+    
+    @staticmethod
+    async def update_date_import(db: Session, id: str, latest_import: date, next_import: date):
+        try:
+            sql = f"UPDATE public.contract_for_vendor SET latest_import = '{latest_import}' AND next_import = '{next_import}' WHERE id = '{id}';"
+            db.execute(sql)
+            db.commit()
+            return "Success"
+        except Exception as e:
+            print("Exception when update date import", e)
+        
     
 import_order = CRUDImportOrder(ImportOrder)

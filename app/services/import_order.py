@@ -4,6 +4,7 @@ import uuid
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from pydantic import UUID4
+from datetime import date, timedelta
 
 from app import crud
 from app.constant.app_status import AppStatus
@@ -133,7 +134,6 @@ class ImportOrderService:
         obj_in: ImportOrderCreateParams,
         user_id:str,
         tenant_id:str,
-        
         ):
         
         newID = await self.gen_id()
@@ -153,6 +153,12 @@ class ImportOrderService:
             list_import=obj_in.list_import
         )
         
+        if obj_in.is_contract == True:
+            period = await crud.import_order.get_period_contract(db=self.db, id=obj_in.belong_to_contract)
+            if period:
+                latest_import = date.now()
+                next_import = latest_import + timedelta(days=period)
+                await crud.import_order.update_date_import(db=self.db, id=obj_in.belong_to_contract, latest_import=latest_import, next_import=next_import)
         
         logger.info("ImportOrderService: create called.")
         result = crud.import_order.create(db=self.db, obj_in=import_order_obj)

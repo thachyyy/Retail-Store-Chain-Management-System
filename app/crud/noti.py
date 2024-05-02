@@ -29,7 +29,7 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
         return query_set.all(), count
         
     @staticmethod
-    def     get_expiring_batches(db: Session):
+    def get_expiring_batches(db: Session):
         logger.info("CRUDNoti: get_expiring_batches is called.")
         near_expiry_date = datetime.now() + timedelta(days=7)
         sql = f"SELECT * FROM public.batch WHERE expiry_date is not null AND expiry_date <= '{near_expiry_date}' AND quantity > 0 AND status = 0;"
@@ -66,6 +66,14 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
         return result
     
     @staticmethod
+    def updateNotiContract(db: Session, tenant_id: str, contract_id: str, obj_update: NotiUpdate):
+        logger.info("CRUDNoti: updateNoti is called.")
+        update_data = obj_update.dict(exclude_unset=True)
+        result = db.query(Noti).filter(Noti.contract_id == contract_id, Noti.tenant_id == tenant_id).update(update_data)
+        logger.info("CRUDNoti: updateNoti is called successfully.")
+        return result
+    
+    @staticmethod
     def update_status(db: Session, id: str, tenant_id: str, status: int):
         return db.query(Noti).update().values(status=status).where(Noti.id == id, Noti.tenant_id == tenant_id)
     
@@ -97,6 +105,31 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
     @staticmethod
     def get_quantity_of_batch(db: Session, batch_id: str):
         sql = f"SELECT quantity, tenant_id from public.batch WHERE id = '{batch_id}';"
+        result = db.execute(sql).fetchone()
+        return result[0], result[1]
+    
+    @staticmethod
+    def get_expiring_import_contract(db: Session):
+        logger.info("CRUDNoti: get_expiring_import_contract is called.")
+        near_expiry_date = datetime.now() + timedelta(days=10)
+        sql = f"SELECT * FROM public.contract_for_vendor WHERE next_import is not null AND next_import <= '{near_expiry_date}';"
+        result = db.execute(sql)
+        result_as_dict = result.mappings().all()
+        logger.info("CRUDNoti: get_expiring_import_contract is called successfully.")
+        return result_as_dict
+    
+    @staticmethod
+    def isExistContract(db: Session, contract_id: str):
+        logger.info("CRUDNoti: isExist is called.")
+        sql = f"SELECT * FROM public.noti WHERE contract_id = '{contract_id}';"
+        result = db.execute(sql)
+        result_as_dict = result.mappings().all()
+        logger.info("CRUDNoti: isExist is called successfully.")
+        return result_as_dict
+
+    @staticmethod
+    def get_tenant_and_branch_of_contract(db: Session, contract_id: str):
+        sql = f"SELECT tenant_id, branch FROM public.contract_for_vendor WHERE id = '{contract_id}';"
         result = db.execute(sql).fetchone()
         return result[0], result[1]
     

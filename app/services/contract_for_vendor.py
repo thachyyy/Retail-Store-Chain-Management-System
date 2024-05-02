@@ -71,7 +71,8 @@ class ContractForVendorService:
             ordering_cycle_quantity=obj_in.ordering_cycle_quantity,
             belong_to_vendor=obj_in.belong_to_vendor,
             tenant_id = tenant_id,
-            branch=branch
+            branch=branch,
+            period=obj_in.period
         )
         
         logger.info("ContractForVendorService: create called.")

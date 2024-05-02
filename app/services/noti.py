@@ -98,6 +98,52 @@ class NotiService:
         result = crud.noti.update_status(self.db, idNoti, tenant_id, status)
         return result
     
+    def checking_next_import(self):
+        try:
+            logger.info("Lấy ra những hợp đồng sắp đến ngày cần nhập hàng.")
+            contracts = crud.noti.get_expiring_import_contract(self.db)
+            logger.info("Kiểm tra hợp đồng đã tồn tại trong bảng thông báo chưa.")
+            for contract in contracts:
+                logger.info(f"Kiểm tra từng hợp đồng {contract['id']} đã tồn tại trong bảng thông báo chưa.")
+                isExist = crud.noti.isExistContract(self.db, contract['id'])
+                # product_name = crud.noti.get_product_name(self.db, batch['product_id'])
+                time_left = contract['next_import'] - date.today()
+                msg = f"Hợp đồng {contract['id']} sắp đến hạn nhập hàng sau {time_left.days} ngày."
+                
+                tenant_id, branch = crud.noti.get_tenant_and_branch_of_contract(self.db, contract['id'])
+                
+                if not isExist:
+                    logger.info(f"Hợp đồng {contract['id']} chưa có trong bảng Noti, sẽ được thêm vào bảng Noti.")
+                    noti_create = NotiCreate(
+                        contract_id=contract['id'],
+                        message=msg,
+                        tenant_id=tenant_id,    
+                        branch=branch
+                    )
+                    result = crud.noti.create(db=self.db, obj_in=noti_create)
+                    self.db.commit()
+                    # return dict(message_code=AppStatus.SUCCESS.message), result
+                
+                else:
+                    logger.info(f"Hợp đồng {contract['id']} đã có trong bảng Noti, sẽ được cập nhật lại thông tin.")
+                    
+                    # if time_left.days <= 0:
+                    #     msg = f"Sản phẩm {product_name} trong lô {batch['id']} đã hết hạn sử dụng."
+                    #     status = 1
+                    # else: status = 0
+                    
+                    noti_update = NotiUpdate(
+                        message=msg
+                    )
+                    
+                    result = crud.noti.updateNotiContract(self.db, tenant_id, contract['id'], noti_update)
+                    self.db.commit()
+                    # if time_left.days <= 0 or batch['quantity'] == 0:
+                    #     crud.noti.update_status_in_batch(self.db, tenant_id, batch['id'])
+                    #     self.db.commit()
+        except Exception as e:
+            print("Exception here:", e)
+    
 
 db_gen = get_db()
 db = next(db_gen)
@@ -107,6 +153,8 @@ try:
     scheduler = BackgroundScheduler()
     scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
     # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
+    scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
+    
     
 finally:
     # Đảm bảo việc dọn dẹp được thực hiện thủ công vì bạn không có FastAPI để làm điều này

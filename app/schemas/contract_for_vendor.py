@@ -10,6 +10,8 @@ class ContractForVendorCreateParams(BaseModel):
     ordering_cycle_amount: Optional[int]
     ordering_cycle_quantity: Optional[int]
     belong_to_vendor: str
+    period: Optional[int]
+    
     
 class ContractForVendorCreate(BaseModel):
     id: str
@@ -20,8 +22,9 @@ class ContractForVendorCreate(BaseModel):
     ordering_cycle_amount: Optional[int]
     ordering_cycle_quantity: Optional[int]
     belong_to_vendor: str
-    tenant_id :str
-    branch:str
+    tenant_id: str
+    branch: str
+    period: Optional[int]
 
 class ContractForVendorUpdate(BaseModel):
     pass
