@@ -47,4 +47,20 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
     async def delete_contract_for_vendor(db: Session, name: str):
         return db.query(ContractForVendor).filter(ContractForVendor.name == name).delete()
     
+    @staticmethod
+    async def insert_pdf_url(db: Session, tenant_id: str, url: str, contract_id: str):
+        try:
+            if url != "":
+                sql = f"UPDATE public.product SET pdf_url = '{url}' WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
+                db.execute(sql)
+                db.commit()
+                return "Success"
+            else:
+                ql = f"UPDATE public.product SET pdf_url = NULL WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
+                db.execute(sql)
+                db.commit()
+                return "Success"
+        except Exception as e:
+            print("Exception when upload pdf:", e)
+    
 contract_for_vendor = CRUDContractForVendor(ContractForVendor)

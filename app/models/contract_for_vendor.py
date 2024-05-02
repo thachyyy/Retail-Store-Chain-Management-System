@@ -22,5 +22,6 @@ class ContractForVendor(Base):
     latest_import = Column(String, nullable=True)
     next_import = Column(String, nullable=True)
     period = Column(Integer, nullable=True)
+    pdf_url = Column(String, nullable=True)
     
     # vendor = relationship('Vendor')

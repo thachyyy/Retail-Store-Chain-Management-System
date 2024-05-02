@@ -36,9 +36,10 @@ SUPPORTED_FILE_TYPES = {
     'image/jpeg': 'jpg',
     'application/pdf': 'pdf'
 }
-@router.post("/upload_img")
-async def upload_image(
-    product_id: str,
+@router.post("/upload")
+async def upload(
+    product_id: Optional[str] = None,
+    contract_id: Optional[str] = None,
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
     file: UploadFile = File(...)
@@ -64,16 +65,20 @@ async def upload_image(
         # Upload to S3 and get the public URL
         public_url = s3_service.upload_image_object(file_content, file_path, content_type)
         
-        await crud.product.insert_img_url(db=db, tenant_id=current_user.tenant_id, url=public_url, product_id=product_id)
+        if file_extension in ['png', 'jpg']:
+            await crud.product.insert_img_url(db=db, tenant_id=current_user.tenant_id, url=public_url, product_id=product_id)
+        else:
+            await crud.contract_for_vendor.insert_pdf_url(db=db, tenant_id=current_user.tenant_id, url=public_url, contract_id=contract_id)
 
-        return JSONResponse(status_code=200, content={"message": "Image uploaded successfully", "url": public_url})
+        return JSONResponse(status_code=200, content={"message": "File uploaded successfully", "url": public_url})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/delete_img")
-async def delete_imange(
-    product_id: str,
+@router.delete("/delete")
+async def delete(
     file_path: str,
+    product_id: Optional[str] = None,
+    contract_id: Optional[str] = None,
     db: Session = Depends(get_db),
     user: Employee = Depends(oauth2.get_current_user),
 ):
@@ -87,7 +92,10 @@ async def delete_imange(
 
     try:
         s3_service.delete_object(file_path)
-        await crud.product.insert_img_url(db=db, tenant_id=current_user.tenant_id, url="", product_id=product_id)
+        if product_id:
+            await crud.product.insert_img_url(db=db, tenant_id=current_user.tenant_id, url="", product_id=product_id)
+        if contract_id:
+            await crud.contract_for_vendor.insert_pdf_url(db=db, tenant_id=current_user.tenant_id, url="", contract_id=contract_id)
         return JSONResponse(content={"message": "File deleted successfully", "path": file_path}, status_code=status.HTTP_200_OK)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
