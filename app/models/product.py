@@ -22,6 +22,7 @@ class Product(Base):
     note = Column(String(255),nullable=True)
     has_promotion = Column(Boolean,nullable=True, default="No")
     branch = Column(String, nullable = False)
+    img_url = Column(String, nullable=True)
     tenant_id = Column(String, unique=False, nullable=False)
     categories_id = Column(String,ForeignKey('categories.id'),nullable=True,index = True)
     contract_for_vendor_id = Column(String,ForeignKey('contract_for_vendor.id'),unique=False,nullable=True,index = True)

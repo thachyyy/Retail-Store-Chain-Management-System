@@ -122,5 +122,21 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         db.refresh(db_obj)
         logger.info("CRUDProduct: create called successfully.")
         return db_obj
+    
+    @staticmethod
+    async def insert_img_url(db: Session, tenant_id: str, url: str, product_id: str):
+        try:
+            if url != "":
+                sql = f"UPDATE public.product SET img_url = '{url}' WHERE id = '{product_id}' AND tenant_id = '{tenant_id}';"
+                db.execute(sql)
+                db.commit()
+                return "Success"
+            else:
+                ql = f"UPDATE public.product SET img_url = NULL WHERE id = '{product_id}' AND tenant_id = '{tenant_id}';"
+                db.execute(sql)
+                db.commit()
+                return "Success"
+        except Exception as e:
+            print("Exception when upload img:", e)
 
 product = CRUDProduct(Product)
