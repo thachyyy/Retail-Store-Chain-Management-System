@@ -300,5 +300,3 @@ async def sales_summary(
     logger.info("DashboardEndpoint: sales_summary is called successfully.")
     
     return {"data": res}
-    
-    

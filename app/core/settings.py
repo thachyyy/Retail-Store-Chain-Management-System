@@ -36,11 +36,11 @@ class Settings(BaseSettings):
     ALL_CHANNEL: Optional[str] = "all-channel"
 
     # s3
-    # S3_BUCKET_NAME: str
-    # AWS_ACCESS_KEY: str
-    # AWS_SECRET_ACCESS_KEY: str
-    # AWS_REGION_NAME: str
-
+    S3_BUCKET_NAME: str
+    AWS_ACCESS_KEY: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION_NAME: str
+    S3_ENDPOINT_URL: str
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
