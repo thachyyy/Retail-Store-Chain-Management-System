@@ -90,4 +90,12 @@ class CRUDEmployee(CRUDBase[Employee, EmployeeCreate, EmployeeUpdate]):
         result_as_dict = result.mappings().all()
         return result_as_dict, sum
     
+    @staticmethod
+    async def get_branch_id(db: Session, branch_name: str):
+        sql = f"SELECT id FROM public.branch WHERE name_detail = '{branch_name}';"
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None
+    
 employee = CRUDEmployee(Employee)

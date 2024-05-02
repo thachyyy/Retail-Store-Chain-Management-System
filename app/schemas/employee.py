@@ -63,8 +63,24 @@ class EmployeeCreate(BaseModel):
     class Config:
         orm_mode = True
 
-# class EmployeeResponse(EmployeeCreate):
-#     branch: List[BranchCreate]
+class EmployeeResponse(BaseModel):
+    id: str
+    full_name: str
+    date_of_birth: Optional[date] = None
+    gender: Optional[Gender] = None
+    email: EmailStr
+    phone_number: str
+    role: Role
+    address: Optional[str] = None
+    district: Optional[str] = None
+    province: Optional[str] = None
+    status: Status
+    branch_name: Optional[str]
+    branch_id: Optional[str]
+    tenant_id: str
+    note: Optional[str] = None
+    
+    
 class EmployeeUpdate(BaseModel):
     full_name: Optional[str]
     date_of_birth: Optional[date] = None

@@ -9,7 +9,7 @@ from typing import Optional
 
 from app import crud
 from app.constant.app_status import AppStatus
-from app.schemas.employee import EmployeeCreateParams, EmployeeCreate, EmployeeUpdate
+from app.schemas.employee import EmployeeCreateParams, EmployeeCreate, EmployeeUpdate, EmployeeResponse
 from app.core.exceptions import error_exception_handler
 from app.utils import hash_lib
 from app.models import Employee
@@ -83,7 +83,29 @@ class EmployeeService:
     
     async def read_me(self, employee_id: str, tanant_id: str):
         user = await crud.employee.get_employee_by_id(self.db, employee_id)
-        return dict(message_code=AppStatus.SUCCESS.message), user
+        
+        branch_id = await crud.employee.get_branch_id(self.db, user.branch)
+        
+        user_response = EmployeeResponse(
+            id=user.id,
+            full_name=user.full_name,
+            date_of_birth=user.date_of_birth,
+            gender=user.gender,
+            email=user.email,
+            phone_number=user.phone_number,
+            role=user.role,
+            address=user.address,
+            district=user.district,
+            province=user.province,
+            status=user.status,
+            branch_name=user.branch,
+            branch_id=branch_id,
+            tenant_id=user.tenant_id,
+            note=user.note
+        )
+        
+        
+        return dict(message_code=AppStatus.SUCCESS.message), user_response
         
     async def get_all_employees(
         self,
