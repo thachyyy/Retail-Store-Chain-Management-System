@@ -51,12 +51,12 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
     async def insert_pdf_url(db: Session, tenant_id: str, url: str, contract_id: str):
         try:
             if url != "":
-                sql = f"UPDATE public.product SET pdf_url = '{url}' WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
+                sql = f"UPDATE public.contract_for_vendor SET pdf_url = '{url}' WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
                 db.execute(sql)
                 db.commit()
                 return "Success"
             else:
-                ql = f"UPDATE public.product SET pdf_url = NULL WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
+                ql = f"UPDATE public.contract_for_vendor SET pdf_url = NULL WHERE id = '{contract_id}' AND tenant_id = '{tenant_id}';"
                 db.execute(sql)
                 db.commit()
                 return "Success"
