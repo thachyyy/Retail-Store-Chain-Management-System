@@ -40,6 +40,8 @@ class ProductService:
         
         response = ProductResponse(
             id=result.id,
+            created_at=result.created_at,
+            updated_at=result.updated_at,
             barcode=result.barcode,
             product_name=result.product_name,
             unit=result.unit,
