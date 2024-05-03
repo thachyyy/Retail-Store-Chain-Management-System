@@ -54,7 +54,8 @@ class ProductService:
             promotion_id=result.promotion_id,
             has_promotion=result.has_promotion,
             tenant_id=result.tenant_id,
-            brand=result.branch
+            brand=result.brand,
+            img_url=result.img_url
         )
         
         
@@ -159,7 +160,35 @@ class ProductService:
             total = total[0]['count']
             logger.info("ProductService: get_all_products called successfully.")
             
-        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
+        response = list()
+        for r in result:
+            res = ProductResponse(
+            id=r.id,
+            barcode=r.barcode,
+            product_name=r.product_name,
+            description=r.description,
+            brand=r.brand,
+            unit=r.unit,
+            last_purchase_price=r.last_purchase_price,
+            sale_price=r.sale_price,
+            status=r.status,
+            note=r.note,
+            has_promotion=r.has_promotion,
+            contract_for_vendor_id=r.contract_for_vendor_id,
+            promotion_id=r.promotion_id,
+            categories_id=r.categories_id,
+            created_at=r.created_at,
+            updated_at=r.updated_at,
+            tenant_id=r.tenant_id,
+            branch=r.branch,
+            img_url=r.img_url,
+            batch_id=r.batch_id,
+            quantity=r.quantity,
+            branch_id=r.branch_id
+        )
+            response.append(res)
+            
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),response
     
     async def gen_id(self):
         newID: str

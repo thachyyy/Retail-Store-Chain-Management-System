@@ -41,6 +41,8 @@ class ProductCreate(BaseModel):
     
 class ProductResponse(BaseModel):
     id: str
+    created_at: date
+    updated_at: Optional[date] = None
     barcode: str 
     product_name: str
     unit: str
@@ -56,6 +58,10 @@ class ProductResponse(BaseModel):
     has_promotion: Optional[bool] = None 
     tenant_id: str
     branch: str
+    img_url: Optional[str] = None
+    batch_id: Optional[str] = None
+    quantity: Optional[str] = None
+    branch_id: Optional[str] = None
 
 class ProductUpdate(BaseModel):
     barcode: Optional[str] 
