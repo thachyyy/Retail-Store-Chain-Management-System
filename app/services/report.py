@@ -348,6 +348,108 @@ class ReportService:
             'Content-Disposition': f"attachment;filename=sales-report-by-customer.pdf"
         }
         
+        logger.info("ServiceReport: sales_report_by_customer is called.")
         logger.info("ServiceReport: sales_report_by_customer is called successfully.")
 
+        return Response(content=pdf, headers=headers, media_type='application/pdf')
+    
+    async def sales_report_by_categories(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
+        logger.info("ServiceReport: sales_report_by_categories is called.")
+        invoice_service = InvoiceForCustomerService(db=self.db)
+        user_name = await crud.report.get_user_name(self.db, user_id)
+        end_date += timedelta(days=1)
+        
+        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
+            tenant_id=tenant_id, 
+            branch=branch, 
+            start_date=start_date, 
+            end_date=end_date
+        )
+        
+        list_categories_quantity = dict()
+        
+        for invoice in list_invoice:
+            for order_detail in invoice.order_detail:
+                categories_id = await crud.report.get_categories_of_product(self.db, order_detail.product_id, tenant_id, branch)
+                if categories_id in list_categories_quantity:
+                    price = await crud.report.get_price_of_product(self.db, order_detail.product_id, tenant_id, branch)
+                    total = order_detail.quantity * price
+                    list_categories_quantity[categories_id][1] += order_detail.quantity
+                    list_categories_quantity[categories_id][2] += total                    
+                else:
+                    quantity = order_detail.quantity
+                    price = await crud.report.get_price_of_product(self.db, order_detail.product_id, tenant_id, branch)
+                    total = quantity * price
+                    name = await crud.report.get_name_by_categories_id(self.db, categories_id, tenant_id, branch)
+                    list_categories_quantity[categories_id] = [name, quantity, total]
+        
+        # print(list_categories_quantity)
+        # tạo html
+        time_report = date.today()
+        # Bắt đầu tạo mã HTML
+        html_output = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <title>Báo Cáo Doanh Thu Theo Nhóm Sản Phẩm</title>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        </head>
+        <body>"""
+        
+        end_date -= timedelta(days=1)
+        if branch is None:
+            branch = "Tất cả chi nhánh"
+        html_output += f"""
+        <h1>BÁO CÁO DOANH THU THEO NHÓM SẢN PHẨM</h1>
+        <p>Chi nhánh: {branch}</p>
+        <p>Người tạo báo cáo: {user_name}</p>
+        <p>Ngày xuất báo cáo: {time_report}</p>
+        <p>Khoảng thời gian: {start_date} đến {end_date}</p>
+        <table>
+            <tr>
+                <th>Mã nhóm sản phẩm</th>
+                <th>Tên nhóm sản phẩm</th>
+                <th>Số lượng sản phẩm</th>
+                <th>Doanh thu</th>
+            </tr>
+        """
+        
+        # Thêm dòng cho mỗi hàng dữ liệu
+        for categories_id, details in list_categories_quantity.items():
+            html_output += f"""
+            <tr>
+                <td>{categories_id}</td>
+                <td>{details[0]}</td>
+                <td>{details[1]}</td>
+                <td>{details[2]}</td>
+            </tr>
+            """
+
+        # Kết thúc HTML
+        html_output += """
+            </table>
+
+            </body>
+            </html>
+            """
+        
+        pdf = pdfkit.from_string(html_output, False)
+        
+        headers = {
+            'Content-Disposition': f"attachment;filename=sales-report-by-categories.pdf"
+        }
+        logger.info("ServiceReport: sales_report_by_categories is called successfully.")
         return Response(content=pdf, headers=headers, media_type='application/pdf')

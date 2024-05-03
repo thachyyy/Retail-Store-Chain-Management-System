@@ -109,3 +109,28 @@ async def sales_report_by_customer(
     res = await report_service.sales_report_by_customer(current_user.id, start_date, end_date, current_user.tenant_id, branch)
     
     return res
+
+@router.get("/report/sales_by_categories")
+async def sales_report_by_categories(
+    start_date: date,
+    end_date: date,
+    branch: str = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+):
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    report_service = ReportService(db=db)
+    
+    # Kiểm tra trường hợp branch == all thì lấy thông tin toàn bộ các chi nhánh
+    # Todo here
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
+    
+    res = await report_service.sales_report_by_categories(current_user.id, start_date, end_date, current_user.tenant_id, branch)
+    
+    return res

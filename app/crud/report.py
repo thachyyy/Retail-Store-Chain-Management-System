@@ -106,4 +106,40 @@ class CRUDReport():
         
         return result_list
     
+    @staticmethod
+    async def get_name_by_categories_id(db: Session, id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"SELECT name FROM public.categories WHERE id = '{id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
+        else:
+            sql = f"SELECT name FROM public.categories WHERE id = '{id}' AND tenant_id = '{tenant_id}';"
+            
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None
+    
+    @staticmethod
+    async def get_categories_of_product(db: Session, id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"SELECT categories_id FROM public.product WHERE id = '{id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
+        else:
+            sql = f"SELECT categories_id FROM public.product WHERE id = '{id}' AND tenant_id = '{tenant_id}';"
+            
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None
+    
+    @staticmethod
+    async def get_price_of_product(db: Session, id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"SELECT sale_price FROM public.product WHERE id = '{id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
+        else:
+            sql = f"SELECT sale_price FROM public.product WHERE id = '{id}' AND tenant_id = '{tenant_id}';"
+            
+        result = db.execute(sql).fetchone()
+        if result:
+            return int(result[0])  # Chuyển kết quả thành số
+        return None
+    
 report = CRUDReport()
