@@ -172,7 +172,7 @@ async def sales_summary(
     
     return res
     
-@router.get("/dashboards/get_sell_through_rate")
+@router.get("/dashboards/get_all_sell_through_rate")
 async def get_sell_through_rate(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
@@ -428,6 +428,9 @@ async def get_sell_through_rate(
     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     top_ten_products = sorted(result, key=lambda x: x['sell_rate'], reverse=True)[:10]
     return top_ten_products  
+
+
+
 @router.get("/dashboards/sales_summary")
 async def sales_summary(
     start_date: date,
