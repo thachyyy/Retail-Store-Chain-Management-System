@@ -9,12 +9,23 @@ from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.services.dashboard import DashboardService
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
 import pdfkit
 from starlette.responses import FileResponse
 from fastapi.responses import Response
 from datetime import date, timedelta
+from uuid import uuid4
+from fastapi.responses import JSONResponse
+from app.core.s3 import S3ServiceSingleton
+import io
+
+s3_service = S3ServiceSingleton()
+SUPPORTED_FILE_TYPES = {
+    'image/png': 'png',
+    'image/jpeg': 'jpg',
+    'application/pdf': 'pdf'
+}
 
 logger = logging.getLogger(__name__)
 
@@ -89,14 +100,11 @@ class ReportService:
         
         pdf = pdfkit.from_string(html_output, False)
         
-        headers = {
-            'Content-Disposition': f"attachment;filename=report-inventory-quantity.pdf"
-        }
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
         
-        logger.info("ReportService: report_inventory_quantity is called successfully.")
-        return Response(content=pdf, headers=headers, media_type='application/pdf')
+        return public_url
         
-
     async def sales_report_by_branch(self, user_id: str, start_date: date, end_date: date, tenant_id: str):
         logger.info("ReportService: report_inventory_quantity is called.")
         user_name = await crud.report.get_user_name(self.db, user_id)
@@ -163,12 +171,10 @@ class ReportService:
         
         pdf = pdfkit.from_string(html_output, False)
         
-        headers = {
-            'Content-Disposition': f"attachment;filename=sales-report-by-branch.pdf"
-        }
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
         
-        logger.info("ReportService: report_inventory_quantity is called successfully.")
-        return Response(content=pdf, headers=headers, media_type='application/pdf')
+        return public_url
     
     async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str = None):
         logger.info("ServiceReport: sales_report_by_product is called.")
@@ -277,13 +283,10 @@ class ReportService:
         
         pdf = pdfkit.from_string(html_output, False)
         
-        headers = {
-            'Content-Disposition': f"attachment;filename=sales-report-by-product.pdf"
-        }
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
         
-        logger.info("ReportService: sales_report_by_product is called successfully.")
-        return Response(content=pdf, headers=headers, media_type='application/pdf')
-        # return "Success"
+        return public_url
     
     async def sales_report_by_customer(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
         logger.info("ServiceReport: sales_report_by_customer is called.")
@@ -354,14 +357,10 @@ class ReportService:
         
         pdf = pdfkit.from_string(html_output, False)
         
-        headers = {
-            'Content-Disposition': f"attachment;filename=sales-report-by-customer.pdf"
-        }
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
         
-        logger.info("ServiceReport: sales_report_by_customer is called.")
-        logger.info("ServiceReport: sales_report_by_customer is called successfully.")
-
-        return Response(content=pdf, headers=headers, media_type='application/pdf')
+        return public_url
     
     async def sales_report_by_categories(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
         logger.info("ServiceReport: sales_report_by_categories is called.")
@@ -458,8 +457,30 @@ class ReportService:
         
         pdf = pdfkit.from_string(html_output, False)
         
-        headers = {
-            'Content-Disposition': f"attachment;filename=sales-report-by-categories.pdf"
-        }
-        logger.info("ServiceReport: sales_report_by_categories is called successfully.")
-        return Response(content=pdf, headers=headers, media_type='application/pdf')
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
+        
+        return public_url
+    
+    def upload_pdf(self, file: UploadFile = File(...)):
+        try:
+            # Read image file
+            file_content = file.read()
+            
+            # Define the file path where the image will be stored on S3
+            # file_path = file.filename  
+
+            content_type = "application/pdf" 
+            file_extension = SUPPORTED_FILE_TYPES[content_type]
+            file_path = f'report/{uuid4()}.{file_extension}'
+            # Upload to S3 and get the public URL
+            public_url = s3_service.upload_image_object(file_content, file_path, content_type)
+            
+            # if file_extension in ['png', 'jpg']:
+            #     await crud.product.insert_img_url(db=db, tenant_id=current_user.tenant_id, url=public_url, product_id=product_id)
+            # else:
+            #     await crud.contract_for_vendor.insert_pdf_url(db=db, tenant_id=current_user.tenant_id, url=public_url, contract_id=contract_id)
+
+            return JSONResponse(status_code=200, content={"message": "File uploaded successfully", "url": public_url})
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
