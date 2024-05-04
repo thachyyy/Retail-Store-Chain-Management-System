@@ -467,8 +467,6 @@ async def get_top_10_sell_through_rate(
         # Danh sách Lô theo thứ tự Lô mới nhất -> cũ nhất
         batch_response = await batch_service.get_all_batches(tenant_id=current_user.tenant_id,
             branch=branch,
-            limit=limit, 
-            offset=offset,
             query_search = id)
         
        
