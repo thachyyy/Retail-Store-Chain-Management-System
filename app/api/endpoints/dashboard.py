@@ -38,6 +38,9 @@ class DateTime (str, enum.Enum):
     date = "Theo ngày"
     hour = "Theo giờ"
     day = "Theo thứ"
+class Sort_list(str, enum.Enum):
+    quantity = "Theo số lượng"
+    sale = "Theo doanh thu"
 
 def get_today():
     today = datetime.now().date()
@@ -146,6 +149,72 @@ async def get_total_sale_by_branch(
     # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(tenant_id,branch)
     logger.info("Endpoints: get_total_sale_by_branch called successfully.")
     return {"sales_total": sales_total }
+
+
+@router.get("/dashboards/get_top_10_product_by_total_sale")
+async def get_top_10_branch_by_total_sale(
+    branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nà
+    period : Optional[Period] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    dashboard_service = DashboardService(db=db)
+    logger.info("Endpoints: get_total_sale_by_branch called.")
+    
+    if current_user.branch:
+        branch = current_user.branch
+    else:
+        branch = branch
+        
+    period_functions = {
+        "Hôm nay": get_today,
+        "Hôm qua": get_yesterday,
+        "7 ngày qua": get_last_7_days,
+        "Tháng này": get_this_month,
+        "Tháng trước": get_last_month
+    }
+    start_date, end_date = period_functions[period]()
+    
+    # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(current_user.tenant_id, branch)
+    product_service = ProductService(db=db)
+    logger.info("Endpoints: get_all_products called.")
+    product_response = await product_service.get_all_products(current_user.tenant_id, branch)
+    list_product = []
+    for product in product_response[1]:
+        if product.product_name not in list_product:
+            list_product += [product.product_name]
+      # Using list comprehension for clarity
+
+    # Initialize response dictionary
+    response = {}
+    invoice_for_customer_service = InvoiceForCustomerService(db=db)
+    # Fetch all invoices once to improve efficiency
+    list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=start_date,end_date=end_date)
+
+    # Accumulate data
+    for invoice in list_invoice[1]:
+        for order_detail in invoice.order_detail:
+            product_name = order_detail.product_name
+            if product_name in list_product:
+                if product_name not in response:
+                    # Initialize the dictionary if it doesn't exist
+                    response[product_name] = {
+                        "sales_total": order_detail.price * order_detail.quantity,
+                        "sold": order_detail.quantity
+                    }
+                else:
+                    # Update the dictionary if it already exists
+                    response[product_name]['sales_total'] += order_detail.price * order_detail.quantity
+                    response[product_name]['sold'] += order_detail.quantity
+
+        
+    
+    return {"data": response}
+
 
 @router.get("/dashboards/sales_summary")
 async def sales_summary(
