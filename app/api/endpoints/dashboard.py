@@ -438,16 +438,46 @@ async def sales_summary(
 ):
     logger.info("DashboardEndpoint: sales_summary is called.")
     current_user = await user
+#         results.append({
+#             "product_name": product.product_name,
+#             "sale_price": product.sale_price,
+#             "inventory": inventory,
+#             "sales_total": sales_total,
+#             "sold": sold,
+#             "sell_rate": sell_rate
+#         })
+        
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+#     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+#     return results
+
     
-    if branch:
-        branch = branch
-    else:
-        branch = current_user.branch
     
-    dashboard_service = DashboardService(db=db)
+
+
+
     
-    res = await dashboard_service.sales_summary(start_date, end_date, current_user.tenant_id, branch)
+# @router.get("/dashboards/sales_summary")
+# async def sales_summary(
+#     start_date: date,
+#     end_date: date,
+#     branch = None,
+#     user: Employee = Depends(oauth2.get_current_user),
+#     db: Session = Depends(get_db)    
+# ):
+#     logger.info("DashboardEndpoint: sales_summary is called.")
+#     current_user = await user
     
-    logger.info("DashboardEndpoint: sales_summary is called successfully.")
+#     if branch:
+#         branch = branch
+#     else:
+#         branch = current_user.branch
     
-    return {"data": res}
+#     dashboard_service = DashboardService(db=db)
+    
+#     res = await dashboard_service.sales_summary(start_date, end_date, current_user.tenant_id, branch)
+    
+#     logger.info("DashboardEndpoint: sales_summary is called successfully.")
+    
+#     return {"data": res}
