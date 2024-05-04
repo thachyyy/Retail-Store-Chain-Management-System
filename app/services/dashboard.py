@@ -107,6 +107,8 @@ class DashboardService:
         
         
         response = dict()
+        if total_order == -1:
+            total_order = 0
         response['total_sales'] = total_sales
         response['cost'] = cost
         response['profit'] = profit
