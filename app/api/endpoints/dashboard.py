@@ -419,8 +419,6 @@ async def get_all_sell_through_rate(
 @router.get("/dashboard/top_10_sell_through_rate")
 async def get_top_10_sell_through_rate(
     branch: Optional[str] = None,
-    limit: Optional[int] = None,
-    offset : Optional[int] = None,
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
