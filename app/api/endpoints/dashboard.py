@@ -261,7 +261,8 @@ async def get_all_sell_through_rate(
         branch = current_user.branch
         
     dashboard_service = DashboardService(db=db)
-    res = await dashboard_service.get_all_sell_through_rate(current_user.tenant_id, branch)
+    
+    res = dashboard_service.get_all_sell_through_rate(current_user.tenant_id, branch)
     
     return res
 
