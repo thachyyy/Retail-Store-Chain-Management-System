@@ -196,9 +196,6 @@ async def get_top_10_branch_by_total_sale(
             # response[branch.branch]["total_purchase_order"] += total_purchase_order
     return {"data": response}
     
-  
-
-
 @router.get("/dashboard/get_top_10_product_by_total_sale")
 async def get_top_10_product_by_total_sale(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nà
@@ -305,7 +302,7 @@ async def get_all_sell_through_rate(
     db: Session = Depends(get_db)
 ) -> Any:
     
-    start_time = time.time()
+    # start_time = time.time()
     
     current_user = await user
     if current_user.role == "Nhân viên":
@@ -315,9 +312,9 @@ async def get_all_sell_through_rate(
     else:
         branch = current_user.branch
         
-        
-    invoice_for_customer_service = InvoiceForCustomerService(db=db)
+    dashboard_service = DashboardService(db=db)
     
+    res = dashboard_service.get_all_sell_through_rate(current_user.tenant_id, branch)
     
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
@@ -335,7 +332,7 @@ async def get_all_sell_through_rate(
     for product in product_response[1]:
         if product.id not in list_product:
             list_product += [product.id]
-    
+    invoice_for_customer_service = InvoiceForCustomerService(db=db)   
     result = []
     flag = 0
     latest_batch = datetime.now()
@@ -369,7 +366,7 @@ async def get_all_sell_through_rate(
            
             inventory += batch.quantity
         # list_invoice_in_= await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch, start_date=latest_batch,end_date=)
-            
+         
         list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
         
         for invoice in list_invoice[1]:
@@ -554,33 +551,6 @@ async def get_top_10_sell_through_rate(
     return {"data":top_ten_products}  
 
 
-
-@router.get("/dashboard/sales_summary")
-async def sales_summary(
-    start_date: date,
-    end_date: date,
-    branch = None,
-    user: Employee = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db)    
-):
-    logger.info("DashboardEndpoint: sales_summary is called.")
-    current_user = await user
-#         results.append({
-#             "product_name": product.product_name,
-#             "sale_price": product.sale_price,
-#             "inventory": inventory,
-#             "sales_total": sales_total,
-#             "sold": sold,
-#             "sell_rate": sell_rate
-#         })
-        
-#     end_time = time.time()
-#     elapsed_time = end_time - start_time
-#     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-#     return results
-
-    
-    
 
 
 

@@ -9,6 +9,7 @@ from pydantic import UUID4
 from app import crud
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.services.batch import BatchService
+from app.services.product import ProductService
 from app.constant.app_status import AppStatus
 # from app.schemas.dashboard import DashboardResponse, DashboardCreate, DashboardCreateParams, DashboardUpdate
 from app.utils import hash_lib
@@ -151,38 +152,90 @@ class DashboardService:
             details.append(revenue)
         return list_product_quantity
     
-    # async def get_sell_through_rate1(self, tenant_id: str, branch: str):
-    #     invoice_for_customer_service = InvoiceForCustomerService(db=self.db)
-    #     product_response= await crud.dashboard.get_all_product_id_name_price(self.db, tenant_id, branch)
-        
-    #     result = []
-    #     flag = 0
-    #     latest_batch = datetime.now()
-    #     batch_service = BatchService(db=self.db)
-        
-    #     for prod in product_response:
-    #         inventory = 0
-    #         sales_total = 0
-    #         sold = 0
-            
-    #         msg, batch_response = await batch_service.get_all_batches(tenant_id=tenant_id,
-    #                                                              branch=branch,
-    #                                                              query_search = prod['id'])
-            
-    #         latest_import = 0
-    #         for batch in batch_response:
-    #             if flag == 1:
-    #                 latest_batch =  batch.created_at
-    #                 latest_import = batch.quantity
-                    
-    #             if flag == 0:
-    #                 # Ngày nhập mới nhất
-    #                 newest_batch = batch.created_at
-    #                 flag += 1
+    async def get_all_sell_through_rate(self, tenant_id: str, branch: str):
+        invoice_for_customer_service = InvoiceForCustomerService(db=self.db)
+        product_service = ProductService(db=self.db)
+        logger.info("Services: get_all_products called.")
+        product_response= await product_service.get_all_products(tenant_id, branch)
+        logger.info("Services: get_all_products called successfully.")
 
-    #             print("flaggggg", flag)
-    #             print("latest_batchhhhhhh", latest_batch)
-    #             print("newest_batchhhhh", newest_batch)
-    #             print("latest_importttttttt", latest_import)
+        # 
+        list_product = []
+        for product in product_response[1]:
+            if product.id not in list_product:
+                list_product += [product.id]
         
-    #     return "Success"
+        result = []
+        flag = 0
+        latest_batch = datetime.now()
+        for id in list_product:
+            inventory = 0
+            sales_total = 0
+            sold = 0
+            product = await crud.product.get_product_by_id(db=self.db,tenant_id=tenant_id,branch=branch,product_id=id)
+            batch_service = BatchService(db=self.db)
+            
+            # Danh sách Lô theo thứ tự Lô mới nhất -> cũ nhất
+            batch_response = await batch_service.get_all_batches(tenant_id=tenant_id,
+                branch=branch,
+                query_search = id)
+            
+        
+            
+            latest_import = 0
+            for batch in batch_response[1]:
+                if flag == 1:
+                    latest_batch =  batch.created_at
+                    latest_import = batch.quantity
+                    
+                if flag == 0:
+                    # Ngày nhập mới nhất
+                    newest_batch = batch.created_at
+                    flag += 1
+                
+            
+                inventory += batch.quantity
+                
+            list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=tenant_id, branch=branch)
+            
+            for invoice in list_invoice[1]:
+                for order_detail in invoice.order_detail:
+                    if order_detail.product_id == id:
+                        sales_total += order_detail.price * order_detail.quantity
+                        sold += order_detail.quantity
+                        
+            sold_in_range = 0    
+            if latest_batch:
+                invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
+            for invoice in invoice_in_range[1]:
+                for order_detail in invoice.order_detail:
+                    if order_detail.product_id == id:
+                        sold_in_range += order_detail.quantity
+            if latest_import > 0:
+                sell_rate = (sold_in_range / (latest_import+sold))*100
+            else: 
+                sell_rate = 0
+                
+            new_item = {
+                "product_name": product.product_name,
+                "sale_price": product.sale_price,
+                "inventory": inventory,
+                "sales_total": sales_total,
+                "sold": sold,
+                "sell_rate": sell_rate
+            }
+            for item in result:
+                if item["product_name"] == new_item["product_name"]: 
+                    item['sale_price'] += new_item["sale_price"]
+                    item['sales_total'] += new_item["sales_total"]
+                    item['inventory'] += new_item["inventory"]
+                    item['sold'] += new_item["sold"]
+                    item['sell_rate'] += new_item["sell_rate"]
+                    break
+            else:    
+                result.append(new_item)
+            
+        # end_time = time.time()
+        # elapsed_time = end_time - start_time
+        # print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+        return result
