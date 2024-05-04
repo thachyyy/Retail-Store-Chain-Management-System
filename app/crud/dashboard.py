@@ -33,7 +33,10 @@ class CRUDDashboard():
             """
         
         result = db.execute(sql).fetchone()
-        return result[0]
+        if result[0]:
+            print("hereeeeeeeeeeeeeeeeeeeee", result)
+            return result[0]
+        return 0
     
     @staticmethod
     async def get_total_order(db: Session, start_date: date, end_date: date, tenant_id: str, branch: str = None):
@@ -56,7 +59,9 @@ class CRUDDashboard():
             """
             
         result = db.execute(sql).fetchone()
-        return result[0]
+        if result[0] > 0:
+            return result[0]
+        return -1
     
     @staticmethod
     async def get_total_new_customer(db: Session, start_date: date, end_date: date, tenant_id: str, branch: str = None):
