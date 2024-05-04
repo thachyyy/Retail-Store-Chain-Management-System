@@ -68,7 +68,7 @@ def get_last_month():
     first_day_last_month = last_day_last_month.replace(day=1)
     return first_day_last_month, last_day_last_month
 
-@router.get("/dashboards/get_total_sale_by_branch")
+@router.get("/dashboard/get_total_sale_by_branch")
 async def get_total_sale_by_branch(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
     datetime: Optional[DateTime] = None,
@@ -108,7 +108,7 @@ async def get_total_sale_by_branch(
                 response[invoice_date] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[invoice_date] += invoice.total
-        return {"data": response , "total": total_sale}
+        return {"data": response , "total_sale": total_sale}
     
     elif datetime == "Theo giờ":
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
@@ -121,7 +121,7 @@ async def get_total_sale_by_branch(
             else:
                 response[hour_of_invoice] += invoice.total
      
-        return {"data": response , "total": total_sale}
+        return {"data": response , "total_sale": total_sale}
     
     elif datetime == "Theo thứ":
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
@@ -136,7 +136,7 @@ async def get_total_sale_by_branch(
                 response[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[day_name] += invoice.total
-        return {"data": response , "total": total_sale}
+        return {"data": response , "total_sale": total_sale}
         
     invoice_service = InvoiceForCustomerService(db=db)
     list_invoice = await invoice_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
@@ -150,9 +150,57 @@ async def get_total_sale_by_branch(
     logger.info("Endpoints: get_total_sale_by_branch called successfully.")
     return {"sales_total": sales_total }
 
-
-@router.get("/dashboards/get_top_10_product_by_total_sale")
+@router.get("/dashboard/get_top_10_branch_by_total_sale")
 async def get_top_10_branch_by_total_sale(
+    start_date: date,
+    end_date: date,
+    branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
+    # period : Optional[Period] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    current_user = await user
+    if current_user.role == "Nhân viên":
+        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
+    
+    dashboard_service = DashboardService(db=db)
+    logger.info("Endpoints: get_total_sale_by_branch called.")
+    
+    if current_user.branch:
+        branch = current_user.branch
+    else:
+        branch = branch
+        
+    # period_functions = {
+    #     "Hôm nay": get_today,
+    #     "Hôm qua": get_yesterday,
+    #     "7 ngày qua": get_last_7_days,
+    #     "Tháng này": get_this_month,
+    #     "Tháng trước": get_last_month
+    # }
+    # start_date, end_date = period_functions[period]()
+    
+
+    result,total_sale = await crud.invoice_for_customer.get_total_sale_by_all_branch(db=db,tenant_id=current_user.tenant_id,start_date=start_date,end_date=end_date) 
+   
+    response = {}
+    for branch in result:
+        total_purchase_order = await  crud.purchase_order.get_total_purchase_order_by_all_branch(db=db,tenant_id=current_user.tenant_id,branch=branch.branch,start_date=start_date,end_date=end_date) 
+        if branch.branch not in response:
+            response[branch.branch] = {
+                "total_sale": branch.total,
+                "total_purchase_order": total_purchase_order
+                }
+        else:
+            response[branch.branch]["total_sale"] += branch.total
+            # response[branch.branch]["total_purchase_order"] += total_purchase_order
+    return {"data": response}
+    
+  
+
+
+@router.get("/dashboard/get_top_10_product_by_total_sale")
+async def get_top_10_product_by_total_sale(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nà
     period : Optional[Period] = None,
     user: Employee = Depends(oauth2.get_current_user),
@@ -210,13 +258,20 @@ async def get_top_10_branch_by_total_sale(
                     # Update the dictionary if it already exists
                     response[product_name]['sales_total'] += order_detail.price * order_detail.quantity
                     response[product_name]['sold'] += order_detail.quantity
+   
+    products = [(name, details['sales_total'], details['sold']) for name, details in response.items()]  
+    products_sorted_by_sales = sorted(products, key=lambda x: x[1], reverse=True)
+    top_10_products = products_sorted_by_sales[:10]
+    result = []
+    for product in top_10_products:
+        result.append({
+            "product": product[0],
+            "sales_total": product[1],
+            "order_total": product[2]
+        })
+    return {"data":result}
 
-        
-    
-    return {"data": response}
-
-
-@router.get("/dashboards/sales_summary")
+@router.get("/dashboard/sales_summary")
 async def sales_summary(
     start_date: date,
     end_date: date,
@@ -241,7 +296,7 @@ async def sales_summary(
     
     return res
     
-@router.get("/dashboards/get_all_sell_through_rate")
+@router.get("/dashboard/get_all_sell_through_rate")
 async def get_all_sell_through_rate(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
@@ -367,9 +422,9 @@ async def get_all_sell_through_rate(
     end_time = time.time()
     elapsed_time = end_time - start_time
     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-    return result
+    return {"data":result} 
 
-@router.get("/dashboards/top_10_sell_through_rate")
+@router.get("/dashboard/top_10_sell_through_rate")
 async def get_top_10_sell_through_rate(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
@@ -496,11 +551,11 @@ async def get_top_10_sell_through_rate(
     elapsed_time = end_time - start_time
     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     top_ten_products = sorted(result, key=lambda x: x['sell_rate'], reverse=True)[:10]
-    return top_ten_products  
+    return {"data":top_ten_products}  
 
 
 
-@router.get("/dashboards/sales_summary")
+@router.get("/dashboard/sales_summary")
 async def sales_summary(
     start_date: date,
     end_date: date,
@@ -530,7 +585,7 @@ async def sales_summary(
 
 
     
-# @router.get("/dashboards/sales_summary")
+# @router.get("/dashboard/sales_summary")
 # async def sales_summary(
 #     start_date: date,
 #     end_date: date,

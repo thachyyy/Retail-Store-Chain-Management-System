@@ -4,7 +4,7 @@ import logging
 import uuid
 from typing import Optional
 
-from datetime import date
+from datetime import date, timedelta
 from sqlalchemy.orm import Session
 from pydantic import UUID4
 
@@ -53,6 +53,7 @@ class InvoiceForCustomerService:
         if start_date:
             conditions['start_date'] = start_date
         if end_date:
+            end_date += timedelta(days=1)
             conditions['end_date'] = end_date
         
         

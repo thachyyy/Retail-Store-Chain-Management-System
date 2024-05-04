@@ -16,6 +16,23 @@ logger = logging.getLogger(__name__)
 
 
 class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCreate, InvoiceForCustomerUpdate]):    
+    
+    @staticmethod
+    async def get_total_sale_by_all_branch(db:Session, tenant_id: str ,start_date:date ,end_date:date):
+        start_datetime = datetime.combine(start_date, datetime.min.time())  # Sets time to 00:00:00
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        
+        query = db.query(InvoiceForCustomer).filter( \
+        InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
+        InvoiceForCustomer.tenant_id == tenant_id)
+        
+        total_sale = db.query(func.sum(InvoiceForCustomer.total)).filter( \
+        InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
+        InvoiceForCustomer.tenant_id == tenant_id).scalar()
+        if total_sale is None:
+            total_sale = 0 
+        return query.all(),total_sale        
+                           
     @staticmethod
     async def get_total_sale_by_branch(db:Session, tenant_id: str , branch:str,start_date:date ,end_date:date):
         start_datetime = datetime.combine(start_date, datetime.min.time())  # Sets time to 00:00:00

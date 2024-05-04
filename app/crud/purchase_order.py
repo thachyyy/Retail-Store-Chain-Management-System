@@ -1,8 +1,10 @@
+from datetime import date, datetime
 import logging
 
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session,joinedload
 
 from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
@@ -20,6 +22,18 @@ logger = logging.getLogger(__name__)
 
 
 class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrderUpdate]):    
+    @staticmethod
+    async def get_total_purchase_order_by_all_branch(db:Session, tenant_id: str,branch:str ,start_date:date ,end_date:date):
+        start_datetime = datetime.combine(start_date, datetime.min.time())  # Sets time to 00:00:00
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        
+        query = db.query(PurchaseOrder).filter( \
+        PurchaseOrder.created_at.between(start_datetime, end_datetime),
+        PurchaseOrder.tenant_id == tenant_id,
+        PurchaseOrder.branch == branch).count()
+        
+
+        return query
     @staticmethod
     async def get_all_purchase_orders(db: Session,sql:str,tenant_id:str,branch:str,offset:int= None,limit :int = None) -> Optional[PurchaseOrder]:
         total = db.execute(sql)
