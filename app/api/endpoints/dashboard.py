@@ -173,7 +173,7 @@ async def sales_summary(
     return res
     
 @router.get("/dashboards/get_all_sell_through_rate")
-async def get_sell_through_rate(
+async def get_all_sell_through_rate(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
     offset : Optional[int] = None,
@@ -301,7 +301,7 @@ async def get_sell_through_rate(
     return result
 
 @router.get("/dashboards/top_10_sell_through_rate")
-async def get_sell_through_rate(
+async def get_top_10_sell_through_rate(
     branch: Optional[str] = None,
     limit: Optional[int] = None,
     offset : Optional[int] = None,
