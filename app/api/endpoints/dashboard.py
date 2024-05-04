@@ -314,8 +314,6 @@ async def get_all_sell_through_rate(
         
     dashboard_service = DashboardService(db=db)
     
-    res = dashboard_service.get_all_sell_through_rate(current_user.tenant_id, branch)
-    
     product_service = ProductService(db=db)
     logger.info("Endpoints: get_all_products called.")
     product_response= await product_service.get_all_products(current_user.tenant_id, branch)
@@ -379,8 +377,7 @@ async def get_all_sell_through_rate(
         # print("inventory",inventory)
         # print("sales_total",sales_total)
         # print("sold",sold)
-        print("latest_batch",latest_batch)
-        print("newest_batch",newest_batch)
+ 
         sold_in_range = 0    
         if latest_batch:
             invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
@@ -416,9 +413,7 @@ async def get_all_sell_through_rate(
         # dashboard_service = DashboardService(db=db)
         # list_sales_by_product = await dashboard_service.sales_report_by_product(current_user.tenant_id,branch)
         
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+    
     return {"data":result} 
 
 @router.get("/dashboard/top_10_sell_through_rate")
@@ -507,8 +502,6 @@ async def get_top_10_sell_through_rate(
         # print("inventory",inventory)
         # print("sales_total",sales_total)
         # print("sold",sold)
-        print("latest_batch",latest_batch)
-        print("newest_batch",newest_batch)
         sold_in_range = 0    
         if latest_batch:
             invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
