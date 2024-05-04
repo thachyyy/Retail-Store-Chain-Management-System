@@ -6,6 +6,7 @@ from pydantic import UUID4
 
 from app import crud
 from app.services.invoice_for_customer import InvoiceForCustomerService
+from app.services.dashboard import DashboardService
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from fastapi import FastAPI, Response
@@ -171,37 +172,43 @@ class ReportService:
     
     async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str = None):
         logger.info("ServiceReport: sales_report_by_product is called.")
-        invoice_service = InvoiceForCustomerService(db=self.db)
+        # invoice_service = InvoiceForCustomerService(db=self.db)
         user_name = await crud.report.get_user_name(self.db, user_id)
         end_date += timedelta(days=1)
-        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
-            tenant_id=tenant_id, 
-            branch=branch, 
-            start_date=start_date, 
-            end_date=end_date
-        )
-        list_product_quantity = dict()
+        # msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
+        #     tenant_id=tenant_id, 
+        #     branch=branch, 
+        #     start_date=start_date, 
+        #     end_date=end_date
+        # )
+        # list_product_quantity = dict()
         
-        for invoice in list_invoice:
-            for order_detail in invoice.order_detail:
-                if order_detail.product_id in list_product_quantity:
-                    list_product_quantity[order_detail.product_id][2] += order_detail.quantity
-                else:
-                    quantity = order_detail.quantity
-                    name, price = await crud.report.get_price_and_name_by_product_id(self.db, order_detail.product_id, tenant_id, branch)
-                    list_product_quantity[order_detail.product_id] = [name, price, quantity]
-            # print("list product:", list_product_quantity)
+        # for invoice in list_invoice:
+        #     for order_detail in invoice.order_detail:
+        #         if order_detail.product_id in list_product_quantity:
+        #             list_product_quantity[order_detail.product_id][2] += order_detail.quantity
+        #         else:
+        #             quantity = order_detail.quantity
+        #             name, price = await crud.report.get_price_and_name_by_product_id(self.db, order_detail.product_id, tenant_id, branch)
+        #             list_product_quantity[order_detail.product_id] = [name, price, quantity]
+        #     # print("list product:", list_product_quantity)
         
-        # tính doanh thu bằng số lượng nhân giá bán
-        for product_id, details in list_product_quantity.items():
-            name = details[0]
-            price = details[1]
-            quantity = details[2]
+        # # tính doanh thu bằng số lượng nhân giá bán
+        # for product_id, details in list_product_quantity.items():
+        #     name = details[0]
+        #     price = details[1]
+        #     quantity = details[2]
             
-            revenue = price * quantity
+        #     revenue = price * quantity
             
-            details.append(revenue)
+        #     details.append(revenue)
         # tính lợi nhuận lấy số lượng nhân (giá bán - giá nhập) // chưa làm
+        
+        
+        dashboard_service = DashboardService(db=self.db)
+        products = await dashboard_service.get_all_sell_through_rate(tenant_id, branch)
+        
+        
         # tạo html
         time_report = date.today()
         # Bắt đầu tạo mã HTML
@@ -231,30 +238,32 @@ class ReportService:
         if branch is None:
             branch = "Tất cả chi nhánh"
         html_output += f"""
-        <h1>BÁO CÁO DOANH THU THEO CỬA HÀNG</h1>
+        <h1>BÁO CÁO DOANH THU THEO SẢN PHẨM</h1>
         <p>Chi nhánh: {branch}</p>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
         <p>Khoảng thời gian: {start_date} đến {end_date}</p>
         <table>
             <tr>
-                <th>Mã sản phẩm</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá bán</th>
-                <th>Số lượng</th>
                 <th>Doanh thu</th>
+                <th>Đã bán</th>
+                <th>Tồn kho</th>
+                <th>Tỷ lệ bán hết</th>
             </tr>
         """
         
         # Thêm dòng cho mỗi hàng dữ liệu
-        for product_id, details in list_product_quantity.items():
+        for prod in products:
             html_output += f"""
             <tr>
-                <td>{product_id}</td>
-                <td>{details[0]}</td>
-                <td>{details[1]}</td>
-                <td>{details[2]}</td>
-                <td>{details[3]}</td>
+                <td>{prod['product_name']}</td>
+                <td>{prod['sale_price']}</td>
+                <td>{prod['sales_total']}</td>
+                <td>{prod['sold']}</td>
+                <td>{prod['inventory']}</td>
+                <td>{round(prod['sell_rate'], 2)}</td>
             </tr>
             """
 
@@ -274,6 +283,7 @@ class ReportService:
         
         logger.info("ReportService: sales_report_by_product is called successfully.")
         return Response(content=pdf, headers=headers, media_type='application/pdf')
+        # return "Success"
     
     async def sales_report_by_customer(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str):
         logger.info("ServiceReport: sales_report_by_customer is called.")
