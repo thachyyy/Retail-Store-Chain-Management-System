@@ -53,6 +53,7 @@ class ProductResponse(BaseModel):
     brand: Optional[str] = None 
     note: Optional[str] = None 
     categories_id: Optional[str] = None
+    categories_name: Optional[str] = None
     contract_for_vendor_id: Optional[str] = None
     promotion_id: Optional[str] = None
     has_promotion: Optional[bool] = None 

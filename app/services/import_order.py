@@ -78,6 +78,7 @@ class ImportOrderService:
         return dict(message_code=AppStatus.SUCCESS.message,total=total), response
     
     async def make_response_import_order(self, obj_in):
+        vendor_name = await crud.import_detail.get_vendor_name(self.db, obj_in.belong_to_vendor)
         response = InvoiceOrderResponse(
             id=obj_in.id,
             created_at=obj_in.created_at,
@@ -89,6 +90,7 @@ class ImportOrderService:
             status="Đã nhập hàng",
             created_by= obj_in.created_by,
             belong_to_vendor=obj_in.belong_to_vendor,
+            vendor_name=vendor_name,
             belong_to_contract=obj_in.belong_to_contract,
             tenant_id= obj_in.tenant_id,
             list_import=[],
@@ -97,11 +99,8 @@ class ImportOrderService:
        
         for id in obj_in.list_import:
             list_import = await crud.import_detail.get_import_detail_by_id(self.db, id)
-
             response.list_import.append(list_import)
 
-            
-            
         return response
     
     async def get_import_order_by_id(self, id: str, tenant_id: str, branch: str):

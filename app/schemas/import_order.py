@@ -45,5 +45,6 @@ class ImportOrderUpdate(BaseModel):
 class InvoiceOrderResponse(ImportOrderCreate):
     created_at: datetime
     updated_at: Optional[datetime]
+    vendor_name: Optional[str]
   
     

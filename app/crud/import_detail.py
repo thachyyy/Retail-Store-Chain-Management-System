@@ -20,6 +20,14 @@ class CRUDImportDetail(CRUDBase[ImportDetail, ImportDetailCreate, ImportDetailUp
         return db.query(ImportDetail).filter(ImportDetail.id == import_detail_id).first()
     
     @staticmethod
+    async def get_vendor_name(db: Session, vendor_id: str):
+        sql = f"SELECT vendor_name FROM public.vendor WHERE id = '{vendor_id}';"
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None
+    
+    @staticmethod
     async def get_last_id(db: Session):
         sql = "SELECT MAX(SUBSTRING(id FROM '[0-9]+')::INT) FROM import_detail;"
         last_id = db.execute(sql).scalar_one_or_none()
