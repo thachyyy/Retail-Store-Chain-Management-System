@@ -67,6 +67,7 @@ class ReportService:
         
         html_output += f"""
         <h1>BÁO CÁO HÀNG LƯỢNG HÀNG TỒN KHO</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
         <h2>{branch}</h2>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
@@ -140,6 +141,7 @@ class ReportService:
         end_date -= timedelta(days=1)
         html_output += f"""
         <h1>BÁO CÁO DOANH THU THEO CỬA HÀNG</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
         <p>Khoảng thời gian: {start_date} đến {end_date}</p>
@@ -245,6 +247,7 @@ class ReportService:
             branch = "Tất cả chi nhánh"
         html_output += f"""
         <h1>BÁO CÁO DOANH THU THEO SẢN PHẨM</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
         <p>Chi nhánh: {branch}</p>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
@@ -325,6 +328,7 @@ class ReportService:
             branch = "Tất cả chi nhánh"
         html_output += f"""
         <h1>BÁO CÁO DOANH THU THEO KHÁCH HÀNG</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
         <p>Chi nhánh: {branch}</p>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
@@ -423,6 +427,7 @@ class ReportService:
             branch = "Tất cả chi nhánh"
         html_output += f"""
         <h1>BÁO CÁO DOANH THU THEO NHÓM SẢN PHẨM</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
         <p>Chi nhánh: {branch}</p>
         <p>Người tạo báo cáo: {user_name}</p>
         <p>Ngày xuất báo cáo: {time_report}</p>
