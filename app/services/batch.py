@@ -59,10 +59,10 @@ class BatchService:
     
     async def get_batch_by_product_id(self, product_id: str, tenant_id: str):
         logger.info("BatchService: get_batch_by_prod_id called.")
-        result = await crud.batch.get_batch_by_product_id(db=self.db, product_id=product_id, tenant_id=tenant_id)
+        result, sum = await crud.batch.get_batch_by_product_id(db=self.db, product_id=product_id, tenant_id=tenant_id)
         logger.info("BatchService: get_batch_by_prod_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        return dict(message_code=AppStatus.SUCCESS.message), {"batches": result, "total_quantity": sum}
     
     async def gen_id(self):
         newID: str
