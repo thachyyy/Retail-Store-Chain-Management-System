@@ -74,7 +74,10 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     
     @staticmethod
     async def get_product_by_id(db: Session, tenant_id: str, product_id: str, branch: str = None):
-        return db.query(Product).filter(Product.id == product_id, Product.tenant_id == tenant_id, Product.branch == branch).first()
+        if branch:
+            return db.query(Product).filter(Product.id == product_id, Product.tenant_id == tenant_id, Product.branch == branch).first()
+        else:
+            return db.query(Product).filter(Product.id == product_id, Product.tenant_id == tenant_id).first()
     
     @staticmethod
     async def get_categories_name(db: Session, categories_id: str, tenant_id: str, branch: str = None):

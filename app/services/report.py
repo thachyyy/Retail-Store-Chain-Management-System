@@ -35,6 +35,8 @@ class ReportService:
       
     async def report_inventory_quantity(self, user_id: str, tenant_id: str, branch: str = None):
         logger.info("ReportService: report_inventory_quantity is called.")
+        if branch == "Tất cả chi nhánh":
+            branch = None
         user_name = await crud.report.get_user_name(self.db, user_id)
         list_result = await crud.report.report_inventory_quantity(self.db, tenant_id, branch)
             
@@ -214,8 +216,9 @@ class ReportService:
         
         
         dashboard_service = DashboardService(db=self.db)
+        if branch == "Tất cả chi nhánh":
+            branch = None
         products = await dashboard_service.get_all_sell_through_rate(tenant_id, branch)
-        
         
         # tạo html
         time_report = date.today()
@@ -296,6 +299,8 @@ class ReportService:
         
         user_name = await crud.report.get_user_name(self.db, user_id)
         end_date += timedelta(days=1)
+        if branch == "Tất cả chi nhánh":
+            branch = None
         result_list = await crud.report.sales_report_by_customer(self.db, start_date, end_date, tenant_id, branch)
         
         
@@ -371,7 +376,8 @@ class ReportService:
         invoice_service = InvoiceForCustomerService(db=self.db)
         user_name = await crud.report.get_user_name(self.db, user_id)
         end_date += timedelta(days=1)
-        
+        if branch == "Tất cả chi nhánh":
+            branch = None
         msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
             tenant_id=tenant_id, 
             branch=branch, 

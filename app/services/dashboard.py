@@ -152,7 +152,7 @@ class DashboardService:
             details.append(revenue)
         return list_product_quantity
     
-    async def get_all_sell_through_rate(self, tenant_id: str, branch: str):
+    async def get_all_sell_through_rate(self, tenant_id: str, branch: str = None):
         invoice_for_customer_service = InvoiceForCustomerService(db=self.db)
         product_service = ProductService(db=self.db)
         logger.info("Services: get_all_products called.")
