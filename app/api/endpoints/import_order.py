@@ -83,7 +83,7 @@ async def create_import_order(
                 tenant_id= current_user.tenant_id,
                 branch = branch,
             )
-            isValisProd = await crud.product.check_product_exist(db,id=db_contract.product_id,name=db_contract.product_name,tenant_id=current_user.tenant_id,branch=branch)
+            isValisProd = await crud.product.check_product_exist(db,id=db_contract.product_id,tenant_id=current_user.tenant_id,branch=branch)
             if not isValisProd:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
             import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
