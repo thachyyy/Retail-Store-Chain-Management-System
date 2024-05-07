@@ -29,15 +29,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 import enum
 class Period (str, enum.Enum):
-    this_month ="Tháng này"
-    last_month = "Tháng trước"
     today = "Hôm nay"
-    yesterday = "Hôm qua"
-    passed_7_days = "7 ngày qua"
+    seven_days = "7 ngày"
+    thirty_days ="30 ngày"
+    ninety_days ="90 ngày"
+    this_year = "Năm nay"
+    
 class DateTime (str, enum.Enum):
     date = "Theo ngày"
     hour = "Theo giờ"
     day = "Theo thứ"
+    month = "Theo tháng"
 class Sort_list(str, enum.Enum):
     quantity = "Theo số lượng"
     sale = "Theo doanh thu"
@@ -50,24 +52,52 @@ def get_yesterday():
     yesterday = datetime.now().date() - timedelta(days=1)
     return yesterday, yesterday
 
-def get_last_7_days():
+def get_7_days():
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=6)
     return start_date, end_date
 
-def get_this_month():
-    today = datetime.now()
-    start_date = today.replace(day=1).date()
-    end_date = today.date()
+def get_last_7_days():
+    start_date, end_date = get_7_days()
+    start_date = start_date - timedelta(days=7)
+    end_date = start_date - timedelta(days=1)
     return start_date, end_date
 
-def get_last_month():
-    today = datetime.now()
-    first_day_this_month = today.replace(day=1)
-    last_day_last_month = first_day_this_month - timedelta(days=1)
-    first_day_last_month = last_day_last_month.replace(day=1)
-    return first_day_last_month, last_day_last_month
+def get_30_days():
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=29)
+    return start_date,end_date
 
+def get_last_30_days():
+    start_date, end_date = get_30_days()
+    start_date = start_date - timedelta(days=30)
+    end_date = start_date - timedelta(days=1)
+    return start_date, end_date
+
+def get_90_days():
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=89)
+    return start_date,end_date
+
+def get_last_90_days():
+    start_date,end_date = get_90_days()
+    start_date = start_date - timedelta(days=90)
+    end_date = start_date - timedelta(days=1)
+    return start_date, end_date
+def get_this_year():
+    today = datetime.now().date()
+    current_year = datetime.now().year
+
+    first_day_of_year = datetime(current_year, 1, 1)
+    return first_day_of_year,today
+def get_last_year():
+
+    last_year = datetime.now().year - 1
+
+    first_day_of_last_year = datetime(last_year, 1, 1)
+    last_day_of_last_year = datetime(last_year, 12, 31)
+    
+    return first_day_of_last_year,last_day_of_last_year
 @router.get("/dashboard/get_total_sale_by_branch")
 async def get_total_sale_by_branch(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
@@ -90,42 +120,87 @@ async def get_total_sale_by_branch(
         
     period_functions = {
         "Hôm nay": get_today,
-        "Hôm qua": get_yesterday,
-        "7 ngày qua": get_last_7_days,
-        "Tháng này": get_this_month,
-        "Tháng trước": get_last_month
+        "7 ngày": get_7_days,
+        "30 ngày" : get_30_days,
+        "90 ngày": get_90_days,
+        "Năm nay": get_this_year
     }
-    start_date, end_date = period_functions[period]()
     
-    # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(current_user.tenant_id, branch)
-
-    if datetime == "Theo ngày":
+    if period == "Hôm nay":
+        start_date, end_date = period_functions[period]()
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
-        response = {}
+        
+        start_date, end_date = get_yesterday()
+        result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
+        
+    elif period == "7 ngày":
+        start_date, end_date = period_functions[period]()
+        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+        start_date, end_date = get_last_7_days()
+        result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+    
+    elif period == "30 ngày":
+        start_date, end_date = period_functions[period]()   
+        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+        start_date, end_date = get_last_30_days()
+        result_1,total_sale_1= await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+    elif period == "90 ngày":
+        start_date, end_date = period_functions[period]()
+        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+        start_date, end_date = get_last_90_days()
+        result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+    elif period == "Năm nay":
+        start_date, end_date = period_functions[period]()
+        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+        start_date, end_date = get_last_year()
+        result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+        
+    
+    # # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(current_user.tenant_id, branch)
+    response = {}
+    response_1 = {}  
+    if datetime == "Theo ngày":
+        
         for invoice in result:
             invoice_date = invoice.created_at.date()
             if invoice_date not in response:
                 response[invoice_date] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[invoice_date] += invoice.total
-        return {"data": response , "total_sale": total_sale}
+            
+        for invoice in result_1:
+            invoice_date = invoice.created_at.date()
+            if invoice_date not in response_1:
+                response_1[invoice_date] = invoice.total  # Initialize if the date doesn't exist in the response
+            else:
+                response_1[invoice_date] += invoice.total
+                
     
     elif datetime == "Theo giờ":
-        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
-        response = {}
+        
         for invoice in result:
             invoice_time = invoice.created_at.time()
             hour_of_invoice = invoice_time.hour
             if hour_of_invoice not in response:
                 response[f"{hour_of_invoice}h"] = invoice.total  
             else:
-                response[hour_of_invoice] += invoice.total
+                response[f"{hour_of_invoice}h"] += invoice.total
      
-        return {"data": response , "total_sale": total_sale}
+        for invoice in result_1:
+            invoice_time = invoice.created_at.time()
+            hour_of_invoice = invoice_time.hour
+            if hour_of_invoice not in response_1:
+                response_1[f"{hour_of_invoice}h"] = invoice.total  
+            else:
+                response_1[f"{hour_of_invoice}h"] += invoice.total
+                
     
     elif datetime == "Theo thứ":
-        result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
-        response = {}
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
        
         for invoice in result:
@@ -136,19 +211,40 @@ async def get_total_sale_by_branch(
                 response[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[day_name] += invoice.total
-        return {"data": response , "total_sale": total_sale}
         
-    invoice_service = InvoiceForCustomerService(db=db)
-    list_invoice = await invoice_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
-    sales_total = 0
-    for invoice in list_invoice[1]:
-        sales_total += invoice.total
+        for invoice in result_1:
+            invoice_date = invoice.created_at.date()
+            day_of_week = invoice_date.weekday()
+            day_name = days[day_of_week]
+            if day_name not in response_1:
+                response_1[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
+            else:
+                response_1[day_name] += invoice.total    
+                    
+        
     
-    logger.info("DashboardService: get_total_sale_by_id called successfully.")
+    elif datetime == "Theo tháng":
+        months = ["January", "February", "March", "April", "May", "June", 
+          "July", "August", "September", "October", "November", "December"]
+       
+        for invoice in result:
+            invoice_date = invoice.created_at
+            month_today = invoice_date.month - 1
+            month = months[month_today]
+            if month not in response:
+                response[month] = invoice.total  # Initialize if the date doesn't exist in the response
+            else:
+                response[month] += invoice.total
+        for invoice in result_1:
+            invoice_date = invoice.created_at
+            month_today = invoice_date.month - 1
+            month = months[month_today]
+            if month not in response_1:
+                response_1[month] = invoice.total  # Initialize if the date doesn't exist in the response
+            else:
+                response_1[month] += invoice.total  
     
-    # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(tenant_id,branch)
-    logger.info("Endpoints: get_total_sale_by_branch called successfully.")
-    return {"sales_total": sales_total }
+    return {"data": response, "data_1": response_1, "total_sale": total_sale}
 
 @router.get("/dashboard/get_top_10_branch_by_total_sale")
 async def get_top_10_branch_by_total_sale(

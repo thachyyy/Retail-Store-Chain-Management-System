@@ -57,8 +57,8 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return db.query(Product).filter(Product.product_name == name, Product.tenant_id == tenant_id, Product.branch == branch).first()
     
     @staticmethod
-    async def check_product_exist(db: Session, id :str, name: str, tenant_id: str, branch: str = None) -> Optional[Product]:
-        return db.query(Product).filter(Product.id == id,Product.product_name == name, Product.tenant_id == tenant_id, Product.branch == branch).first()
+    async def check_product_exist(db: Session, id :str, tenant_id: str, branch: str = None) -> Optional[Product]:
+        return db.query(Product).filter(Product.id == id,Product.tenant_id == tenant_id, Product.branch == branch).first()
     
     @staticmethod
     async def check_product_by_barcode(db: Session, barcode: str, tenant_id: str, branch: str = None) -> Optional[Product]:
