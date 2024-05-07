@@ -24,7 +24,27 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
     
     @staticmethod
     async def get_batch_by_product_id(db: Session, product_id: str, tenant_id: str):
-        return db.query(Batch).filter(Batch.product_id == product_id, Batch.tenant_id == tenant_id).all()
+        sql = f"""SELECT batch.id AS batch_id, batch.created_at AS batch_created_at, batch.updated_at AS batch_updated_at, 
+                         batch.quantity AS batch_quantity, batch.import_price AS batch_import_price, 
+                         batch.manufacturing_date AS batch_manufacturing_date, batch.expiry_date AS batch_expiry_date, 
+                         batch.branch AS batch_branch, batch.product_id AS batch_product_id, batch.belong_to_receipt AS batch_belong_to_receipt, 
+                         batch.tenant_id AS batch_tenant_id, batch.status AS batch_status 
+                  FROM batch
+                  WHERE batch.product_id = '{product_id}' AND batch.tenant_id = '{tenant_id}';
+        """
+        result = db.execute(sql).fetchall()
+        list_result = [item for item in result]
+        
+        sql_sum = f"""SELECT sum(batch.quantity) as sum_quantity
+                      FROM batch
+                      WHERE batch.product_id = '{product_id}' AND batch.tenant_id = '{tenant_id}';
+        """
+        sum  = db.execute(sql_sum).fetchone()
+        if sum:
+            sum = int(sum[0])  # Chuyển kết quả thành số
+        else: sum = None
+        
+        return list_result, sum
     
     @staticmethod
     async def get_batch_by_conditions(db: Session, sql: str, total: str):        

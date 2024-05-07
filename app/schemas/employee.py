@@ -38,7 +38,7 @@ class EmployeeCreateParams(BaseModel):
     address: Optional[str] = None
     district: Optional[str] = None
     province: Optional[str] = None
-    branch: str
+    # branch: str
     status: Status
     password: str
     note: Optional[str] = None
