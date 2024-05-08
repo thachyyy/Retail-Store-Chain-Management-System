@@ -60,7 +60,7 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
     @staticmethod
     async def update_date_import(db: Session, id: str, latest_import: date, next_import: date):
         try:
-            sql = f"UPDATE public.contract_for_vendor SET latest_import = '{latest_import}' AND next_import = '{next_import}' WHERE id = '{id}';"
+            sql = f"UPDATE public.contract_for_vendor SET latest_import = '{latest_import}', next_import = '{next_import}' WHERE id = '{id}';"
             db.execute(sql)
             db.commit()
             return "Success"
