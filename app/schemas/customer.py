@@ -34,9 +34,9 @@ class CustomerCreate(BaseModel):
     tenant_id: str
     
 class CustomerUpdate(BaseModel):
-    full_name: Optional[str]
+    full_name: Optional[str] 
     dob: Optional[date] = None
-    gender: Optional[str]
+    gender: Optional[str] 
     email: Optional[EmailStr] = None
     phone_number: Optional[str]
     address: Optional[str] = None

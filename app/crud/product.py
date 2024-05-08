@@ -50,6 +50,8 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     #     return result, sum
     @staticmethod
     async def get_product_by_name(db: Session, name: str, tenant_id: str, branch: str = None) -> Optional[Product]:
+        if branch is None:
+            return db.query(Product).filter(Product.product_name == name, Product.tenant_id == tenant_id).first()
         return db.query(Product).filter(Product.product_name == name, Product.tenant_id == tenant_id, Product.branch == branch).first()
     
     @staticmethod
@@ -79,8 +81,12 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     async def get_categories_name(db: Session, categories_id: str, tenant_id: str, branch: str = None):
         sql = f"SELECT name FROM public.categories WHERE id = '{categories_id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"
         result = db.execute(sql).fetchone()
-        name = result[0]
-        return name
+       
+        if result: 
+            name = result[0]
+            return name 
+        else: return None
+        
     
     @staticmethod
     async def get_last_id(db: Session):

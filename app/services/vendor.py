@@ -171,15 +171,18 @@ class VendorService:
             logger.info("VendorService: get_vendor_by_phone called successfully.")
             if current_phone_number:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PHONE_ALREADY_EXIST)
-        
+    
         if obj_in.email is not None:
             logger.info("VendorService: get_vendor_by_email called.")
             current_email = await crud.vendor.get_vendor_by_email(self.db, tenant_id, obj_in.email, vendor_id)
             logger.info("VendorService: get_vendor_by_email called successfully.")
             if current_email:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
+                if current_email.email:
+                    raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
             obj_in.email = obj_in.email.lower()
-        
+    
+            
+            
         logger.info("VendorService: update_vendor called.")
         result = await crud.vendor.update_vendor(db=self.db, vendor_id=vendor_id, vendor_update=obj_in)
         logger.info("VendorService: update_vendor called successfully.")
