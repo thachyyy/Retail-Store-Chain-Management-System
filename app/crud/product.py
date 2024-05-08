@@ -28,6 +28,9 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         
     #     return result.all()
     
+    async def get_list_product(db: Session, tenant: str, branch: str = None):
+        pass
+    
     async def get_all_product(db: Session, total: str, sql: str):
         result = db.execute(sql)
         count = db.execute(total)
