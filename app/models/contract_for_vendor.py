@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime,Date
 from sqlalchemy.sql import text
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -19,8 +19,8 @@ class ContractForVendor(Base):
     tenant_id = Column(String, unique=False, nullable=False)
     branch = Column(String,unique = False,nullable=True)
     belong_to_vendor = Column(String(255), unique = False, nullable = False)
-    latest_import = Column(String, nullable=True)
-    next_import = Column(String, nullable=True)
+    latest_import = Column(Date, nullable=True)
+    next_import = Column(Date, nullable=True)
     period = Column(Integer, nullable=True)
     pdf_url = Column(String, nullable=True)
     

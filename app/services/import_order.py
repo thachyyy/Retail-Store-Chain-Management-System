@@ -154,9 +154,9 @@ class ImportOrderService:
         
         if obj_in.is_contract == True:
             period = await crud.import_order.get_period_contract(db=self.db, id=obj_in.belong_to_contract)
-            if period:
-                latest_import = date.now()
-                next_import = latest_import + timedelta(days=period)
+            if period != None:
+                latest_import = date.today()
+                next_import = latest_import + timedelta(days=int(period))
                 await crud.import_order.update_date_import(db=self.db, id=obj_in.belong_to_contract, latest_import=latest_import, next_import=next_import)
         
         logger.info("ImportOrderService: create called.")

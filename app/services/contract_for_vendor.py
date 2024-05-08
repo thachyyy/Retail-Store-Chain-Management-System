@@ -97,16 +97,16 @@ class ContractForVendorService:
     #     self.db.commit()
     #     return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
         
-    async def delete_contract_for_vendor(self, name: str):
+    async def delete_contract_for_vendor(self, contract_id: str, tenant_id: str, branch: str = None):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        isValidContractForVendor = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, name=name)
+        isValidContractForVendor = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db,tenant_id=tenant_id,branch=branch, contract_id=contract_id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         if not isValidContractForVendor:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONTRACT_NOT_FOUND)
         
         logger.info("ContractForVendorService: delete_contract_for_vendor called.")
-        result = await crud.contract_for_vendor.delete_contract_for_vendor(self.db, name)
+        result = await crud.contract_for_vendor.delete_contract_for_vendor(self.db, contract_id)
         logger.info("ContractForVendorService: delete_contract_for_vendor called successfully.")
         
         self.db.commit()

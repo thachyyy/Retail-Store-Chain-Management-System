@@ -100,16 +100,22 @@ async def update_contract_for_vendor(
 
 @router.delete("/contract_for_vendor/{id}")
 async def delete_contract_for_vendor(
-    id: str, 
+    contract_id: str, 
+    branch: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user), 
-    db: Session = Depends(get_db)) -> Any:
+    db: Session = Depends(get_db)
+    
+    ) -> Any:
     current_user = await user
 
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     contract_for_vendor_service = ContractForVendorService(db=db)
-    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
     logger.info("Endpoints: delete_contract_for_vendor called.")
-    msg, contract_for_vendor_response = await contract_for_vendor_service.delete_contract_for_vendor(id)
+    msg, contract_for_vendor_response = await contract_for_vendor_service.delete_contract_for_vendor(contract_id, current_user.tenant_id, branch)
     logger.info("Endpoints: delete_contract_for_vendor called successfully.")
     return make_response_object(contract_for_vendor_response, msg)

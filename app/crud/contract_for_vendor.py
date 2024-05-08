@@ -15,8 +15,8 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         return db.query(ContractForVendor).all()
     
     @staticmethod
-    async def get_contract_for_vendor_by_id(db: Session, tenant_id: str, branch: str, id: str):
-        return db.query(ContractForVendor).filter(ContractForVendor.id == id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).first()
+    async def get_contract_for_vendor_by_id(db: Session, tenant_id: str, branch: str, contract_id: str):
+        return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).first()
     
     @staticmethod
     async def get_last_id(db: Session):
@@ -44,8 +44,8 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
     #     return db.query(ContractForVendor).filter(ContractForVendor.name == name).update(update_data)
     
     @staticmethod
-    async def delete_contract_for_vendor(db: Session, name: str):
-        return db.query(ContractForVendor).filter(ContractForVendor.name == name).delete()
+    async def delete_contract_for_vendor(db: Session, contract_id: str):
+        return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).delete()
     
     @staticmethod
     async def insert_pdf_url(db: Session, tenant_id: str, url: str, contract_id: str):

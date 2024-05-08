@@ -54,7 +54,7 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         sql = f"SELECT period FROM public.contract_for_vendor WHERE id = '{id}';"
         result = db.execute(sql).fetchone()
         if result:
-            return str(result[0])  # Chuyển kết quả thành chuỗi
+            return result[0]  # Chuyển kết quả thành chuỗi
         return None
     
     @staticmethod
@@ -65,6 +65,7 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
             db.commit()
             return "Success"
         except Exception as e:
+            db.rollback()
             print("Exception when update date import", e)
         
     
