@@ -389,18 +389,19 @@ class ReportService:
         
         for invoice in list_invoice:
             for order_detail in invoice.order_detail:
-                categories_id = await crud.report.get_categories_of_product(self.db, order_detail.product_id, tenant_id, branch)
-                if categories_id in list_categories_quantity:
+                # categories_id = await crud.report.get_categories_of_product(self.db, order_detail.product_id, tenant_id, branch)
+                categories_name = await crud.report.get_categories_name_of_product(self.db, order_detail.product_id, tenant_id, branch)
+                if categories_name.lower() in list_categories_quantity:
                     price = await crud.report.get_price_of_product(self.db, order_detail.product_id, tenant_id, branch)
                     total = order_detail.quantity * price
-                    list_categories_quantity[categories_id][1] += order_detail.quantity
-                    list_categories_quantity[categories_id][2] += total                    
+                    list_categories_quantity[categories_name][0] += order_detail.quantity
+                    list_categories_quantity[categories_name][1] += total                    
                 else:
                     quantity = order_detail.quantity
                     price = await crud.report.get_price_of_product(self.db, order_detail.product_id, tenant_id, branch)
                     total = quantity * price
-                    name = await crud.report.get_name_by_categories_id(self.db, categories_id, tenant_id, branch)
-                    list_categories_quantity[categories_id] = [name, quantity, total]
+                    # name = await crud.report.get_name_by_categories_id(self.db, categories_id, tenant_id, branch)
+                    list_categories_quantity[categories_name.lower()] = [quantity, total]
         
         # print(list_categories_quantity)
         # tạo html
@@ -440,7 +441,6 @@ class ReportService:
         <p>Khoảng thời gian: {start_date} đến {end_date}</p>
         <table>
             <tr>
-                <th>Mã nhóm sản phẩm</th>
                 <th>Tên nhóm sản phẩm</th>
                 <th>Số lượng sản phẩm</th>
                 <th>Doanh thu</th>
@@ -448,13 +448,12 @@ class ReportService:
         """
         
         # Thêm dòng cho mỗi hàng dữ liệu
-        for categories_id, details in list_categories_quantity.items():
+        for categories_name, details in list_categories_quantity.items():
             html_output += f"""
             <tr>
-                <td>{categories_id}</td>
+                <td>{categories_name}</td>
                 <td>{details[0]}</td>
                 <td>{details[1]}</td>
-                <td>{details[2]}</td>
             </tr>
             """
 

@@ -51,6 +51,26 @@ async def create_product(
     logger.info("Endpoints: create_product called successfully.")
     return make_response_object(product_response,msg)
 
+@router.get("/products/list")
+async def get_list_products(
+    limit: Optional[int] = None,
+    offset: Optional[int] = None,
+    branch: Optional[str] = None,
+    user: Employee = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db)
+):
+    current_user = await user
+    
+    if current_user.branch:
+        branch = current_user.branch
+    else:
+        branch = branch
+        
+    product_service = ProductService(db=db)
+    msg, res = await product_service.get_list_product(tenant_id=current_user.tenant_id, branch=branch, limit=limit, offset=offset)
+    
+    return make_response_object(res, msg)
+
 @router.get("/products")
 async def get_all_products(
     limit: Optional[int] = None,

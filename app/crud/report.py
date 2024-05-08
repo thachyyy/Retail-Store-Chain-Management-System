@@ -119,6 +119,25 @@ class CRUDReport():
         return None
     
     @staticmethod
+    async def get_categories_name_of_product(db: Session, id: str, tenant_id: str, branch: str = None):
+        if branch:
+            sql = f"""select c.name
+                      from product p 
+                      join categories c on p.categories_id = c.id 
+                      where p.id = '{id}' and p.tenant_id = '{tenant_id}' and p.branch = '{branch}';
+            """
+        else:
+            sql = f"""select c.name
+                      from product p 
+                      join categories c on p.categories_id = c.id 
+                      where p.id = '{id}' and p.tenant_id = '{tenant_id}';
+            """
+        result = db.execute(sql).fetchone()
+        if result:
+            return str(result[0])  # Chuyển kết quả thành chuỗi
+        return None     
+    
+    @staticmethod
     async def get_categories_of_product(db: Session, id: str, tenant_id: str, branch: str = None):
         if branch:
             sql = f"SELECT categories_id FROM public.product WHERE id = '{id}' AND tenant_id = '{tenant_id}' AND branch = '{branch}';"

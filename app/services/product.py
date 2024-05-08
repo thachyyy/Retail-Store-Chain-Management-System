@@ -94,6 +94,20 @@ class ProductService:
         total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message, total=total),result
     
+    async def get_list_product(self, tenant_id: str, branch: str = None, limit: int = None, offset: int = None):
+        logger.info("ProductService: get_list_product is called.")
+        if limit is not None and offset is not None:
+            result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch, limit=limit, offset=offset*limit)
+        else:
+            result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch)
+        
+        
+        
+        logger.info("ProductService: get_list_product is called successfully.")
+        return dict(message_code=AppStatus.SUCCESS.message,total=total), result
+        
+        
+    
     async def get_all_products(
         self,
         tenant_id: str,
