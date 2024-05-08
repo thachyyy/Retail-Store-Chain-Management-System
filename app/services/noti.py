@@ -153,7 +153,7 @@ try:
     scheduler = BackgroundScheduler()
     scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
     # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
-    # scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
+    scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
     # scheduler.add_job(noti_service.checking_next_import, 'interval', seconds=15)
     
     

@@ -20,17 +20,10 @@ logger = logging.getLogger(__name__)
 
 class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):    
     @staticmethod
-    # async def get_all_products(db: Session, offset: int = None, limit: int = None) -> Optional[Product]:
-    #     result = db.query(Product)
-        
-    #     if offset is not None and limit is not None:
-    #         result = result.offset(offset).limit(limit)
-        
-    #     return result.all()
-    
     async def get_list_product(db: Session, tenant: str, branch: str = None):
         pass
     
+    @staticmethod
     async def get_all_product(db: Session, total: str, sql: str):
         result = db.execute(sql)
         count = db.execute(total)
