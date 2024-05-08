@@ -20,17 +20,31 @@ logger = logging.getLogger(__name__)
 
 class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):    
     @staticmethod
-    # async def get_all_products(db: Session, offset: int = None, limit: int = None) -> Optional[Product]:
-    #     result = db.query(Product)
-        
-    #     if offset is not None and limit is not None:
-    #         result = result.offset(offset).limit(limit)
-        
-    #     return result.all()
+    async def get_list_product(db: Session, tenant_id: str, branch: str = None, limit: int = None, offset: int = None):
+        if limit is not None and offset is not None:
+            sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
+                    group by p.id 
+                    limit {limit} offset {offset};"""
+        else:
+            sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
+                    group by p.id;"""
+                    
+        sum_sql = f"""select count(*)
+                    from product p
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}';"""
+                    
+        result = db.execute(sql).fetchall()
+        total = db.execute(sum_sql).fetchone()
+        list_result = [item for item in result]
+        return list_result, total[0]
     
-    async def get_list_product(db: Session, tenant: str, branch: str = None):
-        pass
-    
+    @staticmethod
     async def get_all_product(db: Session, total: str, sql: str):
         result = db.execute(sql)
         count = db.execute(total)
@@ -47,14 +61,6 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         result = query.scalar()
         return result_as_dict, count
     
-    
-    # @staticmethod
-    # async def get_products_with_pagination(limit_value:int, offset_value:int, total:str, db: Session) -> Optional[Product]:
-    #     result = db.query(Product).limit(limit_value).offset(offset_value).all()
-        
-    #     sum = db.execute(total)
-    #     sum = sum.mappings().all()
-    #     return result, sum
     @staticmethod
     async def get_product_by_name(db: Session, name: str, tenant_id: str, branch: str = None) -> Optional[Product]:
         return db.query(Product).filter(Product.product_name == name, Product.tenant_id == tenant_id, Product.branch == branch).first()
