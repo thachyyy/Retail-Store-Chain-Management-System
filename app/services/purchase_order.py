@@ -28,8 +28,6 @@ class PurchaseOrderService:
         logger.info("PurchaseOrderService: get_purchase_order_by_id called.")
         result = await crud.purchase_order.get_purchase_order_by_id(db=self.db, purchase_order_id=purchase_order_id, tenant_id=tenant_id)
         
-        # print("code chạy ra đây", result)
-        # print("****", result[0].id)
         order_detail = await crud.purchase_order.get_order_detail(self.db, result[0].id)
         setattr(result[0], "order_details", order_detail)
         
@@ -107,6 +105,7 @@ class PurchaseOrderService:
             logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
         response = []
+        print("******", result)
         for x in result:
             order_detail = await crud.purchase_order.get_order_detail(self.db, x.id)
             setattr(x, "order_details", order_detail)

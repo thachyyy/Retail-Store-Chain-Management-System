@@ -45,12 +45,10 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         
         if limit is not None and offset is not None:
             response = response.offset(offset).limit(limit)
-        return response.first(), result_as_dict
+        return response.all(), result_as_dict
         
     @staticmethod
     async def get_purchase_order_by_id(db: Session, purchase_order_id: str, tenant_id: str):
-        # return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
-        print("code chạy vào đây")
         response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),
                                                joinedload(PurchaseOrder.employee)).where(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.id == purchase_order_id)
         return response.all()
