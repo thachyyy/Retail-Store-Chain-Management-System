@@ -56,6 +56,11 @@ async def get_list_products(
     limit: Optional[int] = None,
     offset: Optional[int] = None,
     branch: Optional[str] = None,
+    status: Optional[str] = None,
+    low_price: Optional[int] = None,
+    high_price: Optional[int] = None,
+    categories: Optional[str] = None,
+    query_search: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -67,7 +72,17 @@ async def get_list_products(
         branch = branch
         
     product_service = ProductService(db=db)
-    msg, res = await product_service.get_list_product(tenant_id=current_user.tenant_id, branch=branch, limit=limit, offset=offset)
+    msg, res = await product_service.get_list_product(
+        tenant_id=current_user.tenant_id, 
+        branch=branch, 
+        limit=limit, 
+        offset=offset,
+        status=status,
+        low_price=low_price,
+        high_price=high_price,
+        categories=categories,
+        query_search=query_search,
+    )
     
     return make_response_object(res, msg)
 

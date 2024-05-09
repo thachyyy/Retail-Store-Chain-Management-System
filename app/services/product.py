@@ -94,17 +94,142 @@ class ProductService:
         total = len(result)
         return dict(message_code=AppStatus.SUCCESS.message, total=total),result
     
-    async def get_list_product(self, tenant_id: str, branch: str = None, limit: int = None, offset: int = None):
-        logger.info("ProductService: get_list_product is called.")
-        if limit is not None and offset is not None:
-            result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch, limit=limit, offset=offset*limit)
+    async def get_list_product(
+        self, tenant_id: str, 
+        branch: str = None, 
+        limit: int = None, 
+        offset: int = None,
+        status: str = None,
+        low_price: int = None,
+        high_price: int = None,
+        categories: str = None,
+        query_search: str = None,
+    ):
+        # logger.info("ProductService: get_list_product is called.")
+        # if limit is not None and offset is not None:
+        #     result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch, limit=limit, offset=offset*limit)
+        # else:
+        #     result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch)
+        
+        
+        
+        # logger.info("ProductService: get_list_product is called successfully.")
+        # return dict(message_code=AppStatus.SUCCESS.message,total=total), result
+        conditions = dict()
+        if status:
+            conditions['status'] = status
+        if low_price:
+            conditions['low_price'] = low_price
+        if high_price:
+            conditions['high_price'] = high_price
+        if categories:
+            conditions['categories'] = categories
+        
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
+            # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    {whereConditions}
+                    group by p.id;"""
+            
+            if limit is not None and offset is not None:
+                # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    {whereConditions}
+                    group by p.id 
+                    limit {limit} offset {offset};"""
+            
+            # total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            total = f"""select count(*)
+                    from product p
+                    {whereConditions};"""
+
+            logger.info("ProductService: filter_product called.")
+            result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+            
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
+            
+            # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    {whereConditions}
+                    group by p.id;"""
+            
+            
+            if limit is not None and offset is not None:
+                # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    {whereConditions}
+                    group by p.id 
+                    limit {limit} offset {offset};"""
+            
+            # total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
+            total = f"""select count(*)
+                    from product p
+                    {whereConditions};"""
+
+            logger.info("ProductService: filter_product called.")
+            result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+        
         else:
-            result, total = await crud.product.get_list_product(db=self.db, tenant_id=tenant_id, branch=branch)
+            # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
+            sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
+                    group by p.id ;"""
+            
+            
+            if branch is None:
+                # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}';"
+                sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}'
+                    group by p.id ;"""
+                
+            if limit is not None and offset is not None:
+                # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
+                sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
+                    group by p.id 
+                    limit {limit} offset {offset};"""
+                if branch is None:                    
+                    # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' LIMIT {limit} OFFSET {offset*limit};"
+                    sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
+                    from product p 
+                    left join batch as b on b.product_id = p.id
+                    where p.tenant_id = '{tenant_id}'
+                    group by p.id 
+                    limit {limit} offset {offset};"""
+            
+            total = f"""select count(*)
+                    from product p
+                    where p.tenant_id = '{tenant_id}' and p.branch = '{branch}';"""
+            if branch is None:
+                total = f"""select count(*)
+                    from product p
+                    where p.tenant_id = '{tenant_id}';"""  
+
+            
+            result, total = await crud.product.get_all_product(self.db, total, sql)
+            total = total[0]['count']
+            logger.info("ProductService: get_all_products called successfully.")
         
         
-        
-        logger.info("ProductService: get_list_product is called successfully.")
-        return dict(message_code=AppStatus.SUCCESS.message,total=total), result
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
         
         
     
@@ -160,10 +285,7 @@ class ProductService:
             total = total[0]['count']
         else:
             sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
-            # logger.info("ProductService: get_all_products called.")
-            # if limit is not None and offset is not None:
-            #     result, total = crud.product.get_multi(db=self.db, skip=offset*limit,limit=limit)
-            # else: result, total = crud.product.get_multi(db=self.db)
+            
             if branch is None:
                 sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}';"
                 
