@@ -339,6 +339,7 @@ class ProductService:
         conditions.append(f"p.id::text ilike '%{condition}%'")
         conditions.append(f"p.product_name ilike '%{condition}%'")
         conditions.append(f"p.barcode  ilike '%{condition}%'")
+        conditions.append(f"p.note  ilike '%{condition}%'")
         
         whereCondition = ' OR '.join(conditions)
             
