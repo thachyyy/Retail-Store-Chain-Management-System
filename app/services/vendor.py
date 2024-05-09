@@ -56,8 +56,6 @@ class VendorService:
         if note:
             conditions['note'] = note
             
-        print("condition", conditions)
-            
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions)
             sql = f"SELECT * FROM public.vendor {whereConditions};"
@@ -73,7 +71,6 @@ class VendorService:
             logger.info("VendorService: filter_vendor called successfully.")
             
         elif query_search:
-            print("Code hereeee", query_search)
             whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search)
             
             sql = f"SELECT * FROM public.vendor {whereConditions};"
@@ -83,8 +80,6 @@ class VendorService:
                 
             
             total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
-            
-            print("sqlllll", sql)
 
             logger.info("VendorService: filter_vendor called.")
             result,total= await crud.vendor.get_vendor_by_conditions(self.db, sql=sql,total = total)
@@ -217,9 +212,9 @@ class VendorService:
         conditions = list()
         conditions.append(f"id::text ilike '%{condition}%'")
         conditions.append(f"vendor_name ilike '%{condition}%'")
-        # conditions.append(f"phone_number ilike '%{condition}%'")
+        conditions.append(f"phone_number ilike '%{condition}%'")
         # conditions.append(f"email ilike '%{condition}%'")
-        # conditions.append(f"address ilike '%{condition}%'")
+        conditions.append(f"address ilike '%{condition}%'")
             
         whereCondition = ' OR '.join(conditions)
         whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
