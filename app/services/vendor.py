@@ -26,13 +26,14 @@ class VendorService:
         status: str = None,
         id: str = None,
         vendor_name: str = None,
-        company_name: str = None,
+        # company_name: str = None,
         email: str = None,
         phone_number: str = None,
         address: str = None,
         note: str = None,
         query_search: Optional[str] = None
     ):
+        print("query search", query_search)
         conditions = dict()
         if province:
             conditions['province'] = province
@@ -44,8 +45,8 @@ class VendorService:
             conditions['id'] = id
         if vendor_name:
             conditions['vendor_name'] = vendor_name
-        if company_name:
-            conditions['company_name'] = company_name
+        # if company_name:
+        #     conditions['company_name'] = company_name
         if email:
             conditions['email'] = email
         if phone_number:
@@ -54,6 +55,8 @@ class VendorService:
             conditions['address'] = address
         if note:
             conditions['note'] = note
+            
+        print("condition", conditions)
             
         if conditions:
             whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions)
@@ -70,6 +73,7 @@ class VendorService:
             logger.info("VendorService: filter_vendor called successfully.")
             
         elif query_search:
+            print("Code hereeee", query_search)
             whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search)
             
             sql = f"SELECT * FROM public.vendor {whereConditions};"
@@ -79,6 +83,8 @@ class VendorService:
                 
             
             total = f"SELECT COUNT(*) FROM public.vendor {whereConditions};"
+            
+            print("sqlllll", sql)
 
             logger.info("VendorService: filter_vendor called.")
             result,total= await crud.vendor.get_vendor_by_conditions(self.db, sql=sql,total = total)
