@@ -33,7 +33,7 @@ class PurchaseOrderService:
         
         logger.info("PurchaseOrderService: get_purchase_order_by_id called successfully.")
         
-        return dict(message_code=AppStatus.SUCCESS.message), result
+        return dict(message_code=AppStatus.SUCCESS.message), result[0]
    
     async def get_all_purchase_orders(
         self, 
@@ -105,7 +105,6 @@ class PurchaseOrderService:
             logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
         response = []
-        print("******", result)
         for x in result:
             order_detail = await crud.purchase_order.get_order_detail(self.db, x.id)
             setattr(x, "order_details", order_detail)
