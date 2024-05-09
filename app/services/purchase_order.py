@@ -38,6 +38,7 @@ class PurchaseOrderService:
         limit: Optional[int] = None,
         offset:Optional[int] = None,
         status:Optional[str] = None,
+        handle_by:Optional[str] = None,
         gt_total:Optional[int] = None,
         lt_total:Optional[int] = None,
         start_date:Optional[date] = None,
@@ -56,6 +57,8 @@ class PurchaseOrderService:
             conditions['start_date'] = start_date
         if end_date:
             conditions['end_date'] = end_date
+        if handle_by:
+            conditions['handle_by'] = handle_by
         
         
         if conditions:
@@ -120,6 +123,8 @@ class PurchaseOrderService:
         # filter using '='
         if 'status' in conditions:
             whereList.append(f"status = '{conditions['status']}'")
+        if 'handle_by' in conditions:
+            whereList.append(f"handle_by = '{conditions['handle_by']}'")
         if 'gt_total' in conditions:
             whereList.append(f"total >= '{conditions['gt_total']}'")
         if 'lt_total' in conditions:
