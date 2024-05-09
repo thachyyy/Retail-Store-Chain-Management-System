@@ -93,9 +93,9 @@ class OrderDetailService:
         
         # filter using '='
         if 'role' in conditions:
-            whereList.append(f"role = '{conditions['role']}'")
+            whereList.append(f"LOWER(role) = LOWER('{conditions['role']}')")
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
         
         # filter using 'ilike'
         if 'id' in conditions:

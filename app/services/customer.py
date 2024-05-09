@@ -212,11 +212,11 @@ class CustomerService:
         whereList.append(f"tenant_id = '{tenant_id}'")
         
         if 'gender' in conditions:
-            whereList.append(f"gender = '{conditions['gender']}'")
+            whereList.append(f"LOWER(gender) = LOWER('{conditions['gender']}')")
         if 'province' in conditions:
-            whereList.append(f"province = '{conditions['province']}'")
+            whereList.append(f"LOWER(province) = LOWER('{conditions['province']}')")
         if 'district' in conditions:
-            whereList.append(f"district = '{conditions['district']}'")
+            whereList.append(f"LOWER(district) = LOWER('{conditions['district']}')")
         if 'start_date' in conditions:
             whereList.append(f"dob >= '{conditions['start_date']}'")
         if 'end_date' in conditions:

@@ -368,15 +368,15 @@ class EmployeeService:
         
         # filter using '='
         if 'role' in conditions:
-            whereList.append(f"role = '{conditions['role']}'")
+            whereList.append(f"LOWER(role) = LOWER('{conditions['role']}')")
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
         if 'province' in conditions:
-            whereList.append(f"province = '{conditions['province']}'")
+            whereList.append(f"LOWER(province) = LOWER('{conditions['province']}')")
         if 'district' in conditions:
-            whereList.append(f"district = '{conditions['district']}'")
+            whereList.append(f"LOWER(district) = LOWER('{conditions['district']}')")
         if 'gender' in conditions:
-            whereList.append(f"gender = '{conditions['gender']}'")
+            whereList.append(f"LOWER(gender) = LOWER('{conditions['gender']}')")
         if 'start_date' in conditions and 'end_date' in conditions:
             whereList.append(f"date_of_birth BETWEEN '{conditions['start_date']}' AND '{conditions['end_date']}'")
         

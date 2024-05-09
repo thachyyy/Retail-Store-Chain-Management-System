@@ -227,11 +227,11 @@ class VendorService:
         
         # filter using '='
         if 'province' in conditions:
-            whereList.append(f"province = '{conditions['province']}'")
+            whereList.append(f"LOWER(province) = LOWER('{conditions['province']}')")
         if 'district' in conditions:
-            whereList.append(f"district = '{conditions['district']}'")
+            whereList.append(f"LOWER(district) = LOWER('{conditions['district']}')")
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
             
         # filter using 'ilike'
         if 'id' in conditions:

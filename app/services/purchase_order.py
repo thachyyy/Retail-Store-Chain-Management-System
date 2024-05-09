@@ -130,9 +130,9 @@ class PurchaseOrderService:
         
         # filter using '='
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
         if 'handle_by' in conditions:
-            whereList.append(f"handle_by = '{conditions['handle_by']}'")
+            whereList.append(f"LOWER(handle_by) = LOWER('{conditions['handle_by']}')")
         if 'gt_total' in conditions:
             whereList.append(f"total >= '{conditions['gt_total']}'")
         if 'lt_total' in conditions:

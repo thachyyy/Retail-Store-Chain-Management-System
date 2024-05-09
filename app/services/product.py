@@ -321,9 +321,9 @@ class ProductService:
             whereList.append(f"p.branch = '{branch}'")
         
         if 'status' in conditions:
-            whereList.append(f"p.status = '{conditions['status']}'")
+            whereList.append(f"LOWER(p.status) = LOWER('{conditions['status']}')")
         if 'categories' in conditions:
-            whereList.append(f"p.categories_id = '{conditions['categories']}'")
+            whereList.append(f"LOWER(p.categories_id) = LOWER('{conditions['categories']}')")
         if 'low_price' in conditions and 'high_price' in conditions:
             whereList.append(f"p.sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
         elif 'low_price' in conditions:
