@@ -100,8 +100,16 @@ class PurchaseOrderService:
                 total = total[0]['count']
             logger.info("PurchaseOrderService: get_all_purchase_order called successfully.")
 
-        
-        return dict(message_code=AppStatus.SUCCESS.message,total=total), result
+        response = []
+        for x in result:
+            order_detail = await crud.purchase_order.get_order_detail(self.db, x.id)
+            setattr(x, "order_details", order_detail)
+            response.append(x)
+            
+        return dict(message_code=AppStatus.SUCCESS.message,total=total), response
+    
+    
+    
     async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
         conditions = list()
         conditions.append(f"handle_by ilike '%{condition}%'")

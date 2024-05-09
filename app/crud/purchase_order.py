@@ -158,5 +158,12 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         await invoice_for_customer_service.create_invoice_for_customer(paid,invoice_for_customer_obj,tenant_id,obj_in.branch)
         logger.info("CRUDPurchaseOrder: create called successfully.")
         return order_obj
+    
+    @staticmethod
+    async def get_order_detail(db: Session, purchase_order_id: str):
+        sql = f"select * from public.order where purchase_order_id = '{purchase_order_id}';"
+        result = db.execute(sql).fetchall()
+        list_result = [item for item in result]
+        return list_result
 
 purchase_order = CRUDPurchaseOrder(PurchaseOrder)
