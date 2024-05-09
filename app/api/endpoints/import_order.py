@@ -123,6 +123,10 @@ async def get_all_import_order(
     limit: int = None,
     offset: int = None,
     branch: Optional[str] = None,
+    status: Optional[str] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    query_search: Optional[str] = None,
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)) -> Any:
     current_user = await user 
@@ -140,7 +144,11 @@ async def get_all_import_order(
         tenant_id=current_user.tenant_id,
         branch=branch,
         limit=limit, 
-        offset=offset
+        offset=offset,
+        status=status,
+        start_date=start_date,
+        end_date=end_date,
+        query_search=query_search
     )
     logger.info("Endpoints: get_all_import_orders called successfully.")
     return make_response_object(import_order_response, msg)

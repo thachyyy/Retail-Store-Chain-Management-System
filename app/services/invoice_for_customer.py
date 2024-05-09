@@ -231,7 +231,7 @@ class InvoiceForCustomerService:
             whereList.append(f"branch = '{branch}'")
         
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
         if 'gt_total' in conditions:
             whereList.append(f"total >= '{conditions['gt_total']}'")
         if 'lt_total' in conditions:

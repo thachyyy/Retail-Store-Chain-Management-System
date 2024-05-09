@@ -24,52 +24,57 @@ class ImportOrderService:
         tenant_id: str,
         branch: Optional[str] = None,
         limit: Optional[int] = None,
-        offset:Optional[int] = None,
-        # query_search: Optional[str] = None
+        offset: Optional[int] = None,
+        status: Optional[str] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+        query_search: Optional[str] = None
         ):
-        # conditions = dict()
+        conditions = dict()
         
-              
-        # if conditions:
-        #     whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
-        #     sql = f"SELECT * FROM public.import_order {whereConditions};"
+        if status:
+            conditions['status'] = status
+        if start_date:
+            conditions['start_date'] = start_date
+        if end_date:
+            end_date += timedelta(days=1)
+            conditions['end_date'] = end_date
             
-        #     if offset is not None and limit is not None:
-        #         sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+        if conditions:
+            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
+            sql = f"SELECT * FROM public.import_order {whereConditions};"
+            
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+            
+            total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
 
-        #     total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
+            logger.info("InvoiceForCustomerService: filter_import_order called.")
+            result,total= await crud.import_order.get_import_order_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
             
-        #     logger.info("ImportOrderService: filter_import_order called.")
-        #     result,total = await crud.import_order.get_import_order_by_conditions(self.db, sql=sql, total=total)
-        #     total = total[0]['count']
-        #     logger.info("ImportOrderService: filter_import_order called successfully.")
-        # elif query_search:
-        #     whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
+        elif query_search:
+            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
             
-        #     sql = f"SELECT * FROM public.import_order {whereConditions};"
+            sql = f"SELECT * FROM public.import_order {whereConditions};"
             
-        #     if limit is not None and offset is not None:
-        #         sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
+            if limit is not None and offset is not None:
+                sql = f"SELECT * FROM public.import_order {whereConditions} LIMIT {limit} OFFSET {offset*limit};"
                 
             
-        #     total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
+            total = f"SELECT COUNT(*) FROM public.import_order {whereConditions};"
 
-        #     logger.info("ImportOrderService: filter_import_order called.")
-        #     result,total= await crud.customer.get_customer_by_conditions(self.db, sql=sql,total = total)
-        #     total = total[0]['count']
-        # else: 
-        #     logger.info("ImportOrderService: get_all_import_orders called.")
-        #     if limit is not None and offset is not None:
-        #         result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
-        #     else: 
-        #         result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
-        #     logger.info("ImportOrderService: get_all_import_orders called successfully.")
-        logger.info("ImportOrderService: get_all_import_orders called.")
-        if limit is not None and offset is not None:
-            result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
-        else: 
-            result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
-        logger.info("ImportOrderService: get_all_import_orders called successfully.")
+            logger.info("InvoiceForCustomerService: filter_import_order called.")
+            result,total= await crud.import_order.get_import_order_by_conditions(self.db, sql=sql,total = total)
+            total = total[0]['count']
+        
+        else:
+            logger.info("ImportOrderService: get_all_import_orders called.")
+            if limit is not None and offset is not None:
+                result, total = crud.import_order.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
+            else: 
+                result, total = crud.import_order.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
+            logger.info("ImportOrderService: get_all_import_orders called successfully.")
             
         response = []
         for x in result:
@@ -195,3 +200,31 @@ class ImportOrderService:
         
         self.db.commit()
         return dict(message_code=AppStatus.DELETED_SUCCESSFULLY.message), result
+    
+    async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
+        whereList = list()
+        whereList.append(f"tenant_id = '{tenant_id}'")
+        
+        if branch is not None:
+            whereList.append(f"branch = '{branch}'")
+            
+        if 'status' in conditions:
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
+        if 'start_date' in conditions:
+            whereList.append(f"created_at >= '{conditions['start_date']}'")
+        if 'end_date' in conditions:
+            whereList.append(f"created_at <= '{conditions['end_date']}'")
+            
+        whereConditions = "WHERE " + ' AND '.join(whereList)
+        return whereConditions
+    
+    async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
+        conditions = list()
+        conditions.append(f"id::text ilike '%{condition}%'")
+        
+        whereCondition = ' OR '.join(conditions)
+        if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}' AND branch = '{branch}'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND tenant_id = '{tenant_id}'"
+        return whereCondition

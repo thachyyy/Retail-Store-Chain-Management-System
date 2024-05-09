@@ -67,6 +67,14 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         except Exception as e:
             db.rollback()
             print("Exception when update date import", e)
+            
+    @staticmethod
+    async def get_import_order_by_conditions(db: Session, sql: str, total: str):        
+        result = db.execute(sql)
+        sum = db.execute(total)
+        sum = sum.mappings().all()
+        result_as_dict = result.mappings().all()
+        return result_as_dict, sum
         
     
 import_order = CRUDImportOrder(ImportOrder)
