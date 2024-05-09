@@ -252,13 +252,13 @@ class BranchService:
         if 'manager_name_list' in conditions:
             manager_id_list = self.get_manager_id_by_name(conditions)
             for id in manager_id_list:
-                whereList.append(f"manager_id = '{id}'")
+                whereList.append(f"LOWER(manager_id) = LOWER('{id}')")
         if 'status' in conditions:
-            whereList.append(f"status = '{conditions['status']}'")
+            whereList.append(f"LOWER(status) = LOWER('{conditions['status']}')")
         if 'province' in conditions:
-            whereList.append(f"province = '{conditions['province']}'")
+            whereList.append(f"LOWER(province) = LOWER('{conditions['province']}')")
         if 'district' in conditions:
-            whereList.append(f"district = '{conditions['district']}'")
+            whereList.append(f"LOWER(district) = LOWER('{conditions['district']}')")
             
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
