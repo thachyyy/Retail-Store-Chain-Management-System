@@ -127,5 +127,19 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         db.refresh(db_obj)
         logger.info("CRUDInvoiceForCustomer: create called successfully.")
         return db_obj
+    
+    @staticmethod
+    async def get_customer_name(db: Session, purchase_order_id: str):
+        sql = f"""select c.full_name
+                  from purchase_order po 
+                  join customer c on po.belong_to_customer = c.id
+                  where po.id = '{purchase_order_id}';
+        """
+        
+        result = db.execute(sql).fetchone()
+        
+        if result:
+            return result[0]
+        else: return None
 
 invoice_for_customer = CRUDInvoiceForCustomer(InvoiceForCustomer)

@@ -45,4 +45,5 @@ class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
     payment_method: str
     status: str
     belong_to_order:str
+    belong_to_customer: Optional[str] = None
     order_detail: Optional[list[int]]

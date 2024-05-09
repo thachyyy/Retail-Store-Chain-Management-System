@@ -103,6 +103,9 @@ class InvoiceForCustomerService:
         return dict(message_code=AppStatus.SUCCESS.message, total=total), response
     
     async def make_response_invoice(self, obj_in):
+        
+        customer_name = await crud.invoice_for_customer.get_customer_name(self.db, obj_in.belong_to_order)
+        
         response = InvoiceForCustomerResponse(
             id=obj_in.id,
             created_at=obj_in.created_at,
@@ -113,6 +116,7 @@ class InvoiceForCustomerService:
             belong_to_order= obj_in.belong_to_order,
             tenant_id = obj_in.tenant_id,
             branch= obj_in.branch,
+            belong_to_customer=customer_name,
             order_detail=[]
         )
         # lenght_order_details = len(obj_in.order_detail)
