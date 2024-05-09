@@ -213,7 +213,7 @@ class VendorService:
         conditions.append(f"id::text ilike '%{condition}%'")
         conditions.append(f"vendor_name ilike '%{condition}%'")
         conditions.append(f"phone_number ilike '%{condition}%'")
-        # conditions.append(f"email ilike '%{condition}%'")
+        conditions.append(f"email ilike '%{condition}%'")
         conditions.append(f"address ilike '%{condition}%'")
             
         whereCondition = ' OR '.join(conditions)
@@ -238,14 +238,14 @@ class VendorService:
             whereList.append(f"id ilike '%{conditions['id']}%'")
         if 'vendor_name' in conditions:
             whereList.append(f"vendor_name ilike '%{conditions['vendor_name']}%'")
-        if 'company_name' in conditions:
-            whereList.append(f"company_name ilike '%{conditions['company_name']}%'")
-        if 'email' in conditions:
-            whereList.append(f"email ilike '%{conditions['email']}%'")
-        if 'phone_number' in conditions:
+        # if 'company_name' in conditions:
+        #     whereList.append(f"company_name ilike '%{conditions['company_name']}%'")
+        # if 'email' in conditions:
+        #     whereList.append(f"email ilike '%{conditions['email']}%'")
+        # if 'phone_number' in conditions:
             whereList.append(f"phone_number ilike '%{conditions['phone_number']}%'")
-        if 'address' in conditions:
-            whereList.append(f"address ilike '%{conditions['address']}%'")
+        # if 'address' in conditions:
+        #     whereList.append(f"address ilike '%{conditions['address']}%'")
         if 'note' in conditions:
             whereList.append(f"note ilike '%{conditions['note']}%'")
             
