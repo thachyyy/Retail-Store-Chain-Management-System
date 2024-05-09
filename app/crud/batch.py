@@ -39,8 +39,8 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
                       FROM batch
                       WHERE batch.product_id = '{product_id}' AND batch.tenant_id = '{tenant_id}';
         """
-        sum  = db.execute(sql_sum).fetchone()
-        if sum:
+        sum = db.execute(sql_sum).fetchone()
+        if sum[0]:
             sum = int(sum[0])  # Chuyển kết quả thành số
         else: sum = None
         
