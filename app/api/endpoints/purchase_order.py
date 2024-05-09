@@ -132,9 +132,9 @@ async def get_purchase_order_by_id(
     purchase_order_service = PurchaseOrderService(db=db)
     
     logger.info("Endpoints: get_purchase_order_by_id called.")  
-    msg, purchase_order_response = await purchase_order_service.get_purchase_order_by_id(purchase_order_id, current_user.tenant_id)
+    msg, res = await purchase_order_service.get_purchase_order_by_id(purchase_order_id, current_user.tenant_id)
     logger.info("Endpoints: get_all_purchase_order called successfully.")
-    return make_response_object(purchase_order_response, msg)
+    return make_response_object(res, msg)
     
 @router.put("/purchase_order/{purchase_order_id}", summary="Cập nhật thông tin đơn đặt hàng theo ID đơn đặt hàng")
 async def update_purchase_order(

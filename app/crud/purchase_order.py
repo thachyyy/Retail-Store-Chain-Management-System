@@ -39,13 +39,21 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         total = db.execute(sql)
         result_as_dict = total.mappings().all()
         
-        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),joinedload(PurchaseOrder.employee)).filter(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.branch == branch)
+        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),
+                                                   joinedload(PurchaseOrder.employee)).filter(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.branch == branch)
         
         
         if limit is not None and offset is not None:
             response = response.offset(offset).limit(limit)
-        return response.all(), result_as_dict
+        return response.first(), result_as_dict
         
+    @staticmethod
+    async def get_purchase_order_by_id(db: Session, purchase_order_id: str, tenant_id: str):
+        # return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
+        print("code chạy vào đây")
+        response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),
+                                               joinedload(PurchaseOrder.employee)).where(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.id == purchase_order_id)
+        return response.all()
     
     @staticmethod
     async def get_purchase_order_by_phone(db: Session, phone_number: str) -> Optional[PurchaseOrder]:
@@ -54,10 +62,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
     @staticmethod
     async def get_purchase_order_by_email(db: Session, email: EmailStr) -> Optional[PurchaseOrder]:
         return db.query(PurchaseOrder).filter(PurchaseOrder.email == email).first()
-    
-    @staticmethod
-    async def get_purchase_order_by_id(db: Session, purchase_order_id: str, tenant_id: str):
-        return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
+        
     
     @staticmethod
     async def get_last_id(db: Session):
