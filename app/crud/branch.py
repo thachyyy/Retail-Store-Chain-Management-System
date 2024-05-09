@@ -60,6 +60,14 @@ class CRUDBranch(CRUDBase[Branch, BranchCreate, BranchUpdate]):
         return result_as_dict
     
     @staticmethod
+    async def get_name_by_manager_id(db: Session, id: str):
+        sql = f"select full_name from public.employee where id = '{id}';"
+        name = db.execute(sql).fetchone()
+        if name:
+            return str(name[0])
+        else: return None
+    
+    @staticmethod
     async def get_branch_by_manager_id(db: Session, tenant_id: str, manager_id: str) -> Optional[Branch]:
         return db.query(Branch).filter(Branch.manager_id == manager_id, Branch.tenant_id == tenant_id).first()
     

@@ -71,8 +71,14 @@ class BranchService:
                 result, total = crud.branch.get_multi(db=self.db, skip=offset*limit,limit=limit, tenant_id=tenant_id)
             else: result, total = crud.branch.get_multi(db=self.db, tenant_id=tenant_id)
             logger.info("BranchService: get_all_branches called successfully.")
-            
-        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
+          
+        response = []
+        for r in result:
+            manager_name = await crud.branch.get_name_by_manager_id(self.db, r.manager_id)
+            setattr(r, "manager_name", manager_name)
+            response.append(r)
+          
+        return dict(message_code=AppStatus.SUCCESS.message,total=total), response
     
     
     async def get_branch_by_id(self, branch_id: str, tenant_id: str):
@@ -81,6 +87,9 @@ class BranchService:
         logger.info("BranchService: get_branch_by_id called successfully.")
         if not result:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_BRANCH_NOT_FOUND)
+        
+        manager_name = await crud.branch.get_name_by_manager_id(self.db, result.manager_id)
+        setattr(result, "manager_name", manager_name)
         return dict(message_code=AppStatus.SUCCESS.message), result
     
     async def gen_id(self):
