@@ -35,5 +35,4 @@ class ContractForVendorUpdate(BaseModel):
     ordering_cycle_quantity: Optional[int]
     belong_to_vendor: Optional[str]
     # pdf_url :Optional[str]
-    
     period: Optional[int]

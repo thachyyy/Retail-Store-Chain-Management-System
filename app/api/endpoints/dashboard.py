@@ -313,10 +313,10 @@ async def get_top_10_product_by_total_sale(
         
     period_functions = {
         "Hôm nay": get_today,
-        "Hôm qua": get_yesterday,
-        "7 ngày qua": get_last_7_days,
-        "Tháng này": get_this_month,
-        "Tháng trước": get_last_month
+        "7 ngày": get_7_days,
+        "30 ngày" : get_30_days,
+        "90 ngày": get_90_days,
+        "Năm nay": get_this_year
     }
     start_date, end_date = period_functions[period]()
     
