@@ -100,7 +100,7 @@ class InvoiceForCustomerService:
             r = await self.make_response_invoice(x)
             response.append(r)
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total), response
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
     
     async def make_response_invoice(self, obj_in):
         

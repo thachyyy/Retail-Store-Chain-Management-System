@@ -235,6 +235,7 @@ async def get_total_sale_by_branch(
                 response[month] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[month] += invoice.total
+                
         for invoice in result_1:
             invoice_date = invoice.created_at
             month_today = invoice_date.month - 1
