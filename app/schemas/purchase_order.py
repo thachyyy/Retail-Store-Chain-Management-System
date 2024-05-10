@@ -50,7 +50,7 @@ class PurchaseOrderUpdate(BaseModel):
     note: Optional[str] = None
     handle_by: Optional[str] = None
     belong_to_customer: Optional[str] = None
-    created_at: Optional[DateTime] = None
+    created_at: Optional[datetime] = None
     @validator('estimated_delivery_date', 'subtotal', 'total', 'tax_percentage', 'handle_by', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:
