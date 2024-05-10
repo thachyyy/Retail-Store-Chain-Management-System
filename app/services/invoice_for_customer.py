@@ -100,7 +100,7 @@ class InvoiceForCustomerService:
             r = await self.make_response_invoice(x)
             response.append(r)
         
-        return dict(message_code=AppStatus.SUCCESS.message, total=total), result
+        return dict(message_code=AppStatus.SUCCESS.message, total=total), response
     
     async def make_response_invoice(self, obj_in):
         
@@ -193,7 +193,7 @@ class InvoiceForCustomerService:
         result = await crud.invoice_for_customer.update_invoice_for_customer(db=self.db, invoice_for_customer_id=invoice_for_customer_id, invoice_for_customer_update=obj_in)
         logger.info("InvoiceForCustomerService: update_invoice_for_customer called successfully.")
         self.db.commit()
-        obj_update = await crud.invoice_for_customer.update_invoice_for_customer(self.db, invoice_for_customer_id)
+        obj_update = await crud.invoice_for_customer.get_invoice_for_customer_by_id(self.db, invoice_for_customer_id,tenant_id)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
         
     async def delete_invoice_for_customer(self, invoice_for_customer_id: str, tenant_id: str):
