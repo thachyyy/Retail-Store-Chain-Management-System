@@ -27,4 +27,13 @@ class ContractForVendorCreate(BaseModel):
     period: Optional[int]
 
 class ContractForVendorUpdate(BaseModel):
-    pass
+    start_date: Optional[date]
+    end_date: Optional[date]
+    minimum_order_amount: Optional[int]
+    minimum_order_quantity: Optional[int]
+    ordering_cycle_amount: Optional[int]
+    ordering_cycle_quantity: Optional[int]
+    belong_to_vendor: Optional[str]
+    # pdf_url :Optional[str]
+    
+    period: Optional[int]
