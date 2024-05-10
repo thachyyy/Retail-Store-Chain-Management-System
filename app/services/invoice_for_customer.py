@@ -28,7 +28,7 @@ class InvoiceForCustomerService:
         
         r = await self.make_response_invoice(result)
         response.append(r)
-        return dict(message_code=AppStatus.SUCCESS.message), response
+        return dict(message_code=AppStatus.SUCCESS.message), response[0]
     
     async def get_all_invoice_for_customers(
         self,
