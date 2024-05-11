@@ -616,7 +616,7 @@ async def get_top_10_sell_through_rate(
             "inventory": inventory,
             "sales_total": sales_total,
             "sold": sold,
-            "sell_rate": sell_rate
+            "sell_rate": round(sell_rate,2)
         }
         for item in result:
             if item["product_name"] == new_item["product_name"]: 
