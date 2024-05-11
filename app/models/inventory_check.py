@@ -3,9 +3,10 @@ from sqlalchemy.sql import text
 from .base import Base
 
 class InventoryCheck(Base):
+    
     __tablename__ = "inventory_check"
     
-    id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     tenant_id = Column(String)
@@ -15,3 +16,4 @@ class InventoryCheck(Base):
     real_quantity = Column(Integer)
     quantiry_in_db = Column(Integer)
     difference = Column(Integer)
+    branch = Column(String)

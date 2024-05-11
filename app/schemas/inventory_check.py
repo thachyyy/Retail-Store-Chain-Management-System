@@ -16,3 +16,13 @@ class InventoryCheckResponse(BaseModel):
     real_quantity: int
     quantiry_in_db: int
     difference: int
+    
+class InventoryCheckCreate(BaseModel):
+    branch_id: str
+    product_id: str
+    batch_id: str
+    real_quantity: int
+    quantiry_in_db: int
+    difference: int
+    tenant_id: str
+    branch: str
