@@ -79,6 +79,7 @@ class ProductUpdate(BaseModel):
     promotion_id: Optional[str]
     # batch_id: Optional[str]
     has_promotion: Optional[bool]
+    img_url: Optional[str] 
     
     @validator('barcode', 'product_name', 'unit', 'sale_price', 'status', pre=True, always=False)
     def check_not_null(cls, value, field):
