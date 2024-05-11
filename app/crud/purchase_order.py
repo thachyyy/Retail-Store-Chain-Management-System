@@ -109,7 +109,9 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             sql = f"SELECT reward_point FROM public.customer WHERE id = '{customer_id}';"
             result = db.execute(sql).fetchone()
             logger.info("CRUDPurchaseOrder: get_current_reward_point is called successfully.")
-            return result
+            if result:
+                return int(result[0])
+            else: return None
         except Exception as e:
             raise e
     
