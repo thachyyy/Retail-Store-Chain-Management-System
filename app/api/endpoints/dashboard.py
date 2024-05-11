@@ -53,7 +53,7 @@ def get_yesterday():
     return yesterday, yesterday
 
 def get_7_days():
-    end_date = datetime.now().date()
+    end_date = datetime.now().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=6)
     return start_date, end_date
 
@@ -64,7 +64,7 @@ def get_last_7_days():
     return start_date, end_date
 
 def get_30_days():
-    end_date = datetime.now().date()
+    end_date = datetime.now().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=29)
     return start_date,end_date
 
@@ -75,7 +75,7 @@ def get_last_30_days():
     return start_date, end_date
 
 def get_90_days():
-    end_date = datetime.now().date()
+    end_date = datetime.now().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=89)
     return start_date,end_date
 
@@ -101,7 +101,7 @@ def get_last_year():
 @router.get("/dashboard/get_total_sale_by_branch")
 async def get_total_sale_by_branch(
     branch: Optional[str] = None, # Quản lý thêm sản phẩm, vì không có chi nhánh làm việc nên cần truyền thêm muốn thêm ở chi nhánh nào
-    datetime: Optional[DateTime] = None,
+    date_time: Optional[DateTime] = None,
     period : Optional[Period] = None,
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
@@ -125,7 +125,10 @@ async def get_total_sale_by_branch(
         "90 ngày": get_90_days,
         "Năm nay": get_this_year
     }
-    
+    response = {}
+    response_1 = {}  
+    hours = ['0h', '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h']
+    today = datetime.now()
     if period == "Hôm nay":
         start_date, end_date = period_functions[period]()
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
@@ -133,8 +136,10 @@ async def get_total_sale_by_branch(
         start_date, end_date = get_yesterday()
         result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
         
-    elif period == "7 ngày":
+    elif period == "7 ngày": 
         start_date, end_date = period_functions[period]()
+        print("startttt_datee",start_date)
+        print("startttt_datee",end_date)
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
         start_date, end_date = get_last_7_days()
@@ -155,6 +160,7 @@ async def get_total_sale_by_branch(
         result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
     
     elif period == "Năm nay":
+        
         start_date, end_date = period_functions[period]()
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
@@ -163,88 +169,115 @@ async def get_total_sale_by_branch(
         
     
     # # msg, dashboard_response = await dashboard_service.get_total_sale_by_branch(current_user.tenant_id, branch)
-    response = {}
-    response_1 = {}  
-    if datetime == "Theo ngày":
-        
+    # print("date_timeeee",date_time)
+    if date_time == "Theo ngày": 
+          
+        if period == "7 ngày":
+            today = today - timedelta(days=7)
+            for i in range(7):
+                date = today + timedelta(days=i)
+                response[date.strftime('%Y-%m-%d')] = 0  
+                
+            last_7_days = today - timedelta(days=7)
+            for i in range(7):
+                date = last_7_days + timedelta(days=i)
+                response_1[date.strftime('%Y-%m-%d')] = 0
+        elif period == "30 ngày":  
+            today = today - timedelta(days=30)
+            for i in range(30):
+                date = today + timedelta(days=i)
+                response[date.strftime('%Y-%m-%d')] = 0  
+                
+            last_30_days = today - timedelta(days=30)
+            for i in range(30):
+                date = last_30_days + timedelta(days=i)
+                response_1[date.strftime('%Y-%m-%d')] = 0 
+        elif period == "90 ngày":    
+            today = today - timedelta(days=90)
+            for i in range(90):
+                date = today + timedelta(days=i)
+                response[date.strftime('%Y-%m-%d')] = 0  
+                
+            last_30_days = today - timedelta(days=90)
+            for i in range(90):
+                date = last_30_days + timedelta(days=i)
+                response_1[date.strftime('%Y-%m-%d')] = 0                 
+                
         for invoice in result:
             invoice_date = invoice.created_at.date()
-            if invoice_date not in response:
-                response[invoice_date] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response[invoice_date] += invoice.total
+            response[f'{invoice_date}'] += invoice.total
             
         for invoice in result_1:
             invoice_date = invoice.created_at.date()
-            if invoice_date not in response_1:
-                response_1[invoice_date] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response_1[invoice_date] += invoice.total
+            response_1[f'{invoice_date}'] += invoice.total
                 
-    
-    elif datetime == "Theo giờ":
-        
+    elif date_time == "Theo giờ":
+        for i in range(24):
+            response[hours[i]] = 0
+            response_1[hours[i]] = 0
+            
         for invoice in result:
             invoice_time = invoice.created_at.time()
             hour_of_invoice = invoice_time.hour
-            if hour_of_invoice not in response:
-                response[f"{hour_of_invoice}h"] = invoice.total  
-            else:
-                response[f"{hour_of_invoice}h"] += invoice.total
+            response[f'{hour_of_invoice}h'] += invoice.total
      
         for invoice in result_1:
             invoice_time = invoice.created_at.time()
             hour_of_invoice = invoice_time.hour
-            if hour_of_invoice not in response_1:
-                response_1[f"{hour_of_invoice}h"] = invoice.total  
-            else:
-                response_1[f"{hour_of_invoice}h"] += invoice.total
+            # if hour_of_invoice not in response_1:
+            #     response_1[f"{hour_of_invoice}h"] = invoice.total  
+            # else:
+            
+            response[f'{hour_of_invoice}h'] += invoice.total
                 
-    
-    elif datetime == "Theo thứ":
+    elif date_time == "Theo thứ":
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-       
+        for i in range(7):
+            response[days[i]] = 0
+            response_1[days[i]] = 0
+            
         for invoice in result:
             invoice_date = invoice.created_at.date()
             day_of_week = invoice_date.weekday()
             day_name = days[day_of_week]
-            if day_name not in response:
-                response[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response[day_name] += invoice.total
+            # if day_name not in response:
+            #     response[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
+            # else:
+            response[day_name] += invoice.total
         
         for invoice in result_1:
             invoice_date = invoice.created_at.date()
             day_of_week = invoice_date.weekday()
             day_name = days[day_of_week]
-            if day_name not in response_1:
-                response_1[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response_1[day_name] += invoice.total    
+            # if day_name not in response_1:
+            #     response_1[day_name] = invoice.total  # Initialize if the date doesn't exist in the response
+            # else:
+            response_1[day_name] += invoice.total    
                     
-        
-    
-    elif datetime == "Theo tháng":
+    elif date_time == "Theo tháng":
         months = ["January", "February", "March", "April", "May", "June", 
           "July", "August", "September", "October", "November", "December"]
-       
+        for i in range(12):
+            response[months[i]] = 0
+            response_1[months[i]] = 0
+            
         for invoice in result:
             invoice_date = invoice.created_at
             month_today = invoice_date.month - 1
             month = months[month_today]
-            if month not in response:
-                response[month] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response[month] += invoice.total
+            # if month not in response:
+            #     response[month] = invoice.total  # Initialize if the date doesn't exist in the response
+            # else:
+            response[month] += invoice.total
                 
         for invoice in result_1:
             invoice_date = invoice.created_at
             month_today = invoice_date.month - 1
             month = months[month_today]
-            if month not in response_1:
-                response_1[month] = invoice.total  # Initialize if the date doesn't exist in the response
-            else:
-                response_1[month] += invoice.total  
+            # if month not in response_1:
+            #     response_1[month] = invoice.total  # Initialize if the date doesn't exist in the response
+            # else:
+            response_1[month] += invoice.total  
     
     return {"data": response, "data_1": response_1, "total_sale": total_sale}
 
