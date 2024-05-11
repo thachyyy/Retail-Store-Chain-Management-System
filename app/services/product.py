@@ -126,7 +126,7 @@ class ProductService:
             conditions['categories'] = categories
         
         if conditions:
-            whereConditions = await self.whereConditionBuilderForFilter(tenant_id, conditions, branch)
+            whereConditions = await self.whereConditionBuilderForFilterForList(tenant_id, conditions, branch)
             # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
                     from product p 
@@ -153,7 +153,7 @@ class ProductService:
             total = total[0]['count']
             
         elif query_search:
-            whereConditions = await self.whereConditionBuilderForSearch(tenant_id, query_search, branch)
+            whereConditions = await self.whereConditionBuilderForSearchForList(tenant_id, query_search, branch)
             
             # sql = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id {whereConditions};"
             sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
@@ -284,20 +284,20 @@ class ProductService:
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else:
-            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
+            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh';"
             
             if branch is None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}';"
+                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh';"
                 
             if limit is not None and offset is not None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
+                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh' LIMIT {limit} OFFSET {offset*limit};"
                 if branch is None:                    
-                    sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' LIMIT {limit} OFFSET {offset*limit};"
+                    sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh' LIMIT {limit} OFFSET {offset*limit};"
                     
             
-            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
+            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh';"
             if branch is None:
-                total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}';"     
+                total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh';"     
 
             
             result, total = await crud.product.get_all_product(self.db, total, sql_join)
@@ -439,6 +439,8 @@ class ProductService:
     async def whereConditionBuilderForFilter(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
         whereList = list()
         whereList.append(f"p.tenant_id = '{tenant_id}'")
+        whereList.append(f"p.status = 'Đang kinh doanh'")
+        
         if branch is not None:
             whereList.append(f"p.branch = '{branch}'")
         
@@ -466,10 +468,46 @@ class ProductService:
         whereCondition = ' OR '.join(conditions)
             
         if branch is not None:
+            whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh'"
+        else:
+            whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh'"
+        return whereCondition
+        
+        
+    async def whereConditionBuilderForFilterForList(self, tenant_id: str, conditions: dict, branch: str = None) -> str:
+        whereList = list()
+        whereList.append(f"p.tenant_id = '{tenant_id}'")
+        
+        if branch is not None:
+            whereList.append(f"p.branch = '{branch}'")
+        
+        if 'status' in conditions:
+            whereList.append(f"LOWER(p.status) = LOWER('{conditions['status']}')")
+        if 'categories' in conditions:
+            whereList.append(f"LOWER(p.categories_id) = LOWER('{conditions['categories']}')")
+        if 'low_price' in conditions and 'high_price' in conditions:
+            whereList.append(f"p.sale_price BETWEEN '{conditions['low_price']}' AND '{conditions['high_price']}'")
+        elif 'low_price' in conditions:
+            whereList.append(f"p.sale_price >= '{conditions['low_price']}' ")
+        elif 'high_price' in conditions:
+            whereList.append(f"p.sale_price <= '{conditions['high_price']}' ")
+            
+        whereConditions = "WHERE " + ' AND '.join(whereList)
+        return whereConditions
+    
+    async def whereConditionBuilderForSearchForList(self, tenant_id: str, condition: str, branch: str = None) -> str:
+        conditions = list()
+        conditions.append(f"p.id::text ilike '%{condition}%'")
+        conditions.append(f"p.product_name ilike '%{condition}%'")
+        conditions.append(f"p.barcode  ilike '%{condition}%'")
+        conditions.append(f"p.note  ilike '%{condition}%'")
+        
+        whereCondition = ' OR '.join(conditions)
+            
+        if branch is not None:
             whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}' AND p.branch = '{branch}'"
         else:
             whereCondition = f"WHERE ({whereCondition}) AND p.tenant_id = '{tenant_id}'"
         return whereCondition
-        
   
  
