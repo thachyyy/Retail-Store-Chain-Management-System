@@ -17,6 +17,7 @@ from app.models.customer import *
 from app.models.employee import *
 from app.models.import_detail import *
 from app.models.import_order import *
+from app.models.inventory_check import *
 from app.models.invoice_for_customer import *
 from app.models.invoice_from_vendor import *
 from app.models.noti import *

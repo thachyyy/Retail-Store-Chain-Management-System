@@ -25,3 +25,4 @@ from .order_detail import OrderDetail
 from .tenant import Tenant
 from .import_detail import ImportDetail
 from .noti import Noti
+from .inventory_check import InventoryCheck
