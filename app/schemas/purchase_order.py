@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, UUID4, Field, validator
 from datetime import datetime
 import enum
-
+from sqlalchemy import DateTime
 from app.schemas.order_detail import OrderDetails
 class Status(str,enum.Enum):
     PAID = "Đã thanh toán"
@@ -50,7 +50,7 @@ class PurchaseOrderUpdate(BaseModel):
     note: Optional[str] = None
     handle_by: Optional[str] = None
     belong_to_customer: Optional[str] = None
-    
+    created_at: Optional[datetime] = None
     @validator('estimated_delivery_date', 'subtotal', 'total', 'tax_percentage', 'handle_by', pre=True, always=False)
     def check_not_null(cls, value, field):
         if value is None:

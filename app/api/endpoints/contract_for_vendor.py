@@ -81,9 +81,9 @@ async def get_contract_for_vendor_by_id(
     logger.info("Endpoints: get_contract_for_vendor_by_id called successfully.")
     return make_response_object(contract_for_vendor_response, msg)
 
-@router.put("/contract_for_vendor/{name}")
+@router.put("/contract_for_vendor/{contract_id}")
 async def update_contract_for_vendor(
-    name: str,
+    contract_id: str,
     contract_for_vendor_update: ContractForVendorUpdate, 
     user: Employee = Depends(oauth2.get_current_user), 
     db: Session = Depends(get_db)) -> Any:
@@ -94,7 +94,7 @@ async def update_contract_for_vendor(
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
     
     logger.info("Endpoints: update_contract_for_vendor called.")
-    msg, contract_for_vendor_response = await contract_for_vendor_service.update_contract_for_vendor(name, contract_for_vendor_update)
+    msg, contract_for_vendor_response = await contract_for_vendor_service.update_contract_for_vendor(contract_id, contract_for_vendor_update)
     logger.info("Endpoints: update_contract_for_vendor called successfully.")
     return make_response_object(contract_for_vendor_response, msg)
 

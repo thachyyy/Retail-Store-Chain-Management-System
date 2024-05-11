@@ -112,8 +112,6 @@ class PurchaseOrderService:
             
         return dict(message_code=AppStatus.SUCCESS.message,total=total), response
     
-    
-    
     async def whereConditionBuilderForSearch(self, tenant_id: str, condition: str, branch: str = None) -> str:
         conditions = list()
         conditions.append(f"handle_by ilike '%{condition}%'")

@@ -60,7 +60,7 @@ def get_7_days():
 def get_last_7_days():
     start_date, end_date = get_7_days()
     start_date = start_date - timedelta(days=7)
-    end_date = start_date - timedelta(days=1)
+    end_date = start_date + timedelta(days=6)
     return start_date, end_date
 
 def get_30_days():
@@ -71,7 +71,7 @@ def get_30_days():
 def get_last_30_days():
     start_date, end_date = get_30_days()
     start_date = start_date - timedelta(days=30)
-    end_date = start_date - timedelta(days=1)
+    end_date = start_date + timedelta(days=29)
     return start_date, end_date
 
 def get_90_days():
@@ -82,7 +82,7 @@ def get_90_days():
 def get_last_90_days():
     start_date,end_date = get_90_days()
     start_date = start_date - timedelta(days=90)
-    end_date = start_date - timedelta(days=1)
+    end_date = start_date + timedelta(days=89)
     return start_date, end_date
 def get_this_year():
     today = datetime.now().date()
@@ -153,6 +153,7 @@ async def get_total_sale_by_branch(
         
         start_date, end_date = get_last_90_days()
         result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
+    
     elif period == "Năm nay":
         start_date, end_date = period_functions[period]()
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
@@ -235,6 +236,7 @@ async def get_total_sale_by_branch(
                 response[month] = invoice.total  # Initialize if the date doesn't exist in the response
             else:
                 response[month] += invoice.total
+                
         for invoice in result_1:
             invoice_date = invoice.created_at
             month_today = invoice_date.month - 1
@@ -313,10 +315,10 @@ async def get_top_10_product_by_total_sale(
         
     period_functions = {
         "Hôm nay": get_today,
-        "Hôm qua": get_yesterday,
-        "7 ngày qua": get_last_7_days,
-        "Tháng này": get_this_month,
-        "Tháng trước": get_last_month
+        "7 ngày": get_7_days,
+        "30 ngày" : get_30_days,
+        "90 ngày": get_90_days,
+        "Năm nay": get_this_year
     }
     start_date, end_date = period_functions[period]()
     

@@ -83,19 +83,19 @@ class ContractForVendorService:
         logger.info("Service: create_contract success.")
         return dict(message_code=AppStatus.SUCCESS.message),contract_for_vendor_create
     
-    # async def update_contract(self, name: str, obj_in: ContractForVendorUpdate):
-    #     logger.info("ContractForVendorService: get_contract_by_name called.")
-    #     isValidContractForVendor = await crud.contract_for_vendor.get_contract_by_name(db=self.db, name=name)
-    #     logger.info("ContractForVendorService: get_contract_by_name called successfully.")
+    async def update_contract_for_vendor(self, contract_id: str, obj_in: ContractForVendorUpdate):
+        logger.info("ContractForVendorService: get_contract_for_vendor_by_id called.")
+        isValidContractForVendor = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, contract_id=contract_id)
+        logger.info("ContractForVendorService: get_contract_for_vendor_by_id called successfully.")
         
-    #     if not isValidContractForVendor:
-    #         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CATEGORIES_NOT_FOUND)
+        if not isValidContractForVendor:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONTRACT_FOR_VENDOR_NOT_FOUND)
         
-    #     logger.info("ContractForVendorService: update_contract called.")
-    #     result = await crud.contract_for_vendor.update_contract(db=self.db, name=name, contract_update=obj_in)
-    #     logger.info("ContractForVendorService: update_contract called successfully.")
-    #     self.db.commit()
-    #     return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), dict(data=result)
+        logger.info("ContractForVendorService: update_contract_for_vendor called.")
+        result = await crud.contract_for_vendor.update_contract_for_vendor(db=self.db, contract_id=contract_id, contract_update=obj_in)
+        logger.info("ContractForVendorService: update_contract_for_vendor called successfully.")
+        self.db.commit()
+        return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), result
         
     async def delete_contract_for_vendor(self, contract_id: str, tenant_id: str, branch: str = None):
         logger.info("ContractForVendorService: get_contract_by_id called.")

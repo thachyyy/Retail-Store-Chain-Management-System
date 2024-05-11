@@ -38,10 +38,10 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         logger.info("CRUDContractForVendor: create called successfully.")
         return db_obj
     
-    # @staticmethod
-    # async def update_contract_for_vendor(db: Session, name: str, contract_for_vendor_update: ContractForVendorUpdate):
-    #     update_data = contract_for_vendor_update.dict(exclude_none=True)
-    #     return db.query(ContractForVendor).filter(ContractForVendor.name == name).update(update_data)
+    @staticmethod
+    async def update_contract_for_vendor(db: Session, contract_id: str, contract_for_vendor_update: ContractForVendorUpdate):
+        update_data = contract_for_vendor_update.dict(exclude_none=True)
+        return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).update(update_data)
     
     @staticmethod
     async def delete_contract_for_vendor(db: Session, contract_id: str):

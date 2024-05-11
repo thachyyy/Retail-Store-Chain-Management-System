@@ -35,6 +35,7 @@ class InvoiceForCustomerUpdate(BaseModel):
     status: Optional[str] = Field(default="Đã thanh toán")
     payment_method: Optional[PaymentMethod] = Field(default=PaymentMethod.Cash)
     belong_to_order: Optional[str] = None
+    created_at: Optional[datetime] = None
 class InvoiceForCustomerResponse(InvoiceForCustomerCreate):
     # class Config:
     #     orm_mode = True
