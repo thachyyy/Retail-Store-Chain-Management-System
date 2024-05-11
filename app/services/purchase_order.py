@@ -204,15 +204,17 @@ class PurchaseOrderService:
         
         if obj_in.belong_to_customer:
             current_reward_point = await crud.purchase_order.get_current_reward_point(self.db, obj_in.belong_to_customer)
+            print("herrrr", obj_in.reward_point_used)
+            print(type(obj_in.reward_point_used))
             if obj_in.reward_point_used:
                 if obj_in.reward_point_used > 0 and obj_in.reward_point_used <= current_reward_point:
                     new_reward_point = current_reward_point - obj_in.reward_point_used
                     if new_reward_point < 0:
                         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_NOT_ENOUGH_POINT)
                     await crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, new_reward_point)
-                else:
-                    reward_point = math.floor(obj_in.total*0.01)
-                    await crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, reward_point)
+            if not obj_in.reward_point_used:
+                reward_point = math.floor(obj_in.total*0.01)
+                await crud.purchase_order.update_reward_point(self.db, obj_in.belong_to_customer, reward_point)
         
         logger.info("Service: create_purchase_order success.")
         return dict(message_code=AppStatus.SUCCESS.message), purchase_order_create
