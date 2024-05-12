@@ -31,9 +31,9 @@ class ContractForVendorService:
         
         return dict(message_code=AppStatus.SUCCESS.message,total=total), result
     
-    async def get_contract_for_vendor_by_id(self, tenant_id: str, branch: str, id: str):
+    async def get_contract_for_vendor_by_id(self, tenant_id: str, branch: str, contract_id: str):
         logger.info("ContractForVendorService: get_contract_by_id called.")
-        result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, tenant_id=tenant_id, branch=branch, id=id)
+        result = await crud.contract_for_vendor.get_contract_for_vendor_by_id(db=self.db, tenant_id=tenant_id, branch=branch, contract_id=contract_id)
         logger.info("ContractForVendorService: get_contract_by_id called successfully.")
         
         return dict(message_code=AppStatus.SUCCESS.message), result
