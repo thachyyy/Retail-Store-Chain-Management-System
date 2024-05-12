@@ -53,7 +53,10 @@ async def get_all_contract_for_vendors(
     current_user = await user
     if current_user.role == "Nhân viên":
         raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ACCESS_DENIED)
-    
+    if branch:
+        branch= branch
+    else:
+        branch = current_user.branch
     contract_for_vendor_service = ContractForVendorService(db=db)
     logger.info("Endpoints: get_all_contract_for_vendors called.")
     
@@ -61,7 +64,7 @@ async def get_all_contract_for_vendors(
     logger.info("Endpoints: get_all_contract_for_vendors called successfully.")
     return make_response_object(contract_for_vendor_response, msg)
 
-@router.get("/contract_for_vendor/{id}")
+@router.get("/contract_for_vendor/{contract_id}")
 async def get_contract_for_vendor_by_id(
     contract_id: str,
     user: Employee = Depends(oauth2.get_current_user), 
@@ -105,7 +108,7 @@ async def update_contract_for_vendor(
     logger.info("Endpoints: update_contract_for_vendor called successfully.")
     return make_response_object(contract_for_vendor_response, msg)
 
-@router.delete("/contract_for_vendor/{id}")
+@router.delete("/contract_for_vendor/{contract_id}")
 async def delete_contract_for_vendor(
     contract_id: str, 
     branch: Optional[str] = None,
