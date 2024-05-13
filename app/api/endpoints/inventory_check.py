@@ -10,7 +10,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 # from app.services.report import ReportService
 from app.utils.response import make_response_object
-from app.schemas.inventory_check import InventoryCheck
+from app.schemas.inventory_check_detail import InventoryCheckDetail
 from app.services.inventory_check import InventoryCheckService
 from app.models import Employee
 
@@ -61,7 +61,7 @@ async def inventory_check(
     obj_in = list()
     
     for index, row in data_frame.iterrows():
-        inventory_check = InventoryCheck(
+        inventory_check = InventoryCheckDetail(
             branch_id=row['Mã chi nhánh'],
             product_id=row['Mã sản phẩm'],
             batch_id=row['Mã lô'],
@@ -71,11 +71,11 @@ async def inventory_check(
         obj_in.append(inventory_check)
         
     inventory_service = InventoryCheckService(db=db)
-    res = await inventory_service.inventory_check(obj_in, current_user.tenant_id, branch)
+    msg, res = await inventory_service.inventory_check(obj_in, current_user.tenant_id, branch)
     
     logger.info("Endpoints: create_import_order called successfully.")
     
-    return res
+    return make_response_object(res, msg)
 
 @router.get("/inventory_check")
 async def get_all_inventory_check(

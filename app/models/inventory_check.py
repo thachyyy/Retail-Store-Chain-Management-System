@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer,  Date, ForeignKey, String, DateTime
+from sqlalchemy import Column, Integer,  Date, ForeignKey, String, DateTime, ARRAY
 from sqlalchemy.sql import text
 from .base import Base
 
@@ -10,10 +10,5 @@ class InventoryCheck(Base):
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     tenant_id = Column(String)
-    branch_id = Column(String)
-    product_id = Column(String)
-    batch_id = Column(String)
-    real_quantity = Column(Integer)
-    quantiry_in_db = Column(Integer)
-    difference = Column(Integer)
     branch = Column(String)
+    list_detail_id = Column(ARRAY(Integer))
