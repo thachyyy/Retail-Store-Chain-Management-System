@@ -6,6 +6,9 @@ from sqlalchemy.orm import Session
 from app.schemas.contract_for_vendor import ContractForVendorCreate, ContractForVendorUpdate
 from app.crud.base import CRUDBase
 from app.models import ContractForVendor
+from app.core.exceptions import error_exception_handler
+from app.constant.app_status import AppStatus
+
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +48,11 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
     
     @staticmethod
     async def delete_contract_for_vendor(db: Session, contract_id: str):
-        return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).delete()
+        try:
+            result = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).delete()
+            return result
+        except Exception as e:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONTRACT_USED_ERROR)
     
     @staticmethod
     async def insert_pdf_url(db: Session, tenant_id: str, url: str, contract_id: str):
