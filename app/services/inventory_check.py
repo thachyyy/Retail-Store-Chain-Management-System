@@ -59,6 +59,7 @@ class InventoryCheckService:
         )
         
         r = crud.inventory_check.create_inventory_check(db=self.db, obj_in=inventory_check_create)
+        self.db.commit()
         res = await crud.inventory_check.get_inventory_check_detail(db=self.db, ids=r.list_detail_id, tenant_id=tenant_id)
         setattr(r, "inventory_check_detail", res)
         delattr(r, "list_detail_id")
