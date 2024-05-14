@@ -18,8 +18,12 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         return db.query(ContractForVendor).all()
     
     @staticmethod
-    async def get_contract_for_vendor_by_id(db: Session, tenant_id: str, branch: str, contract_id: str):
-        return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).first()
+    async def get_contract_for_vendor_by_id(db: Session, tenant_id: str, contract_id: str, branch: str = None):
+        if branch:
+            res = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).first()
+        else: res = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id).first()
+        
+        return res
     
     @staticmethod
     async def get_last_id(db: Session):
@@ -47,9 +51,12 @@ class CRUDContractForVendor(CRUDBase[ContractForVendor, ContractForVendorCreate,
         return db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).update(update_data)
     
     @staticmethod
-    async def delete_contract_for_vendor(db: Session, contract_id: str):
+    async def delete_contract_for_vendor(db: Session, contract_id: str, tenant_id: str, branch: str = None):
         try:
-            result = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id).delete()
+            if branch:
+                result = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id, ContractForVendor.branch == branch).delete()
+            else:
+                result = db.query(ContractForVendor).filter(ContractForVendor.id == contract_id, ContractForVendor.tenant_id == tenant_id).delete()
             return result
         except Exception as e:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONTRACT_USED_ERROR)
