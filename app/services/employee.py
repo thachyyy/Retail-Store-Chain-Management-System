@@ -192,7 +192,7 @@ class EmployeeService:
             logger.info("EmployeeService: get_all_employees called.")
             if limit is not None and offset is not None:
                 result, total = crud.employee.get_multi(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
-            else: 
+            else:   
                 result, total = crud.employee.get_multi(db=self.db, tenant_id=tenant_id, branch=branch)
             logger.info("EmployeeService: get_all_employees called successfully.")
 
@@ -254,13 +254,13 @@ class EmployeeService:
         # Kiểm tra chi nhánh có quản lý hay chưa
         if obj_in.role.value == "Quản lý chi nhánh":
             logger.info("BranchService: get_branch_by_name_detail called.")
-            current_branch =  await crud.branch.get_branch_by_name_detail(self.db,obj_in.branch, tenant_id)
+            current_branch =  await crud.branch.get_branch_by_name_detail(self.db,branch, tenant_id)
             logger.info("BranchService: get_branch_by_name_detail called successfully.")
             if current_branch:
                 if current_branch.manager_id:
                     raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EXIST_MANAGER_ERROR)
             else:
-                await crud.branch.update_manager(self.db, tenant_id, obj_in.branch, newID)
+                await crud.branch.update_manager(self.db, tenant_id, branch, newID)
         
         if len(obj_in.password) < 6 or len(obj_in.password) > 64:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_LENGTH)
