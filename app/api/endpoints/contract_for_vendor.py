@@ -91,7 +91,8 @@ async def update_contract_for_vendor(
     contract_for_vendor_update: ContractForVendorUpdate, 
     branch:Optional[str]= None,
     user: Employee = Depends(oauth2.get_current_user), 
-    db: Session = Depends(get_db)) -> Any:
+    db: Session = Depends(get_db)
+) -> Any:
     contract_for_vendor_service = ContractForVendorService(db=db)
     
     current_user = await user
@@ -104,7 +105,7 @@ async def update_contract_for_vendor(
     else:
         branch = current_user.branch
     logger.info("Endpoints: update_contract_for_vendor called.")
-    msg, contract_for_vendor_response = await contract_for_vendor_service.update_contract_for_vendor(contract_id, contract_for_vendor_update)
+    msg, contract_for_vendor_response = await contract_for_vendor_service.update_contract_for_vendor(contract_id, contract_for_vendor_update, current_user.tenant_id, branch)
     logger.info("Endpoints: update_contract_for_vendor called successfully.")
     return make_response_object(contract_for_vendor_response, msg)
 

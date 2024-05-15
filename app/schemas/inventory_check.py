@@ -4,25 +4,20 @@ from pydantic import BaseModel, UUID4
 from datetime import date, datetime
 
 class InventoryCheck(BaseModel):
-    branch_id: str
-    product_id: str
-    batch_id: str
-    quantity: int
-
+    # list_detail_id: list[int]
+    pass
 class InventoryCheckResponse(BaseModel):
-    branch_id: str
-    product_id: str
-    batch_id: str
-    real_quantity: int
-    quantiry_in_db: int
-    difference: int
+    pass
     
 class InventoryCheckCreate(BaseModel):
-    branch_id: str
-    product_id: str
-    batch_id: str
-    real_quantity: int
-    quantiry_in_db: int
-    difference: int
     tenant_id: str
     branch: str
+    list_detail_id: list[int]
+    
+class InventoryCheckResponse(BaseModel):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime]
+    tenant_id: str
+    branch: str
+    list_detail_id: list[int]
