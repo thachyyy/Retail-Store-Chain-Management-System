@@ -137,15 +137,15 @@ async def get_total_sale_by_branch(
         result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date) 
         
     elif period == "7 ngày": 
+        
         start_date, end_date = period_functions[period]()
-        print("startttt_datee",start_date)
-        print("startttt_datee",end_date)
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
         start_date, end_date = get_last_7_days()
         result_1,total_sale_1 = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
     
     elif period == "30 ngày":
+        
         start_date, end_date = period_functions[period]()   
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
@@ -153,6 +153,7 @@ async def get_total_sale_by_branch(
         result_1,total_sale_1= await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
     elif period == "90 ngày":
+        
         start_date, end_date = period_functions[period]()
         result,total_sale = await crud.invoice_for_customer.get_total_sale_by_branch(db=db,tenant_id=current_user.tenant_id,branch=branch,start_date=start_date,end_date=end_date)
         
@@ -202,7 +203,10 @@ async def get_total_sale_by_branch(
             for i in range(90):
                 date = last_30_days + timedelta(days=i)
                 response_1[date.strftime('%Y-%m-%d')] = 0                 
-                
+        elif period == "Hôm nay":
+            response[today.strftime('%Y-%m-%d')] = 0  
+            yesterday = today - timedelta(days=1)
+            response_1[yesterday.strftime('%Y-%m-%d')] = 0                   
         for invoice in result:
             invoice_date = invoice.created_at.date()
             response[f'{invoice_date}'] += invoice.total
