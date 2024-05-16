@@ -617,11 +617,12 @@ async def get_top_10_sell_through_rate(
                 newest_batch = batch.created_at
                 flag += 1
             
-           
+            print("latest_batchhhh",latest_batch)
+            print("newest_batchhhh",newest_batch)
             inventory += batch.quantity
         # list_invoice_in_= await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch, start_date=latest_batch,end_date=)
             
-        list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
+        list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
         
         for invoice in list_invoice[1]:
             for order_detail in invoice.order_detail:
@@ -673,6 +674,7 @@ async def get_top_10_sell_through_rate(
     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     top_ten_products = sorted(result, key=lambda x: x['sell_rate'], reverse=True)[:10]
     return {"data":top_ten_products}  
+ 
 
 
 
