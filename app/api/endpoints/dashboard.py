@@ -232,7 +232,7 @@ async def get_total_sale_by_branch(
             #     response_1[f"{hour_of_invoice}h"] = invoice.total  
             # else:
             
-            response[f'{hour_of_invoice}h'] += invoice.total
+            response_1[f'{hour_of_invoice}h'] += invoice.total
                 
     elif date_time == "Theo thứ":
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
