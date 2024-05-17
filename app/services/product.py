@@ -63,8 +63,7 @@ class ProductService:
         
         
         return dict(message_code=AppStatus.SUCCESS.message), response
-    
-    
+      
     async def get_product_by_barcode(self, barcode: str, tenant_id: str, branch: str = None):
         logger.info("ProductService: get_product_by_barcode called.")
         
@@ -229,9 +228,7 @@ class ProductService:
             logger.info("ProductService: get_all_products called successfully.")
         
         
-        return dict(message_code=AppStatus.SUCCESS.message,total=total),result
-        
-        
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),result        
     
     async def get_all_products(
         self,
@@ -306,6 +303,8 @@ class ProductService:
             
         response = list()
         for r in result:
+            categories_name = await crud.product.get_categories_name(self.db, r.categories_id, tenant_id, branch)
+            
             res = ProductResponse(
             id=r.id,
             barcode=r.barcode,
@@ -328,7 +327,8 @@ class ProductService:
             img_url=r.img_url,
             batch_id=r.batch_id,
             quantity=r.quantity,
-            branch_id=r.branch_id
+            branch_id=r.branch_id,
+            categories_name=categories_name
         )
             response.append(res)
             
