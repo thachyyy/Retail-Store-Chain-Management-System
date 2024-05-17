@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional
+from typing import Any, Optional
 from sqlalchemy.orm import Session
 from pydantic import UUID4
 from datetime import date
@@ -13,8 +13,25 @@ logger = logging.getLogger(__name__)
 
 class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate]):
     @staticmethod
-    async def get_all_import_orders(db: Session) -> Optional[ImportOrder]:
-        return db.query(ImportOrder).all()
+    async def get_all_import_orders(
+        db: Session,
+        offset: int = None,
+        limit: int = None,
+        tenant_id: str = None,
+        branch: str = None) -> Any:
+        
+        result = db.query(ImportOrder).filter(ImportOrder.tenant_id == tenant_id)
+
+        if branch:
+            result = result.filter(ImportOrder.branch == branch)
+        
+        total = result.count()
+        
+        result = result.order_by(ImportOrder.created_at.desc())
+        
+        if offset is not None and limit is not None:
+            result = result.offset(offset).limit(limit)
+        return result.all(),total
     
     @staticmethod
     async def get_import_order_by_id(db: Session, id: str,branch: str, tenant_id: str):

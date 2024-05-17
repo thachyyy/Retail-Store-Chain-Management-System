@@ -18,6 +18,7 @@ from app.db.database import get_db
 # from app.schemas.dashboard import DashboardCreateParams, DashboardUpdate
 from app.services.batch import BatchService
 from app.services.dashboard import DashboardService
+from app.services.import_order import ImportOrderService
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.services.product import ProductService
 from app.utils.response import make_response_object
@@ -603,27 +604,42 @@ async def get_top_10_sell_through_rate(
         batch_response = await batch_service.get_all_batches(tenant_id=current_user.tenant_id,
             branch=branch,
             query_search = id)
-        
-       
-        
         latest_import = 0
-        for batch in batch_response[1]:
+        
+        ###############################
+        import_order_service = ImportOrderService(db=db)
+        import_order_response = await import_order_service.get_all_import_orders(tenant_id=current_user.tenant_id,branch=branch)
+        
+        
+        for import_order in import_order_response[1]:
+        
             if flag == 1:
-                latest_batch =  batch.created_at
-                latest_import = batch.quantity
-                
+                latest_batch =  import_order.created_at
+                # latest_import = batch.quantity
+                for item in import_order.list_import:
+                    if item.product_id == id:
+                        latest_import = item.quantity   
             if flag == 0:
                 # Ngày nhập mới nhất
-                newest_batch = batch.created_at
+                newest_batch = import_order.created_at
                 flag += 1
+        
             
-            print("latest_batchhhh",latest_batch)
-            print("newest_batchhhh",newest_batch)
+        ###############################
+        for batch in batch_response[1]:
+            # if flag == 1:
+            #     latest_batch =  batch.created_at
+            #     latest_import = batch.quantity
+                
+            # if flag == 0:
+            #     # Ngày nhập mới nhất
+            #     newest_batch = batch.created_at
+            #     flag += 1
             inventory += batch.quantity
         # list_invoice_in_= await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch, start_date=latest_batch,end_date=)
             
-        list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
-        
+        list_invoice = await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=current_user.tenant_id, branch=branch)
+       
         for invoice in list_invoice[1]:
             for order_detail in invoice.order_detail:
                 if order_detail.product_id == id:
@@ -669,9 +685,9 @@ async def get_top_10_sell_through_rate(
         # dashboard_service = DashboardService(db=db)
         # list_sales_by_product = await dashboard_service.sales_report_by_product(current_user.tenant_id,branch)
         
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+    # end_time = time.time()
+    # elapsed_time = end_time - start_time
+    # print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     top_ten_products = sorted(result, key=lambda x: x['sell_rate'], reverse=True)[:10]
     return {"data":top_ten_products}  
  
