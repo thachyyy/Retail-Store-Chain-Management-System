@@ -71,7 +71,7 @@ class ImportOrderService:
         else:
             logger.info("ImportOrderService: get_all_import_orders called.")
             if limit is not None and offset is not None:
-                result, total = await crud.import_order.get_all_import_orders(db=self.db, skip=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
+                result, total = await crud.import_order.get_all_import_orders(db=self.db, offset=offset*limit, limit=limit, tenant_id=tenant_id, branch=branch)
             else: 
                 result, total = await crud.import_order.get_all_import_orders(db=self.db, tenant_id=tenant_id, branch=branch)
             logger.info("ImportOrderService: get_all_import_orders called successfully.")
