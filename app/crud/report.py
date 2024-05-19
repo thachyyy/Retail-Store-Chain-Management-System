@@ -45,13 +45,14 @@ class CRUDReport():
         try:
             logger.info("CRUDReport: sales_report_by_branch is called.")
             sql = f"""
-            SELECT po.branch, COUNT(*), sum(po.total)
-            FROM purchase_order po
-            WHERE po.tenant_id = '{tenant_id}'
-                AND po.status = 'Đã thanh toán'
-                AND po.created_at >= '{start_date}'
-                AND po.created_at <= '{end_date}'
-            GROUP BY po.branch;
+            SELECT branch, COUNT(*), sum(total)
+            FROM invoice_for_customer
+            WHERE tenant_id = '{tenant_id}'
+                AND status = 'Đã thanh toán'
+                AND created_at >= '{start_date}'
+                AND created_at <= '{end_date}'
+            GROUP BY branch
+            order by branch;
             """
             
             results = db.execute(sql)
