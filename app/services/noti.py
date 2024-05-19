@@ -108,7 +108,11 @@ class NotiService:
                 isExist = crud.noti.isExistContract(self.db, contract['id'])
                 # product_name = crud.noti.get_product_name(self.db, batch['product_id'])
                 time_left = contract['next_import'] - date.today()
-                msg = f"Hợp đồng {contract['id']} sắp đến hạn nhập hàng sau {time_left.days} ngày."
+                if int(time_left.days) >= 0:
+                    msg = f"Hợp đồng {contract['id']} sắp đến hạn nhập hàng sau {time_left.days} ngày."
+                else:
+                    msg = f"Hợp đồng {contract['id']} trễ hạn nhập hàng {abs(time_left.days)} ngày."
+                    
                 
                 tenant_id, branch = crud.noti.get_tenant_and_branch_of_contract(self.db, contract['id'])
                 
@@ -118,7 +122,8 @@ class NotiService:
                         contract_id=contract['id'],
                         message=msg,
                         tenant_id=tenant_id,    
-                        branch=branch
+                        branch=branch,
+                        status=0
                     )
                     result = crud.noti.create(db=self.db, obj_in=noti_create)
                     self.db.commit()
@@ -153,8 +158,8 @@ try:
     scheduler = BackgroundScheduler()
     scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
     # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
-    scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
-    # scheduler.add_job(noti_service.checking_next_import, 'interval', seconds=15)
+    # scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
+    scheduler.add_job(noti_service.checking_next_import, 'interval', seconds=15)
     
     
 finally:
