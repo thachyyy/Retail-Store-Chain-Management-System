@@ -321,7 +321,7 @@ async def get_top_10_branch_by_total_sale(
    
     response = {}
     for branch in result:
-        total_purchase_order = await  crud.purchase_order.get_total_purchase_order_by_all_branch(db=db,tenant_id=current_user.tenant_id,branch=branch.branch,start_date=start_date,end_date=end_date) 
+        total_purchase_order = await  crud.invoice_for_customer.get_total_invoice_for_customer_by_all_branch(db=db,tenant_id=current_user.tenant_id,branch=branch.branch,start_date=start_date,end_date=end_date) 
         if branch.branch not in response:
             response[branch.branch] = {
                 "total_sale": branch.total,
@@ -660,7 +660,7 @@ async def get_top_10_sell_through_rate(
         if latest_import > 0:
             # print("sold_in_range",sold_in_range)
             # print("latest_import",latest_import)
-            sell_rate = (sold_in_range / (latest_import+sold))*100
+            sell_rate = (sold_in_range / (latest_import))*100
         else: 
             sell_rate = 0
             
@@ -691,8 +691,6 @@ async def get_top_10_sell_through_rate(
     top_ten_products = sorted(result, key=lambda x: x['sell_rate'], reverse=True)[:10]
     return {"data":top_ten_products}  
  
-
-
 
 
 

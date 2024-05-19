@@ -1,10 +1,12 @@
 import logging
-from typing import Optional, Literal
+from typing import List, Optional, Literal
 
+import numpy as np
 from sqlalchemy.orm import Session
 from pydantic import UUID4
-
+from dateutil.relativedelta import relativedelta
 from app import crud
+from app.schemas.report import CategorizedItem, InventoryItem
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.services.dashboard import DashboardService
 from app.constant.app_status import AppStatus
@@ -14,11 +16,12 @@ from fastapi.responses import StreamingResponse
 import pdfkit
 from starlette.responses import FileResponse
 from fastapi.responses import Response
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 from fastapi.responses import JSONResponse
 from app.core.s3 import S3ServiceSingleton
 import io
+import pandas as pd
 
 s3_service = S3ServiceSingleton()
 SUPPORTED_FILE_TYPES = {
@@ -472,165 +475,166 @@ class ReportService:
         
         return public_url
     
-    # async def abc_analysis(self, user_id: str, tenant_id: str, branch: str = None):
+    
+    
+    
+    
+    async def abc_analysis(self,start_date:date,end_date:date,products: List[InventoryItem],user_id: str, tenant_id: str, branch: str = None):
+           
+        # TODO: phân tích hiện thực ở đây
+        list_result = await self.abc_define(products)
+        # Tạo form phân tích
+        user_name = await crud.report.get_user_name(self.db, user_id)
         
-    #     # TODO: phân tích hiện thực ở đây
+        time_report = date.today()
+        # Bắt đầu tạo mã HTML
+        html_output = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <title>Phân tích tồn kho theo phương pháp ABC</title>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        </head>
+        <body>"""
         
+        if branch is None:
+          branch = "Tất cả chi nhánh"
         
-    #     # Tạo form phân tích
-    #     user_name = await crud.report.get_user_name(self.db, user_id)
-        
-    #     time_report = date.today()
-    #     # Bắt đầu tạo mã HTML
-    #     html_output = """
-    #     <!DOCTYPE html>
-    #     <html lang="en">
-    #     <head>
-    #     <meta charset="UTF-8">
-    #     <title>Phân tích tồn kho theo phương pháp ABC</title>
-    #     <style>
-    #         table, th, td {
-    #             border: 1px solid black;
-    #             border-collapse: collapse;
-    #         }
-    #         th, td {
-    #             padding: 8px;
-    #             text-align: left;
-    #         }
-    #         th {
-    #             background-color: #f2f2f2;
-    #         }
-    #     </style>
-    #     </head>
-    #     <body>"""
-        
-    #     if branch is None:
-    #       branch = "Tất cả chi nhánh"
-        
-    #     html_output += f"""
-    #     <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP ABC</h1>
-    #     <h2>Tên công ty: {tenant_id}</h2>
-    #     <h2>{branch}</h2>
-    #     <p>Người tạo báo cáo: {user_name}</p>
-    #     <p>Ngày xuất báo cáo: {time_report}</p>
-    #     <table>
-    #         <tr>
-    #             <th>Mã sản phẩm</th>
-    #             <th>Tên sản phẩm</th>
-    #             <th>Giá bán</th>
-    #             <th>Số lượng đã bán</th>
-    #             <th>Phân loại</th>
-    #         </tr>
-    #     """
+        html_output += f"""
+        <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP ABC</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
+        <h2>{branch}</h2>
+        <p>Người tạo báo cáo: {user_name}</p>
+        <p>Ngày xuất báo cáo: {time_report}</p>
+        <p>Khoảng thời gian: {start_date} đến {end_date}</p>
+        <table>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Giá bán</th>
+                <th>Số lượng đã bán</th>
+                <th>Phân loại</th>
+            </tr>
+        """
 
-    #     # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
-    #     for item in list_result:
-    #         html_output += f"""
-    #         <tr>
-    #             <td>{item['product_id']}</td>
-    #             <td>{item['product_name']}</td>
-    #             <td>{item['price']}</td>
-    #             <td>{item['sold']}</td>
-    #             <td>{item['type']}</td>
-    #         </tr>
-    #         """
+        # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
+        for item in list_result:
+            html_output += f"""
+            <tr>
+                <td>{item['product_name']}</td>
+                <td>{item['sale_price']}</td>
+                <td>{item['sold']}</td>
+                <td>{item['category']}</td>
+            </tr>
+            """
 
-    #     # Kết thúc HTML
-    #     html_output += """
-    #         </table>
+        # Kết thúc HTML
+        html_output += """
+            </table>
 
-    #         </body>
-    #         </html>
-    #         """
+            </body>
+            </html>
+            """
       
-    #     # print("html output", html_output)
+        # print("html output", html_output)
         
-    #     pdf = pdfkit.from_string(html_output, False)
+        pdf = pdfkit.from_string(html_output, False)
         
-    #     res = io.BytesIO(pdf)
-    #     public_url = self.upload_pdf(res)
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
         
-    #     return public_url
+        return public_url
         
-    # async def fsn_analysis(self, user_id: str, tenant_id: str, branch: str = None):
+    async def fsn_analysis(self, products: List[InventoryItem],start_date:date,end_date:date,user_id: str, tenant_id: str, branch: str = None):
         
-    #     # TODO: phân tích hiện thực ở đây
-        
-        
-    #     # Tạo form phân tích
-    #     user_name = await crud.report.get_user_name(self.db, user_id)
-        
-    #     time_report = date.today()
-    #     # Bắt đầu tạo mã HTML
-    #     html_output = """
-    #     <!DOCTYPE html>
-    #     <html lang="en">
-    #     <head>
-    #     <meta charset="UTF-8">
-    #     <title>Phân tích tồn kho theo phương pháp FSN</title>
-    #     <style>
-    #         table, th, td {
-    #             border: 1px solid black;
-    #             border-collapse: collapse;
-    #         }
-    #         th, td {
-    #             padding: 8px;
-    #             text-align: left;
-    #         }
-    #         th {
-    #             background-color: #f2f2f2;
-    #         }
-    #     </style>
-    #     </head>
-    #     <body>"""
-        
-    #     if branch is None:
-    #       branch = "Tất cả chi nhánh"
-        
-    #     html_output += f"""
-    #     <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP FSN</h1>
-    #     <h2>Tên công ty: {tenant_id}</h2>
-    #     <h2>{branch}</h2>
-    #     <p>Người tạo báo cáo: {user_name}</p>
-    #     <p>Ngày xuất báo cáo: {time_report}</p>
-    #     <table>
-    #         <tr>
-    #             <th>Mã sản phẩm</th>
-    #             <th>Tên sản phẩm</th>
-    #             <th>Giá bán</th>
-    #             <th>Số lượng đã bán</th>
-    #             <th>Phân loại</th>
-    #         </tr>
-    #     """
-
-    #     # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
-    #     for item in list_result:
-    #         html_output += f"""
-    #         <tr>
-    #             <td>{item['product_id']}</td>
-    #             <td>{item['product_name']}</td>
-    #             <td>{item['price']}</td>
-    #             <td>{item['sold']}</td>
-    #             <td>{item['type']}</td>
-    #         </tr>
-    #         """
-
-    #     # Kết thúc HTML
-    #     html_output += """
-    #         </table>
-
-    #         </body>
-    #         </html>
-    #         """
+        # TODO: phân tích hiện thực ở đây
+        list_result = await self.fsn_define(products,start_date,end_date)
       
-    #     # print("html output", html_output)
+        # Tạo form phân tích
+        user_name = await crud.report.get_user_name(self.db, user_id)
         
-    #     pdf = pdfkit.from_string(html_output, False)
+        time_report = date.today()
+        # Bắt đầu tạo mã HTML
+        html_output = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <title>Phân tích tồn kho theo phương pháp FSN</title>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        </head>
+        <body>"""
         
-    #     res = io.BytesIO(pdf)
-    #     public_url = self.upload_pdf(res)
+        if branch is None:
+          branch = "Tất cả chi nhánh"
         
-    #     return public_url
+        html_output += f"""
+        <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP FSN</h1>
+        <h2>Tên công ty: {tenant_id}</h2>
+        <h2>{branch}</h2>
+        <p>Người tạo báo cáo: {user_name}</p>
+        <p>Ngày xuất báo cáo: {time_report}</p>
+        <p>Khoảng thời gian: {start_date} đến {end_date}</p>
+        <table>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Giá bán</th>
+                <th>Số lượng đã bán</th>
+                <th>Phân loại</th>
+            </tr>
+        """
+
+        # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
+        for item in list_result:
+            html_output += f"""
+            <tr>
+                <td>{item.product_name}</td>
+                <td>{item.sale_price}</td>
+                <td>{item.average_consumption}</td>
+                <td>{item.category}</td>
+            </tr>
+            """
+
+        # Kết thúc HTML
+        html_output += """
+            </table>
+
+            </body>
+            </html>
+            """
+      
+        # print("html output", html_output)
+        
+        pdf = pdfkit.from_string(html_output, False)
+        
+        res = io.BytesIO(pdf)
+        public_url = self.upload_pdf(res)
+        
+        return public_url
     
     
     def upload_pdf(self, file: UploadFile = File(...)):
@@ -657,3 +661,63 @@ class ReportService:
             raise HTTPException(status_code=500, detail=str(e))
         
     
+    async def abc_define(self, products):
+        # Chuyển đổi danh sách các đối tượng sản phẩm thành DataFrame
+        df = pd.DataFrame(products)
+        
+        # Kiểm tra các cột của DataFrame
+        # print("Columns in DataFrame:", df.columns)
+        
+        # Kiểm tra nếu cột 'sale_price' và 'sold' có trong DataFrame
+        if 'sale_price' not in df.columns or 'sold' not in df.columns:
+            raise ValueError("DataFrame phải có các cột 'sale_price' và 'sold'")
+        
+        df['total_value'] = df['sale_price'] * df['sold']
+        df = df.sort_values(by='total_value', ascending=False)
+        df['cumulative_value'] = df['total_value'].cumsum()
+        df['percentage'] = df['cumulative_value'] / df['total_value'].sum() * 100
+        
+        conditions = [
+            (df['percentage'] <= 70),
+            (df['percentage'] > 70) & (df['percentage'] <= 90),
+            (df['percentage'] > 90)
+        ]
+        
+        choices = ['A', 'B', 'C']
+        df['category'] = np.select(conditions, choices, default='C')
+        
+        return df[['product_name','sold','sale_price','category']].to_dict(orient='records')
+    
+
+    async def fsn_define(self, items: List[InventoryItem], start_date: date, end_date: date) -> List[CategorizedItem]:
+        categorized_items = []
+        total_items = len(items)
+        fast_threshold = int(total_items * 0.20)
+        slow_threshold = int(total_items * 0.50)
+        
+        delta = relativedelta(end_date, start_date)
+        # Calculate the number of months in the provided date range
+        num_months = delta.years * 12 + delta.months + 1
+        # Calculate average consumption
+        item_avg_consumption = [(item, item.sold / num_months) for item in items]
+        
+        # Sort items by average consumption in descending order
+        sorted_items = sorted(item_avg_consumption, key=lambda x: x[1], reverse=True)
+
+        # Categorize items
+        for i, (item, avg_consumption) in enumerate(sorted_items):
+            category = "Non-moving"
+            if i < fast_threshold:
+                category = "Fast-moving"
+            elif i < slow_threshold:
+                category = "Slow-moving"
+            
+            categorized_item = CategorizedItem(
+                product_name=item.product_name,
+                sale_price=item.sale_price,
+                average_consumption=avg_consumption,
+                category=category
+            )
+            categorized_items.append(categorized_item)
+
+        return categorized_items
