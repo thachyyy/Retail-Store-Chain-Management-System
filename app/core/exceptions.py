@@ -4,6 +4,7 @@ from starlette.requests import Request
 
 from app.constant.app_status import AppStatus
 from app.utils.response import make_error_response
+from typing import Literal
 
 
 async def validation_exception_handler(request: Request, validation_error: RequestValidationError):
@@ -43,5 +44,15 @@ def error_exception_handler(error, app_status: AppStatus):
             "error_code": app_status.app_status_code,
             "message": app_status.message,
             "data": data
+        }
+    )
+
+def customer_exception_handler(error, status: Literal[200, 400, 401, 404, 409, 500], msg: str):
+    return HTTPException(
+        status_code=status,
+        detail={
+            "error_code": status,
+            "message": msg,
+            "data": {}
         }
     )

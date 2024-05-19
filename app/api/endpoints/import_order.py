@@ -12,7 +12,7 @@ from app.api.depends import oauth2
 # from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 from app.api.endpoints.batch import create_batch
 from app.constant.app_status import AppStatus
-from app.core.exceptions import error_exception_handler
+from app.core.exceptions import error_exception_handler, customer_exception_handler
 from app.db.database import get_db
 from app.models.employee import Employee
 from app.models.import_detail import ImportDetail
@@ -64,39 +64,64 @@ async def create_import_order(
     try:
         contents = await file.read()
         data_frame = pd.read_excel(BytesIO(contents), engine='openpyxl')
-        print(data_frame)
+        # print(data_frame)
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed to read Excel file: {str(e)}"})
+    
+    # tạo biết lưu các dữ liệu đọc từ excel
     list_import = []
-    total = 0 
+    total = 0
+    list_db_contract = []
+    errors = []
+
+    # kiểm tra những ô không có dữ liêu
+    for column in data_frame.columns:
+        if column != 'Hạn sử dụng':  # Bỏ qua cột 'Hạn sử dụng'
+            for index, value in data_frame[column].items():
+                if pd.isna(value):  # Kiểm tra nếu giá trị là NaN
+                    errors.append(f"Cột '{column}' tại dòng {index + 1} không có dữ liệu.")
+
+    # raise lỗi không có dữ liệu
+    if errors:
+        for error in errors:
+            raise customer_exception_handler(error=Exception(), status=404, msg=error)
+
+    # duyệt qua từng dòng và lưu dữ liệu vào biến, thông báo lỗi nếu có
     for index, row in data_frame.iterrows():
             row['Hạn sử dụng'] = None if pd.isna(row['Hạn sử dụng']) else row['Hạn sử dụng']
+            
             db_contract = ImportDetailCreateParams(
                 product_id=row['Mã sản phẩm'],
                 product_name= row['Tên sản phẩm'],
                 unit = row['Đơn vị tính'],
                 import_price = row['Giá nhập'],
                 quantity = row['Số lượng'],
-                # manufacturing_date = row['Ngày sản xuất'],
                 expiry_date = row['Hạn sử dụng'],
                 sub_total = int(row['Tạm tính']),
                 tenant_id= current_user.tenant_id,
                 branch = branch,
             )
+            # print("********", index, row)
             isValisProd = await crud.product.check_product_exist(db,id=db_contract.product_id,tenant_id=current_user.tenant_id,branch=branch)
             if not isValisProd:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
-            import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
-            list_import += [import_detail.id]
-            total +=import_detail.sub_total
-            batch_obj = BatchCreateParams(
-                product_id = import_detail.product_id,
-                quantity = import_detail.quantity,
-                import_price = import_detail.import_price,
-                expiry_date = import_detail.expiry_date
-            )
-            batch_service = BatchService(db=db)
-            await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
+                raise customer_exception_handler(error=Exception(), status=404, msg=f"Mã sản phẩm {db_contract.product_id} ở dòng {index + 1} không tồn tại.")
+            
+            list_db_contract.append(db_contract)
+                
+    # gọi hàm insert data vào db
+    for db_contract in list_db_contract:
+        import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
+        list_import += [import_detail.id]
+        total +=import_detail.sub_total
+        batch_obj = BatchCreateParams(
+            product_id = import_detail.product_id,
+            quantity = import_detail.quantity,
+            import_price = import_detail.import_price,
+            expiry_date = import_detail.expiry_date
+        )
+        batch_service = BatchService(db=db)
+        await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
+    
     # print("alsd",list_import)
     import_order_create = ImportOrderCreateParams(
                 is_contract=is_contract,
