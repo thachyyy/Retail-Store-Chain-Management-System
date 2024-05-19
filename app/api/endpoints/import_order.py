@@ -70,9 +70,9 @@ async def create_import_order(
     
     # tạo biết lưu các dữ liệu đọc từ excel
     list_import = []
-    # total = 0
-    # list_db_contract = []
-    # errors = []
+    total = 0
+    list_db_contract = []
+    errors = []
 
     # # kiểm tra những ô không có dữ liêu
     # for column in data_frame.columns:
@@ -86,7 +86,7 @@ async def create_import_order(
     #     for error in errors:
     #         raise customer_exception_handler(error=Exception(), status=404, msg=error)
 
-    # # duyệt qua từng dòng và lưu dữ liệu vào biến, thông báo lỗi nếu có
+    # duyệt qua từng dòng và lưu dữ liệu vào biến, thông báo lỗi nếu có
     for index, row in data_frame.iterrows():
             row['Hạn sử dụng'] = None if pd.isna(row['Hạn sử dụng']) else row['Hạn sử dụng']
             
@@ -106,21 +106,21 @@ async def create_import_order(
             if not isValisProd:
                 raise customer_exception_handler(error=Exception(), status=404, msg=f"Mã sản phẩm {db_contract.product_id} ở dòng {index + 1} không tồn tại.")
             
-    #         list_db_contract.append(db_contract)
+            list_db_contract.append(db_contract)
                 
-    # # gọi hàm insert data vào db
-    # for db_contract in list_db_contract:
-    #     import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
-    #     list_import += [import_detail.id]
-    #     total +=import_detail.sub_total
-    #     batch_obj = BatchCreateParams(
-    #         product_id = import_detail.product_id,
-    #         quantity = import_detail.quantity,
-    #         import_price = import_detail.import_price,
-    #         expiry_date = import_detail.expiry_date
-    #     )
-    #     batch_service = BatchService(db=db)
-    #     await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
+    # gọi hàm insert data vào db
+    for db_contract in list_db_contract:
+        import_detail = crud.import_detail.create(db=db, obj_in=db_contract)
+        list_import += [import_detail.id]
+        total +=import_detail.sub_total
+        batch_obj = BatchCreateParams(
+            product_id = import_detail.product_id,
+            quantity = import_detail.quantity,
+            import_price = import_detail.import_price,
+            expiry_date = import_detail.expiry_date
+        )
+        batch_service = BatchService(db=db)
+        await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
     
     # print("alsd",list_import)
     import_order_create = ImportOrderCreateParams(
