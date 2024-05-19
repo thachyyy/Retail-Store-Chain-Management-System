@@ -30,8 +30,10 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         query = db.query(PurchaseOrder).filter( \
         PurchaseOrder.created_at.between(start_datetime, end_datetime),
         PurchaseOrder.tenant_id == tenant_id,
-        PurchaseOrder.branch == branch).count()
+        PurchaseOrder.branch == branch,
+        PurchaseOrder.status == 'Đã thanh toán').count()
         
+        print("day ne", query)
 
         return query
     @staticmethod

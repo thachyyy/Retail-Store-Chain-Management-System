@@ -24,11 +24,16 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         
         query = db.query(InvoiceForCustomer).filter( \
         InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
-        InvoiceForCustomer.tenant_id == tenant_id)
-        
+        InvoiceForCustomer.tenant_id == tenant_id,
+        InvoiceForCustomer.status == 'Đã thanh toán')
+
         total_sale = db.query(func.sum(InvoiceForCustomer.total)).filter( \
         InvoiceForCustomer.created_at.between(start_datetime, end_datetime),
-        InvoiceForCustomer.tenant_id == tenant_id).scalar()
+        InvoiceForCustomer.tenant_id == tenant_id,
+        InvoiceForCustomer.status == 'Đã thanh toán').scalar()
+        
+        
+        
         if total_sale is None:
             total_sale = 0 
         return query.all(),total_sale        
