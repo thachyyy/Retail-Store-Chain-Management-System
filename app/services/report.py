@@ -472,6 +472,167 @@ class ReportService:
         
         return public_url
     
+    # async def abc_analysis(self, user_id: str, tenant_id: str, branch: str = None):
+        
+    #     # TODO: phân tích hiện thực ở đây
+        
+        
+    #     # Tạo form phân tích
+    #     user_name = await crud.report.get_user_name(self.db, user_id)
+        
+    #     time_report = date.today()
+    #     # Bắt đầu tạo mã HTML
+    #     html_output = """
+    #     <!DOCTYPE html>
+    #     <html lang="en">
+    #     <head>
+    #     <meta charset="UTF-8">
+    #     <title>Phân tích tồn kho theo phương pháp ABC</title>
+    #     <style>
+    #         table, th, td {
+    #             border: 1px solid black;
+    #             border-collapse: collapse;
+    #         }
+    #         th, td {
+    #             padding: 8px;
+    #             text-align: left;
+    #         }
+    #         th {
+    #             background-color: #f2f2f2;
+    #         }
+    #     </style>
+    #     </head>
+    #     <body>"""
+        
+    #     if branch is None:
+    #       branch = "Tất cả chi nhánh"
+        
+    #     html_output += f"""
+    #     <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP ABC</h1>
+    #     <h2>Tên công ty: {tenant_id}</h2>
+    #     <h2>{branch}</h2>
+    #     <p>Người tạo báo cáo: {user_name}</p>
+    #     <p>Ngày xuất báo cáo: {time_report}</p>
+    #     <table>
+    #         <tr>
+    #             <th>Mã sản phẩm</th>
+    #             <th>Tên sản phẩm</th>
+    #             <th>Giá bán</th>
+    #             <th>Số lượng đã bán</th>
+    #             <th>Phân loại</th>
+    #         </tr>
+    #     """
+
+    #     # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
+    #     for item in list_result:
+    #         html_output += f"""
+    #         <tr>
+    #             <td>{item['product_id']}</td>
+    #             <td>{item['product_name']}</td>
+    #             <td>{item['price']}</td>
+    #             <td>{item['sold']}</td>
+    #             <td>{item['type']}</td>
+    #         </tr>
+    #         """
+
+    #     # Kết thúc HTML
+    #     html_output += """
+    #         </table>
+
+    #         </body>
+    #         </html>
+    #         """
+      
+    #     # print("html output", html_output)
+        
+    #     pdf = pdfkit.from_string(html_output, False)
+        
+    #     res = io.BytesIO(pdf)
+    #     public_url = self.upload_pdf(res)
+        
+    #     return public_url
+        
+    # async def fsn_analysis(self, user_id: str, tenant_id: str, branch: str = None):
+        
+    #     # TODO: phân tích hiện thực ở đây
+        
+        
+    #     # Tạo form phân tích
+    #     user_name = await crud.report.get_user_name(self.db, user_id)
+        
+    #     time_report = date.today()
+    #     # Bắt đầu tạo mã HTML
+    #     html_output = """
+    #     <!DOCTYPE html>
+    #     <html lang="en">
+    #     <head>
+    #     <meta charset="UTF-8">
+    #     <title>Phân tích tồn kho theo phương pháp FSN</title>
+    #     <style>
+    #         table, th, td {
+    #             border: 1px solid black;
+    #             border-collapse: collapse;
+    #         }
+    #         th, td {
+    #             padding: 8px;
+    #             text-align: left;
+    #         }
+    #         th {
+    #             background-color: #f2f2f2;
+    #         }
+    #     </style>
+    #     </head>
+    #     <body>"""
+        
+    #     if branch is None:
+    #       branch = "Tất cả chi nhánh"
+        
+    #     html_output += f"""
+    #     <h1>PHÂN TÍCH HÀNG TỒN KHO THEO PHƯƠNG PHÁP FSN</h1>
+    #     <h2>Tên công ty: {tenant_id}</h2>
+    #     <h2>{branch}</h2>
+    #     <p>Người tạo báo cáo: {user_name}</p>
+    #     <p>Ngày xuất báo cáo: {time_report}</p>
+    #     <table>
+    #         <tr>
+    #             <th>Mã sản phẩm</th>
+    #             <th>Tên sản phẩm</th>
+    #             <th>Giá bán</th>
+    #             <th>Số lượng đã bán</th>
+    #             <th>Phân loại</th>
+    #         </tr>
+    #     """
+
+    #     # Thêm dòng cho mỗi hàng dữ liệu, lặp trong list trả về (tên list thay đổi cho đúng)
+    #     for item in list_result:
+    #         html_output += f"""
+    #         <tr>
+    #             <td>{item['product_id']}</td>
+    #             <td>{item['product_name']}</td>
+    #             <td>{item['price']}</td>
+    #             <td>{item['sold']}</td>
+    #             <td>{item['type']}</td>
+    #         </tr>
+    #         """
+
+    #     # Kết thúc HTML
+    #     html_output += """
+    #         </table>
+
+    #         </body>
+    #         </html>
+    #         """
+      
+    #     # print("html output", html_output)
+        
+    #     pdf = pdfkit.from_string(html_output, False)
+        
+    #     res = io.BytesIO(pdf)
+    #     public_url = self.upload_pdf(res)
+        
+    #     return public_url
+    
+    
     def upload_pdf(self, file: UploadFile = File(...)):
         try:
             # Read image file
@@ -494,3 +655,5 @@ class ReportService:
             return JSONResponse(status_code=200, content={"message": "File uploaded successfully", "url": public_url})
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+    
