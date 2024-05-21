@@ -74,17 +74,17 @@ async def create_import_order(
     list_db_contract = []
     errors = []
 
-    # kiểm tra những ô không có dữ liêu
-    for column in data_frame.columns:
-        if column != 'Hạn sử dụng':  # Bỏ qua cột 'Hạn sử dụng'
-            for index, value in data_frame[column].items():
-                if pd.isna(value):  # Kiểm tra nếu giá trị là NaN
-                    errors.append(f"Cột '{column}' tại dòng {index + 1} không có dữ liệu.")
+    # # kiểm tra những ô không có dữ liêu
+    # for column in data_frame.columns:
+    #     if column != 'Hạn sử dụng':  # Bỏ qua cột 'Hạn sử dụng'
+    #         for index, value in data_frame[column].items():
+    #             if pd.isna(value):  # Kiểm tra nếu giá trị là NaN
+    #                 errors.append(f"Cột '{column}' tại dòng {index + 1} không có dữ liệu.")
 
-    # raise lỗi không có dữ liệu
-    if errors:
-        for error in errors:
-            raise customer_exception_handler(error=Exception(), status=404, msg=error)
+    # # raise lỗi không có dữ liệu
+    # if errors:
+    #     for error in errors:
+    #         raise customer_exception_handler(error=Exception(), status=404, msg=error)
 
     # duyệt qua từng dòng và lưu dữ liệu vào biến, thông báo lỗi nếu có
     for index, row in data_frame.iterrows():

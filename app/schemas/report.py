@@ -7,3 +7,14 @@ class ReportCreate(BaseModel):
     
 class ReportUpdate(BaseModel):
     pass
+
+
+class InventoryItem(BaseModel):
+    product_name: str
+    sold: int
+    sale_price:int
+class CategorizedItem(BaseModel):
+    product_name: str
+    sale_price:int
+    average_consumption: int
+    category: str
