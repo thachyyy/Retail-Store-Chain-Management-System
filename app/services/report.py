@@ -603,7 +603,7 @@ class ReportService:
             <tr>
                 <th>Tên sản phẩm</th>
                 <th>Giá bán</th>
-                <th>Số lượng đã bán</th>
+                <th>Số lượng tiêu thụ trung bình</th>
                 <th>Phân loại</th>
             </tr>
         """
