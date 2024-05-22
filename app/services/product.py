@@ -281,20 +281,40 @@ class ProductService:
             result,total= await crud.product.get_product_by_conditions(self.db, sql=sql,total = total)
             total = total[0]['count']
         else:
-            sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh';"
+            sql_join = f"""SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id 
+                           FROM product AS p 
+                           LEFT JOIN batch AS b ON p.id = b.product_id 
+                           WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0;"""
             
             if branch is None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh';"
+                sql_join = f"""SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id 
+                               FROM product AS p 
+                               LEFT JOIN batch AS b ON p.id = b.product_id 
+                               WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0;"""
                 
             if limit is not None and offset is not None:
-                sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh' LIMIT {limit} OFFSET {offset*limit};"
+                sql_join = f"""SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id 
+                               FROM product AS p 
+                               LEFT JOIN batch AS b ON p.id = b.product_id 
+                               WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0 
+                               LIMIT {limit} OFFSET {offset*limit};"""
                 if branch is None:                    
-                    sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh' LIMIT {limit} OFFSET {offset*limit};"
+                    sql_join = f"""SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id 
+                                   FROM product AS p 
+                                   LEFT JOIN batch AS b ON p.id = b.product_id 
+                                   WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0 
+                                   LIMIT {limit} OFFSET {offset*limit};"""
                     
             
-            total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh';"
+            total = f"""SELECT COUNT(*) 
+                        FROM product AS p 
+                        LEFT JOIN batch AS b ON p.id = b.product_id 
+                        WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0;"""
             if branch is None:
-                total = f"SELECT COUNT(*) FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh';"     
+                total = f"""SELECT COUNT(*) 
+                          FROM product AS p 
+                          LEFT JOIN batch AS b ON p.id = b.product_id 
+                          WHERE p.tenant_id = '{tenant_id}' AND p.status = 'Đang kinh doanh' AND b.quantity > 0;"""   
 
             
             result, total = await crud.product.get_all_product(self.db, total, sql_join)
