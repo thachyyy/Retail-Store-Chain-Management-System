@@ -162,4 +162,17 @@ class CRUDReport():
             return int(result[0])  # Chuyển kết quả thành số
         return None
     
+    @staticmethod
+    async def get_total_quantity(db: Session, tenant_id: str, id: str):
+        sql = f"""
+            SELECT sum(quantity)
+            FROM public.batch
+            WHERE tenant_id = '{tenant_id}' AND product_id = '{id}';
+        """
+        
+        result = db.execute(sql).fetchone()
+        if result:
+            return int(result[0])  # Chuyển kết quả thành số
+        return None
+    
 report = CRUDReport()
