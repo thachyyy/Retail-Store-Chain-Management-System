@@ -32,6 +32,8 @@ class NotiService:
             logger.info("Kiểm tra lại số lượng còn lại trong lô của những sản phẩm sắp hết hạn")
             list_batch_id = crud.noti.get_list_batch_id(self.db)
             for batch_id in list_batch_id:
+                if batch_id is None:
+                    continue
                 quantity, tenant_id = crud.noti.get_quantity_of_batch(self.db, batch_id)
                 if quantity == 0:
                     noti_update = NotiUpdate(
@@ -157,7 +159,7 @@ try:
     noti_service = NotiService(db=db)
     scheduler = BackgroundScheduler()
     scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
-    # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=45)
+    # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=100)
     scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
     # scheduler.add_job(noti_service.checking_next_import, 'interval', seconds=15)
     
