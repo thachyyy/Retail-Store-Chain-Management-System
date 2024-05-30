@@ -185,43 +185,48 @@ class ReportService:
     
     async def sales_report_by_product(self, user_id: str, start_date: date, end_date: date, tenant_id: str, branch: str = None):
         logger.info("ServiceReport: sales_report_by_product is called.")
-        # invoice_service = InvoiceForCustomerService(db=self.db)
+        invoice_service = InvoiceForCustomerService(db=self.db)
         user_name = await crud.report.get_user_name(self.db, user_id)
         end_date += timedelta(days=1)
-        # msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
-        #     tenant_id=tenant_id, 
-        #     branch=branch, 
-        #     start_date=start_date, 
-        #     end_date=end_date
-        # )
-        # list_product_quantity = dict()
+        msg, list_invoice = await invoice_service.get_all_invoice_for_customers(
+            tenant_id=tenant_id, 
+            branch=branch, 
+            start_date=start_date, 
+            end_date=end_date
+        )
+        list_product_quantity = dict()
         
-        # for invoice in list_invoice:
-        #     for order_detail in invoice.order_detail:
-        #         if order_detail.product_id in list_product_quantity:
-        #             list_product_quantity[order_detail.product_id][2] += order_detail.quantity
-        #         else:
-        #             quantity = order_detail.quantity
-        #             name, price = await crud.report.get_price_and_name_by_product_id(self.db, order_detail.product_id, tenant_id, branch)
-        #             list_product_quantity[order_detail.product_id] = [name, price, quantity]
-        #     # print("list product:", list_product_quantity)
+        for invoice in list_invoice:
+            for order_detail in invoice.order_detail:
+                if order_detail.product_id in list_product_quantity:
+                    list_product_quantity[order_detail.product_id][2] += order_detail.quantity
+                else:
+                    quantity = order_detail.quantity
+                    name, price = await crud.report.get_price_and_name_by_product_id(self.db, order_detail.product_id, tenant_id, branch)
+                    list_product_quantity[order_detail.product_id] = [name, price, quantity]
+            # print("list product:", list_product_quantity)
         
-        # # tính doanh thu bằng số lượng nhân giá bán
-        # for product_id, details in list_product_quantity.items():
-        #     name = details[0]
-        #     price = details[1]
-        #     quantity = details[2]
+        # tính doanh thu bằng số lượng nhân giá bán
+        for product_id, details in list_product_quantity.items():
+            name = details[0]
+            price = details[1]
+            quantity = details[2]
             
-        #     revenue = price * quantity
+            revenue = price * quantity
             
-        #     details.append(revenue)
-        # tính lợi nhuận lấy số lượng nhân (giá bán - giá nhập) // chưa làm
+            details.append(revenue)
+            
+        for product_id, details in list_product_quantity.items():
+            print("details", details)
+            quantity = await crud.report.get_total_quantity(self.db, tenant_id, product_id)
+            details.append(quantity)
         
+        # print("*********", list_product_quantity)
         
-        dashboard_service = DashboardService(db=self.db)
-        if branch == "Tất cả chi nhánh":
-            branch = None
-        products = await dashboard_service.get_all_sell_through_rate(tenant_id, branch)
+        # dashboard_service = DashboardService(db=self.db)
+        # if branch == "Tất cả chi nhánh":
+        #     branch = None
+        # products = await dashboard_service.get_all_sell_through_rate(tenant_id, branch)
         
         # tạo html
         time_report = date.today()
@@ -262,23 +267,21 @@ class ReportService:
             <tr>
                 <th>Tên sản phẩm</th>
                 <th>Giá bán</th>
-                <th>Doanh thu</th>
                 <th>Đã bán</th>
+                <th>Doanh thu</th>
                 <th>Tồn kho</th>
-                <th>Tỷ lệ bán hết</th>
             </tr>
         """
         
         # Thêm dòng cho mỗi hàng dữ liệu
-        for prod in products:
+        for id, value in list_product_quantity.items():
             html_output += f"""
             <tr>
-                <td>{prod['product_name']}</td>
-                <td>{prod['sale_price']}</td>
-                <td>{prod['sales_total']}</td>
-                <td>{prod['sold']}</td>
-                <td>{prod['inventory']}</td>
-                <td>{round(prod['sell_rate'], 2)}</td>
+                <td>{value[0]}</td>
+                <td>{value[1]}</td>
+                <td>{value[2]}</td>
+                <td>{value[3]}</td>
+                <td>{value[4]}</td>
             </tr>
             """
 
