@@ -258,3 +258,4 @@ async def sales_report_by_categories(
     res = await report_service.sales_report_by_categories(current_user.id, start_date, end_date, current_user.tenant_id, branch)
     
     return res
+

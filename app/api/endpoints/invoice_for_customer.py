@@ -43,6 +43,31 @@ async def create_invoice_for_customer(
     logger.info("Endpoints: create_invoice_for_customer called successfully.")
     return make_response_object(invoice_for_customer_response, msg)
 
+@router.get("/invoice_for_customers/invoice_print")
+async def invoice_print(
+    invoice_id :str,
+    user: Employee = Depends(oauth2.get_current_user),
+    branch: Optional[str] = None,
+    db: Session = Depends(get_db)) -> Any:
+    current_user = await user
+    
+    if branch:
+        branch = branch
+    else:
+        branch = current_user.branch
+    invoice_for_customer_service = InvoiceForCustomerService(db=db)
+    logger.info("Endpoints: get_all_invoice_for_customers called.")
+    
+    invoice_for_customer_response = await invoice_for_customer_service.invoice_print(
+        invoice_id = invoice_id, 
+        user_id = current_user.id,
+        tenant_id=current_user.tenant_id,
+        branch=branch,
+
+    )
+    logger.info("Endpoints: get_all_invoice_for_customers called successfully.")
+    return invoice_for_customer_response
+
 @router.get("/invoice_for_customers")
 async def get_all_invoice_for_customers(
     db: Session = Depends(get_db),

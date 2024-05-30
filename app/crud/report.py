@@ -79,6 +79,11 @@ class CRUDReport():
         return result[0]
     
     @staticmethod
+    async def get_customer_name(db: Session, customer_id: str):
+        sql = f"SELECT full_name FROM public.customer WHERE id = '{customer_id}';"
+        result = db.execute(sql).fetchone()
+        return result
+    @staticmethod
     async def sales_report_by_customer(db: Session, start_date: date, end_date: date, tenant_id: str, branch: str = None):
         if branch:
             sql = f"""SELECT po.belong_to_customer as customer_id, c.full_name, sum(total)
