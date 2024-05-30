@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session,joinedload
 from app.models.order_detail import OrderDetail
 from app.schemas.invoice_for_customer import InvoiceForCustomerCreate, InvoiceForCustomerUpdate
@@ -74,7 +74,7 @@ class CRUDInvoiceForCustomer(CRUDBase[InvoiceForCustomer, InvoiceForCustomerCrea
         total = db.execute(sql)
         result_as_dict = total.mappings().all()
         
-        response = db.query(InvoiceForCustomer).filter(InvoiceForCustomer.tenant_id == tenant_id, InvoiceForCustomer.branch == branch)
+        response = db.query(InvoiceForCustomer).filter(InvoiceForCustomer.tenant_id == tenant_id, InvoiceForCustomer.branch == branch).order_by(desc(InvoiceForCustomer.created_at))
         
         if limit is not None and offset is not None:
                response = response.offset(offset).limit(limit)
