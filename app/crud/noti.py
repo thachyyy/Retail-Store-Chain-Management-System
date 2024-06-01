@@ -41,7 +41,7 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
     @staticmethod
     def isExist(db: Session, batch_id: str):
         logger.info("CRUDNoti: isExist is called.")
-        sql = f"SELECT * FROM public.noti WHERE batch_id = '{batch_id}' AND status = 0;"
+        sql = f"SELECT * FROM public.noti WHERE batch_id = '{batch_id}';"
         result = db.execute(sql)
         result_as_dict = result.mappings().all()
         logger.info("CRUDNoti: isExist is called successfully.")

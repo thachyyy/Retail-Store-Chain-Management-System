@@ -29,10 +29,12 @@ class NotiService:
             
     def check_expiring_product(self):
         try:
+            
+            # kiểm tra số lượng sp còn lại trong lô, nếu bằng 0 thì không cần noti nữa
             logger.info("Kiểm tra lại số lượng còn lại trong lô của những sản phẩm sắp hết hạn")
             list_batch_id = crud.noti.get_list_batch_id(self.db)
             for batch_id in list_batch_id:
-                if batch_id is None:
+                if batch_id is None: # không có batch id có nghĩa đó là thông báo về hợp đồng
                     continue
                 quantity, tenant_id = crud.noti.get_quantity_of_batch(self.db, batch_id)
                 if quantity == 0:
@@ -43,7 +45,8 @@ class NotiService:
                     
                     result = crud.noti.updateNoti(self.db, tenant_id, batch_id, noti_update)
                     
-                    
+            
+            # kiểm các lô sắp hết hạn       
             logger.info("Lấy ra danh sách các lô hàng gần hết hạn sử dụng.")
             batches = crud.noti.get_expiring_batches(self.db)
             logger.info("Kiểm tra từng lô hàng đã tồn tại trong bảng thông báo chưa.")
@@ -53,7 +56,11 @@ class NotiService:
                 isExist = crud.noti.isExist(self.db, batch['id'])
                 product_name = crud.noti.get_product_name(self.db, batch['product_id'])
                 time_left = batch['expiry_date'] - date.today()
-                msg = f"Sản phẩm {product_name} trong lô {batch['id']} hết hạn sau {time_left.days} ngày."
+                
+                if time_left <= 0:
+                    msg = f"Sản phẩm {product_name} trong lô {batch['id']} đã hết hạn sử dụng."
+                
+                else: msg = f"Sản phẩm {product_name} trong lô {batch['id']} hết hạn sau {time_left.days} ngày."
                 
                 tenant_id, branch = crud.noti.get_tenant_and_branch(self.db, batch['product_id'])
                 
@@ -158,8 +165,8 @@ try:
     # Sử dụng session db ở đây
     noti_service = NotiService(db=db)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
-    # scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=100)
+    # scheduler.add_job(noti_service.check_expiring_product, 'cron', hour=6, minute=0)
+    scheduler.add_job(noti_service.check_expiring_product, 'interval', seconds=60)
     scheduler.add_job(noti_service.checking_next_import, 'cron', hour=6, minute=15)
     # scheduler.add_job(noti_service.checking_next_import, 'interval', seconds=15)
     
