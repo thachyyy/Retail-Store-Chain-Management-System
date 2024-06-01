@@ -57,7 +57,7 @@ class NotiService:
                 product_name = crud.noti.get_product_name(self.db, batch['product_id'])
                 time_left = batch['expiry_date'] - date.today()
                 
-                if time_left <= 0:
+                if time_left.days <= 0:
                     msg = f"Sản phẩm {product_name} trong lô {batch['id']} đã hết hạn sử dụng."
                 
                 else: msg = f"Sản phẩm {product_name} trong lô {batch['id']} hết hạn sau {time_left.days} ngày."
@@ -101,7 +101,7 @@ class NotiService:
                         self.db.commit()
             # return dict(message_code=AppStatus.SUCCESS.message), result
         except Exception as e:
-            print("Exception here:", e)
+            print("Exception here1:", e)
     
     def update_status_noti(self, idNoti: str, tenant_id: str, status: int):
         result = crud.noti.update_status(self.db, idNoti, tenant_id, status)
@@ -156,7 +156,7 @@ class NotiService:
                     #     crud.noti.update_status_in_batch(self.db, tenant_id, batch['id'])
                     #     self.db.commit()
         except Exception as e:
-            print("Exception here:", e)
+            print("Exception here2:", e)
     
 
 db_gen = get_db()

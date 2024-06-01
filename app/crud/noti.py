@@ -97,7 +97,7 @@ class CRUDNoti(CRUDBase[Noti, NotiCreate, NotiUpdate]):
     
     @staticmethod
     def get_list_batch_id(db: Session):
-        sql = "SELECT batch_id FROM public.noti;"
+        sql = "SELECT batch_id FROM public.noti WHERE status = 0;"
         result = db.execute(sql).fetchall()
         batch_ids = [item[0] for item in result]
         return batch_ids
