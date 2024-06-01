@@ -11,6 +11,7 @@ from app import crud
 from app.api.depends import oauth2
 # from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 from app.api.endpoints.batch import create_batch
+from app.api.endpoints.info import update_info
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler, customer_exception_handler
 from app.db.database import get_db
@@ -121,7 +122,7 @@ async def create_import_order(
         )
         batch_service = BatchService(db=db)
         await batch_service.create_batch(batch_obj,current_user.tenant_id, branch)
-    
+        await update_info(product_id=import_detail.product_id,tenant_id=current_user.tenant_id,inventory=import_detail.quantity,branch=branch,db=db)
     # print("alsd",list_import)
     import_order_create = ImportOrderCreateParams(
                 is_contract=is_contract,

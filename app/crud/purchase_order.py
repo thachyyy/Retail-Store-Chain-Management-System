@@ -142,6 +142,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
             tenant_id = tenant_id,
             branch = obj_in.branch
             )
+            
                for product in obj]
         
         db.add_all(order_obj)

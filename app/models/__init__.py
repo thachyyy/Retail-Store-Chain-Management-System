@@ -27,3 +27,4 @@ from .import_detail import ImportDetail
 from .noti import Noti
 from .inventory_check_detail import InventoryCheckDetail
 from .inventory_check import InventoryCheck
+from .info import Info

@@ -9,6 +9,7 @@ from pydantic import UUID4, Field
 
 from app import crud
 from app.api.endpoints.batch import update_batch
+from app.api.endpoints.info import update_info
 from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
 from app.constant.app_status import AppStatus
 from app.models.employee import Employee
@@ -174,6 +175,7 @@ class PurchaseOrderService:
         if paid:
             for item in obj_in.order_detail:
                 await update_batch(item.batch, item.quantity,tenant_id, db=self.db)
+                await update_info(product_id=item.product_id,tenant_id=tenant_id,sold=item.quantity,branch=branch,db=self.db)
                 
         purchase_order_create = PurchaseOrderCreate(
         id=newID,

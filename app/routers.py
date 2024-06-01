@@ -27,7 +27,7 @@ from app.api.endpoints import noti
 from app.api.endpoints import report
 from app.api.endpoints import inventory_check
 from app.api.endpoints import object
-
+from app.api.endpoints import info
 
 router = APIRouter()
 
@@ -57,4 +57,4 @@ router.include_router(vendor.router, prefix="", tags=["vendors"])
 router.include_router(report.router, prefix="", tags=["reports"])
 router.include_router(inventory_check.router, prefix="", tags=["inventory_check"])
 router.include_router(object.router, prefix="", tags=["object"])
-
+router.include_router(info.router, prefix="", tags=["info"])
