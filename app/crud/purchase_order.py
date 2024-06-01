@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from pydantic import EmailStr, UUID4
 
-from sqlalchemy import func
+from sqlalchemy import desc
 from sqlalchemy.orm import Session,joinedload
 
 from app.api.endpoints.invoice_for_customer import create_invoice_for_customer
@@ -42,7 +42,7 @@ class CRUDPurchaseOrder(CRUDBase[PurchaseOrder, PurchaseOrderCreate, PurchaseOrd
         result_as_dict = total.mappings().all()
         
         response = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.customer),
-                                                   joinedload(PurchaseOrder.employee)).filter(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.branch == branch)
+                                                   joinedload(PurchaseOrder.employee)).filter(PurchaseOrder.tenant_id == tenant_id, PurchaseOrder.branch == branch).order_by(desc(PurchaseOrder.created_at))
         
         
         if limit is not None and offset is not None:
