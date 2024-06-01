@@ -94,7 +94,10 @@ class ProductService:
         return dict(message_code=AppStatus.SUCCESS.message, total=total),result
     
     async def get_list_product(
-        self, tenant_id: str, 
+        self,
+        sort_by,
+        sort_order,
+        tenant_id: str, 
         branch: str = None, 
         limit: int = None, 
         offset: int = None,
@@ -181,37 +184,37 @@ class ProductService:
             total = total[0]['count']
         
         else:
-            # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}';"
             sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
                     from product p 
                     left join batch as b on b.product_id = p.id
                     where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
-                    group by p.id ;"""
+                    group by p.id 
+                    order by p.{sort_by} {sort_order};"""
             
             
             if branch is None:
-                # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}';"
                 sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
                     from product p 
                     left join batch as b on b.product_id = p.id
                     where p.tenant_id = '{tenant_id}'
-                    group by p.id ;"""
+                    group by p.id 
+                    order by p.{sort_by} {sort_order};"""
                 
             if limit is not None and offset is not None:
-                # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' AND p.branch = '{branch}' LIMIT {limit} OFFSET {offset*limit};"
                 sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
                     from product p 
                     left join batch as b on b.product_id = p.id
                     where p.tenant_id = '{tenant_id}' and p.branch = '{branch}'
                     group by p.id 
+                    order by p.{sort_by} {sort_order}
                     limit {limit} offset {offset};"""
                 if branch is None:                    
-                    # sql_join = f"SELECT p.*, b.id as batch_id, b.quantity,b.branch as branch_id FROM product AS p LEFT JOIN batch AS b ON p.id = b.product_id WHERE p.tenant_id = '{tenant_id}' LIMIT {limit} OFFSET {offset*limit};"
                     sql = f"""select p.*, COALESCE(SUM(b.quantity), 0) AS total_quantity
                     from product p 
                     left join batch as b on b.product_id = p.id
                     where p.tenant_id = '{tenant_id}'
                     group by p.id 
+                    order by p.{sort_by} {sort_order}
                     limit {limit} offset {offset};"""
             
             total = f"""select count(*)
