@@ -61,7 +61,7 @@ async def get_list_products(
     high_price: Optional[int] = None,
     categories: Optional[str] = None,
     query_search: Optional[str] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'id',
     sort_order: Optional[str] = 'asc',
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
