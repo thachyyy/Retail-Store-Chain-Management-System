@@ -96,10 +96,9 @@ async def update_info(
     
     if inventory:
         flag = 0
-        inventory += current_product.inventory
         
         import_order_service = ImportOrderService(db=db)
-        import_order_response = await import_order_service.get_all_import_orders(tenant_id==tenant_id,branch=branch)
+        import_order_response = await import_order_service.get_all_import_orders(tenant_id=tenant_id,branch=branch)
         
         
         for import_order in import_order_response[1]:
@@ -109,32 +108,35 @@ async def update_info(
                         latest_batch =  import_order.created_at
                         # latest_import = batch.quantity
                         latest_import = item.quantity   
+                        flag += 1
                     if flag == 0:
                         # Ngày nhập mới nhất
                         newest_batch = import_order.created_at
                         flag += 1
-                    
-        sold_in_range = 0    
-        if latest_batch:
-            invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=tenant_id, branch=branch,start_date=latest_batch,end_date=newest_batch)
-            for invoice in invoice_in_range[1]:
-                for order_detail in invoice.order_detail:
-                    if order_detail.product_id == id:
-                        sold_in_range += order_detail.quantity
         
+        sold_in_range = 0    
+        
+        if latest_batch:
+            invoice_in_range =  await invoice_for_customer_service.get_all_invoice_for_customers(tenant_id=tenant_id, branch=branch,start_date_1=latest_batch,end_date_1=newest_batch)
+            for invoice in invoice_in_range[1]:
+                for item in invoice.order_detail:
+                    if item.product_id == product_id:
+                        sold_in_range += item.quantity
+
         if sold_in_range >= latest_import:    
             sell_rate = 100
         else:    
             if latest_import > 0:
-                sell_rate = (sold_in_range / (latest_import ))*100
+                sell_rate = (sold_in_range / latest_import )*100
             else: 
                 sell_rate = 0
         if sold_in_range == 0:
             sell_rate = 0 
         update_data = {
             "inventory": (inventory + current_product.inventory),
-            "sell_rate": sell_rate
+            "sale_rate": round(sell_rate,2)
             }    
+    print("lisstst",list)
     info_update = InfoUpdate(**update_data)
     # sold += current_product.sold
     msg, info_response = await info_service.update_info(product_id=product_id, obj_in=info_update, tenant_id=tenant_id, branch=branch)

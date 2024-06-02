@@ -20,7 +20,6 @@ from app.services.batch import BatchService
 from app.services.dashboard import DashboardService
 from app.services.import_order import ImportOrderService
 from app.services.invoice_for_customer import InvoiceForCustomerService
-from app.services.product import ProductService
 from app.utils.response import make_response_object
 from app.models import Employee
 

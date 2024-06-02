@@ -50,6 +50,8 @@ class InvoiceForCustomerService:
         lt_total:Optional[int] = None,
         start_date:Optional[date] = None,
         end_date:Optional[date] = None,
+        start_date_1:Optional[datetime] = None,
+        end_date_1:Optional[datetime] = None,
         query_search:Optional[str] = None
     ):
         conditions = dict()
@@ -64,6 +66,10 @@ class InvoiceForCustomerService:
         if end_date:
             end_date += timedelta(days=1)
             conditions['end_date'] = end_date
+        if start_date_1:
+            conditions['start_date_1'] = start_date_1
+        if end_date_1:  
+            conditions['end_date_1'] = end_date_1    
         
         
         if conditions:
@@ -249,7 +255,10 @@ class InvoiceForCustomerService:
             whereList.append(f"created_at >= '{conditions['start_date']}'")
         if 'end_date' in conditions:
             whereList.append(f"created_at <= '{conditions['end_date']}'")
-            
+        if 'start_date_1' in conditions:
+            whereList.append(f"created_at >= '{conditions['start_date_1']}'")
+        if 'end_date_1' in conditions:
+            whereList.append(f"created_at <= '{conditions['end_date_1']}'")    
         whereConditions = "WHERE " + ' AND '.join(whereList)
         return whereConditions
     

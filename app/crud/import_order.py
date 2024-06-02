@@ -20,11 +20,12 @@ class CRUDImportOrder(CRUDBase[ImportOrder, ImportOrderCreate, ImportOrderUpdate
         tenant_id: str = None,
         branch: str = None) -> Any:
         
-        result = db.query(ImportOrder).filter(ImportOrder.tenant_id == tenant_id)
-
-        if branch:
-            result = result.filter(ImportOrder.branch == branch)
         
+        if branch:
+            result = db.query(ImportOrder).filter(ImportOrder.tenant_id == tenant_id,ImportOrder.branch == branch)
+        else:
+            result = db.query(ImportOrder).filter(ImportOrder.tenant_id == tenant_id)
+            
         total = result.count()
         
         result = result.order_by(ImportOrder.created_at.desc())

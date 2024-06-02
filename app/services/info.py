@@ -13,10 +13,10 @@ from app.models.import_detail import ImportDetail
 from app.schemas.import_detail import ImportDetailCreate, ImportDetailCreateParams
 from app.schemas.info import  InfoCreate, InfoUpdate, InvoiceOrderResponse
 from app.core.exceptions import error_exception_handler
+from app.schemas.product import ProductCreate, ProductCreateParams
 from app.services.batch import BatchService
 from app.services.import_order import ImportOrderService
 from app.services.invoice_for_customer import InvoiceForCustomerService
-from app.services.product import ProductService
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,36 @@ class InfoService:
         tenant_id:str,
         branch:str
         ):
+        list_info = await crud.info.get_all_info(tenant_id=tenant_id,branch=branch,db=self.db)
+        logger.info("Service: create_info success.")
+        return dict(message_code=AppStatus.SUCCESS.message), list_info
+    
+    async def add_new_info(
+        self, 
+        product: ProductCreate,
+        tenant_id:str,
+        branch:str):
+        category ="A"
+        sold = 0
+        sell_rate = 0.0
+        inventory = 0.0
+        info_obj = InfoCreate(
+                product_id=product.id,
+                product_name=product.product_name,
+                sale_price=product.sale_price,
+                sold=sold,
+                sale_rate=round(sell_rate,2),
+                inventory=inventory,
+                category=category,
+                branch=branch,
+                tenant_id=tenant_id
+            )
+        logger.info("InfoService: create called.")
+        
+        result = await crud.info.create(db=self.db, obj_in=info_obj)
+        logger.info("InfoService: create called successfully.")
+
+        self.db.commit()
         list_info = await crud.info.get_all_info(tenant_id=tenant_id,branch=branch,db=self.db)
         logger.info("Service: create_info success.")
         return dict(message_code=AppStatus.SUCCESS.message), list_info

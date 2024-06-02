@@ -9,6 +9,7 @@ from uuid import uuid4
 from app import crud
 from app.constant.app_status import AppStatus
 from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams
+from app.services.info import InfoService
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 import barcode
@@ -407,7 +408,8 @@ class ProductService:
         )
         # barcode_path = await self.generate_barcode(bar_code=product_create.barcode)
         # os.path.join(BARCODE_DIR, barcode_path)
-        
+        info_service = InfoService(self.db)
+        await info_service.add_new_info(product_create,tenant_id,branch)
         logger.info("ProductService: create called.")
         result = crud.product.create(db=self.db, obj_in=product_create)
         logger.info("ProductService: create called successfully.")
