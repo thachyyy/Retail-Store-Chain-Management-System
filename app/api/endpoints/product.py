@@ -61,6 +61,8 @@ async def get_list_products(
     high_price: Optional[int] = None,
     categories: Optional[str] = None,
     query_search: Optional[str] = None,
+    sort_by: Optional[str] = 'id',
+    sort_order: Optional[str] = 'asc',
     user: Employee = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -73,6 +75,8 @@ async def get_list_products(
         
     product_service = ProductService(db=db)
     msg, res = await product_service.get_list_product(
+        sort_by=sort_by,
+        sort_order=sort_order,
         tenant_id=current_user.tenant_id, 
         branch=branch, 
         limit=limit, 
