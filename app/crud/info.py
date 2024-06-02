@@ -25,8 +25,8 @@ class CRUDInfo(CRUDBase[Info, InfoCreate, InfoUpdate]):
         branch:str,
         db: Session,
     ) -> Optional[Info]:
-        result = db.query(Info).filter(Info.branch == branch, Info.tenant_id == tenant_id)
-        return result.all()
+        result = db.query(Info).filter(Info.branch == branch, Info.tenant_id == tenant_id).order_by(Info.sale_rate.desc()).limit(10).all()
+        return result
     @staticmethod
     async def get_info_id(
         product_id:str,
@@ -35,7 +35,7 @@ class CRUDInfo(CRUDBase[Info, InfoCreate, InfoUpdate]):
         db: Session,
     ) -> Optional[Info]:
         result = db.query(Info).filter(Info.branch == branch, Info.tenant_id == tenant_id,Info.product_id == product_id)
-        return result.one()
+        return result.first()
     
     @staticmethod
     async def create(db: Session, *, obj_in: InfoCreate) -> Info:

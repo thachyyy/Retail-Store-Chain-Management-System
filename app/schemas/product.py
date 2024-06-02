@@ -38,7 +38,29 @@ class ProductCreate(BaseModel):
     has_promotion: Optional[bool] = None 
     tenant_id: str
     branch: str
-    
+class ProductResponseAnalysis(BaseModel):    
+    id: str
+    created_at: date
+    updated_at: Optional[date] = None
+    barcode: str 
+    product_name: str
+    unit: str
+    sale_price: int
+    status: Status
+    last_purchase_price: Optional[int] = None
+    description: Optional[str] = None
+    brand: Optional[str] = None 
+    note: Optional[str] = None 
+    categories_id: Optional[str] = None
+    categories_name: Optional[str] = None
+    contract_for_vendor_id: Optional[str] = None
+    promotion_id: Optional[str] = None
+    has_promotion: Optional[bool] = None 
+    tenant_id: str
+    branch: str
+    img_url: Optional[str] = None
+    ABC:str 
+    FSN:str
 class ProductResponse(BaseModel):
     id: str
     created_at: date
@@ -63,8 +85,7 @@ class ProductResponse(BaseModel):
     batch_id: Optional[str] = None
     quantity: Optional[str] = None
     branch_id: Optional[str] = None
-    ABC:str 
-    FSN:str
+
 class ProductUpdate(BaseModel):
     barcode: Optional[str] 
     product_name: Optional[str] 

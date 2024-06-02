@@ -9,7 +9,7 @@ from uuid import uuid4
 from app import crud
 from app.api.endpoints.dashboard import get_this_year
 from app.constant.app_status import AppStatus
-from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams
+from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams, ProductResponseAnalysis
 from app.services.info import InfoService
 from app.services.report import ReportService
 from app.utils import hash_lib
@@ -232,9 +232,72 @@ class ProductService:
             result, total = await crud.product.get_all_product(self.db, total, sql)
             total = total[0]['count']
             logger.info("ProductService: get_all_products called successfully.")
+            
+        response = list()
+        report_service = ReportService(self.db)
+        info_service = InfoService(self.db)
+        abc_list= []
+        list_product = []
+
+        for product in result:
+            if product.id not in list_product:
+                list_product += [product.id]
+                
+        for item in list_product:
+            info_current = await info_service.get_info_by_product_id(item,tenant_id,branch)
+            
+            new_item = {
+                        "product_id" :info_current[1].product_id,
+                        "product_name": info_current[1].product_name,
+                        "sale_price": info_current[1].sale_price,
+                        "sold": info_current[1].sold,
+                    }      
+            abc_list.append(new_item)
+            
+        start_date,end_date = get_this_year()
+        abc_obj = await report_service.abc_define(abc_list) 
+        list_abc = []  
         
+        fsn_obj = await report_service.fsn_define(abc_list,start_date,end_date)
         
-        return dict(message_code=AppStatus.SUCCESS.message,total=total),result        
+        for r in result:
+            categories_name = await crud.product.get_categories_name(self.db, r.categories_id, tenant_id, branch)
+        
+            for x in abc_obj:
+                if x['product_id'] == r.id:
+                    abc = x['category']
+                
+            for x in fsn_obj:
+                if x.product_id == r.id:
+                    fsn =  x.category
+                    
+            res = ProductResponseAnalysis(  
+                id=r.id,
+                barcode=r.barcode,
+                product_name=r.product_name,
+                description=r.description,
+                brand=r.brand,
+                unit=r.unit,
+                last_purchase_price=r.last_purchase_price,
+                sale_price=r.sale_price,
+                status=r.status,
+                note=r.note,
+                has_promotion=r.has_promotion,
+                contract_for_vendor_id=r.contract_for_vendor_id,
+                promotion_id=r.promotion_id,
+                categories_id=r.categories_id,
+                created_at=r.created_at,
+                updated_at=r.updated_at,
+                tenant_id=r.tenant_id,
+                branch=r.branch,
+                img_url=r.img_url,
+                categories_name=categories_name,
+                ABC = abc,
+                FSN = fsn
+            )
+            response.append(res)
+        
+        return dict(message_code=AppStatus.SUCCESS.message,total=total),response        
     
     async def get_all_products(
         self,
@@ -328,40 +391,9 @@ class ProductService:
             logger.info("ProductService: get_all_products called successfully.")
             
         response = list()
-        report_service = ReportService(self.db)
-        info_service = InfoService(self.db)
-        abc_list= []
-        list_product = []
-   
-        for product in result:
-            if product.id not in list_product:
-                list_product += [product.id]
-        for item in list_product:
-            info_current = await info_service.get_info_by_product_id(item,tenant_id,branch)
-            
-            new_item = {
-                        "product_id" :info_current[1].product_id,
-                        "product_name": info_current[1].product_name,
-                        "sale_price": info_current[1].sale_price,
-                        "sold": info_current[1].sold,
-                    }      
-            abc_list.append(new_item)
-        start_date,end_date = get_this_year()
-        abc_obj = await report_service.abc_define(abc_list) 
-        list_abc = []  
-        
-        fsn_obj = await report_service.fsn_define(abc_list,start_date,end_date)
         for r in result:
             categories_name = await crud.product.get_categories_name(self.db, r.categories_id, tenant_id, branch)
-           
-            for x in abc_obj:
-                if x['product_id'] == r.id:
-                    abc = x['category']
-                   
-            for x in fsn_obj:
-                if x.product_id == r.id:
-                    fsn =  x.category
-                    
+            
             res = ProductResponse(
             id=r.id,
             barcode=r.barcode,
@@ -385,9 +417,7 @@ class ProductService:
             batch_id=r.batch_id,
             quantity=r.quantity,
             branch_id=r.branch_id,
-            categories_name=categories_name,
-            ABC=abc,
-            FSN = fsn
+            categories_name=categories_name
             )
             response.append(res)
             
