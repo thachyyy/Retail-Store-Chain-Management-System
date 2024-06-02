@@ -242,18 +242,19 @@ class ProductService:
         for product in result:
             if product.id not in list_product:
                 list_product += [product.id]
-                
+        abc_none =[]
         for item in list_product:
-            info_current = await info_service.get_info_by_product_id(item,tenant_id,branch)
-            
-            new_item = {
-                        "product_id" :info_current[1].product_id,
-                        "product_name": info_current[1].product_name,
-                        "sale_price": info_current[1].sale_price,
-                        "sold": info_current[1].sold,
-                    }      
-            abc_list.append(new_item)
-            
+           
+            info_current = await info_service.get_info_by_product_id(product_id=item,tenant_id=tenant_id,branch=branch)
+            if info_current[1] != None:
+                new_item = {
+                            "product_id" :info_current[1].product_id,
+                            "product_name": info_current[1].product_name,
+                            "sale_price": info_current[1].sale_price,
+                            "sold": info_current[1].sold,
+                        }      
+                abc_list.append(new_item)
+
         start_date,end_date = get_this_year()
         abc_obj = await report_service.abc_define(abc_list) 
         list_abc = []  
