@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 from pydantic import UUID4
 from dateutil.relativedelta import relativedelta
 from app import crud
+from app.schemas.info import InfoCreate
 from app.schemas.report import CategorizedItem, InventoryItem
+from app.services.info import InfoService
 from app.services.invoice_for_customer import InvoiceForCustomerService
 from app.services.dashboard import DashboardService
 from app.constant.app_status import AppStatus
@@ -479,7 +481,20 @@ class ReportService:
         return public_url
     
     
-    
+    async def get_abc_analysis(self,product_id:str,tenant_id:str,branch:str):
+        info_service = InfoService(self.db)
+        info_current = await info_service.get_info_by_product_id(product_id,tenant_id,branch)
+        result = []
+        new_item = {
+                "product_name": info_current[1].product_name,
+                "sale_price": info_current[1].sale_price,
+                "sold": info_current[1].sold,
+            }      
+        result.append(new_item)
+    # inventory_items = [InventoryItem(**item) for item in result]
+        
+        response = await self.abc_define(result)
+        return response
     
     
     async def abc_analysis(self,start_date:date,end_date:date,products: List[InventoryItem],user_id: str, tenant_id: str, branch: str = None):
@@ -525,6 +540,7 @@ class ReportService:
         <p>Khoảng thời gian: {start_date} đến {end_date}</p>
         <table>
             <tr>
+                <th>ID</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá bán</th>
                 <th>Số lượng đã bán</th>
@@ -536,6 +552,7 @@ class ReportService:
         for item in list_result:
             html_output += f"""
             <tr>
+                <td>{item['product_id']}</td>
                 <td>{item['product_name']}</td>
                 <td>{item['sale_price']}</td>
                 <td>{item['sold']}</td>
@@ -604,6 +621,7 @@ class ReportService:
         <p>Khoảng thời gian: {start_date} đến {end_date}</p>
         <table>
             <tr>
+                <th>ID</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá bán</th>
                 <th>Số lượng tiêu thụ trung bình</th>
@@ -615,6 +633,7 @@ class ReportService:
         for item in list_result:
             html_output += f"""
             <tr>
+                <td>{item.product_id}</td>
                 <td>{item.product_name}</td>
                 <td>{item.sale_price}</td>
                 <td>{item.average_consumption}</td>
@@ -669,7 +688,7 @@ class ReportService:
         df = pd.DataFrame(products)
         
         # Kiểm tra các cột của DataFrame
-        # print("Columns in DataFrame:", df.columns)
+        print("Columns in DataFrame:", df.columns)
         
         # Kiểm tra nếu cột 'sale_price' và 'sold' có trong DataFrame
         if 'sale_price' not in df.columns or 'sold' not in df.columns:
@@ -689,7 +708,7 @@ class ReportService:
         choices = ['A', 'B', 'C']
         df['category'] = np.select(conditions, choices, default='C')
         
-        return df[['product_name','sold','sale_price','category']].to_dict(orient='records')
+        return df[['product_id','product_name','sold','sale_price','category']].to_dict(orient='records')
     
 
     async def fsn_define(self, items: List[InventoryItem], start_date: date, end_date: date) -> List[CategorizedItem]:
@@ -702,7 +721,7 @@ class ReportService:
         # Calculate the number of months in the provided date range
         num_months = delta.years * 12 + delta.months + 1
         # Calculate average consumption
-        item_avg_consumption = [(item, item.sold / num_months) for item in items]
+        item_avg_consumption = [(item, item['sold'] / num_months) for item in items]
         
         # Sort items by average consumption in descending order
         sorted_items = sorted(item_avg_consumption, key=lambda x: x[1], reverse=True)
@@ -716,8 +735,9 @@ class ReportService:
                 category = "Slow-moving"
             
             categorized_item = CategorizedItem(
-                product_name=item.product_name,
-                sale_price=item.sale_price,
+                product_id= item['product_id'],
+                product_name=item['product_name'],
+                sale_price=item['sale_price'],
                 average_consumption=avg_consumption,
                 category=category
             )

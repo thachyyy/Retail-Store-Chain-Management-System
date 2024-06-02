@@ -7,11 +7,8 @@ from sqlalchemy.orm import Session
 from pydantic import UUID4
 from uuid import uuid4
 from app import crud
-from app.api.endpoints.dashboard import get_this_year
 from app.constant.app_status import AppStatus
 from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams
-from app.services.info import InfoService
-from app.services.report import ReportService
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 import barcode
@@ -328,40 +325,9 @@ class ProductService:
             logger.info("ProductService: get_all_products called successfully.")
             
         response = list()
-        report_service = ReportService(self.db)
-        info_service = InfoService(self.db)
-        abc_list= []
-        list_product = []
-   
-        for product in result:
-            if product.id not in list_product:
-                list_product += [product.id]
-        for item in list_product:
-            info_current = await info_service.get_info_by_product_id(item,tenant_id,branch)
-            
-            new_item = {
-                        "product_id" :info_current[1].product_id,
-                        "product_name": info_current[1].product_name,
-                        "sale_price": info_current[1].sale_price,
-                        "sold": info_current[1].sold,
-                    }      
-            abc_list.append(new_item)
-        start_date,end_date = get_this_year()
-        abc_obj = await report_service.abc_define(abc_list) 
-        list_abc = []  
-        
-        fsn_obj = await report_service.fsn_define(abc_list,start_date,end_date)
         for r in result:
             categories_name = await crud.product.get_categories_name(self.db, r.categories_id, tenant_id, branch)
-           
-            for x in abc_obj:
-                if x['product_id'] == r.id:
-                    abc = x['category']
-                   
-            for x in fsn_obj:
-                if x.product_id == r.id:
-                    fsn =  x.category
-                    
+            
             res = ProductResponse(
             id=r.id,
             barcode=r.barcode,
@@ -385,10 +351,8 @@ class ProductService:
             batch_id=r.batch_id,
             quantity=r.quantity,
             branch_id=r.branch_id,
-            categories_name=categories_name,
-            ABC=abc,
-            FSN = fsn
-            )
+            categories_name=categories_name
+        )
             response.append(res)
             
         return dict(message_code=AppStatus.SUCCESS.message,total=total),response

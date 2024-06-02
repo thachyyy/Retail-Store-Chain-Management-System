@@ -10,10 +10,12 @@ class ReportUpdate(BaseModel):
 
 
 class InventoryItem(BaseModel):
+    product_id:Optional[str] = None
     product_name: str
     sold: int
     sale_price:int
 class CategorizedItem(BaseModel):
+    product_id:Optional[str] = None
     product_name: str
     sale_price:int
     average_consumption: int

@@ -14,7 +14,6 @@ class Info(Base):
     sold = Column(Integer, unique = False, nullable = False)
     sale_rate = Column(Float, unique = False, nullable = False)
     inventory = Column(Integer, unique = False, nullable = False)
-    category = Column(String, unique = False, nullable = False)
     created_at = Column(DateTime, server_default=text("timezone('Asia/Ho_Chi_Minh', now())"))
     updated_at = Column(DateTime, onupdate=text("timezone('Asia/Ho_Chi_Minh', now())"))
     branch = Column(String)

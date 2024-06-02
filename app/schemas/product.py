@@ -63,7 +63,8 @@ class ProductResponse(BaseModel):
     batch_id: Optional[str] = None
     quantity: Optional[str] = None
     branch_id: Optional[str] = None
-
+    ABC:str 
+    FSN:str
 class ProductUpdate(BaseModel):
     barcode: Optional[str] 
     product_name: Optional[str] 

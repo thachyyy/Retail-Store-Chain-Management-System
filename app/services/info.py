@@ -17,12 +17,22 @@ from app.schemas.product import ProductCreate, ProductCreateParams
 from app.services.batch import BatchService
 from app.services.import_order import ImportOrderService
 from app.services.invoice_for_customer import InvoiceForCustomerService
+from app.services.product_1 import ProductService
 
 logger = logging.getLogger(__name__)
 
 class InfoService:
     def __init__(self, db: Session):
         self.db = db
+    async def get_info_by_product_id(
+        self, 
+        product_id:str,
+        tenant_id:str,
+        branch:str
+        ):
+        list_info = await crud.info.get_info_id(product_id=product_id,tenant_id=tenant_id,branch=branch,db=self.db)
+        logger.info("Service: create_info success.")
+        return dict(message_code=AppStatus.SUCCESS.message), list_info
         
     async def get_info(
         self, 
@@ -191,6 +201,6 @@ class InfoService:
         
         logger.info("InfoService: update_info called successfully.")
         self.db.commit()
-        obj_update = await crud.info.get_info_id(product_id,tenant_id=tenant_id, branch=branch,db=self.db)
+        obj_update = await crud.info.get_info_product_id(product_id,tenant_id=tenant_id, branch=branch,db=self.db)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
     

@@ -71,6 +71,7 @@ async def sales_summary(
                     
                     
         new_item = {
+                "product_id": id,
                 "product_name": product.product_name,
                 "sale_price": product.sale_price,
                 "sold": sold,
@@ -129,6 +130,7 @@ async def sales_summary(
                     sold += order_detail.quantity
                     
         new_item = {
+                "product_id":id,
                 "product_name": product.product_name,
                 "sale_price": product.sale_price,
                 "sold": sold

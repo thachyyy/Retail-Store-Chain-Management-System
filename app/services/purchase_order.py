@@ -177,6 +177,7 @@ class PurchaseOrderService:
                 await update_batch(item.batch, item.quantity,tenant_id, db=self.db)
                 await update_info(product_id=item.product_id,tenant_id=tenant_id,sold=item.quantity,branch=branch,db=self.db)
                 
+                
         purchase_order_create = PurchaseOrderCreate(
         id=newID,
         estimated_delivery_date=obj_in.estimated_delivery_date,
