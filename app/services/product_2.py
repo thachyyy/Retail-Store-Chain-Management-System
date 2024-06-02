@@ -11,7 +11,6 @@ from app import crud
 from app.constant.app_status import AppStatus
 from app.schemas.product import ProductResponse, ProductCreate, ProductCreateParams, ProductResponseAnalysis
 
-from app.services.report import ReportService
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 import barcode

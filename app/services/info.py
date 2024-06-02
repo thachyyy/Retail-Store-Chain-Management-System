@@ -7,7 +7,7 @@ from pydantic import UUID4
 from datetime import date, datetime, timedelta
 
 from app import crud
-from app.api.endpoints.dashboard import get_all_sell_through_rate_for_info
+
 from app.constant.app_status import AppStatus
 from app.models.import_detail import ImportDetail
 from app.schemas.import_detail import ImportDetailCreate, ImportDetailCreateParams
@@ -17,7 +17,7 @@ from app.schemas.product import ProductCreate, ProductCreateParams
 from app.services.batch import BatchService
 from app.services.import_order import ImportOrderService
 from app.services.invoice_for_customer import InvoiceForCustomerService
-from app.services.product_1 import ProductService
+from app.services.product_2 import ProductService
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +168,7 @@ class InfoService:
                     sell_rate = 0
             if sold_in_range == 0:
                 sell_rate = 0
-            category ="A"
+                
             info_obj = InfoCreate(
                 product_id=product.id,
                 product_name=product.product_name,
@@ -176,7 +176,6 @@ class InfoService:
                 sold=sold,
                 sale_rate=round(sell_rate,2),
                 inventory=inventory,
-                category=category,
                 branch=branch,
                 tenant_id=tenant_id
             )

@@ -10,7 +10,6 @@ class InfoCreate(BaseModel):
     sold: int
     sale_rate: float
     inventory: int
-    category: str
     tenant_id:str
     branch:str
     
