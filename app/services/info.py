@@ -85,7 +85,7 @@ class InfoService:
     
         product_service = ProductService(self.db)
         logger.info("Endpoints: get_all_products called.")
-        product_response= await product_service.get_all_products(tenant_id, branch)
+        product_response= await product_service.get_list_product(tenant_id, branch)
         logger.info("Endpoints: get_all_products called successfully.")
         #product_name
         #sale_price 
