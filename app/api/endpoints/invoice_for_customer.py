@@ -4,7 +4,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from pydantic import UUID4
-from datetime import date
+from datetime import date, datetime
 
 from app.api.depends import oauth2
 # from app.api.depends.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
@@ -80,6 +80,8 @@ async def get_all_invoice_for_customers(
     lt_total:Optional[int] = None,
     start_date:Optional[date] = None,
     end_date:Optional[date] = None,
+    start_date_1:Optional[datetime] = None,
+    end_date_1:Optional[datetime] = None,
     query_search:Optional[str] = None
 ) -> Any:
     current_user = await user
@@ -102,6 +104,8 @@ async def get_all_invoice_for_customers(
         lt_total=lt_total,
         start_date=start_date,
         end_date=end_date,
+        start_date_1=start_date_1,
+        end_date_1=end_date_1,
         query_search=query_search
     )
     logger.info("Endpoints: get_all_invoice_for_customers called successfully.")
