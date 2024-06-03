@@ -200,6 +200,6 @@ class InfoService:
         
         logger.info("InfoService: update_info called successfully.")
         self.db.commit()
-        obj_update = await crud.info.get_info_product_id(product_id,tenant_id=tenant_id, branch=branch,db=self.db)
+        obj_update = await crud.info.get_info_id(product_id,tenant_id=tenant_id, branch=branch,db=self.db)
         return dict(message_code=AppStatus.UPDATE_SUCCESSFULLY.message), obj_update
     
