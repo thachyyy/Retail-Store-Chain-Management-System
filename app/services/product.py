@@ -259,7 +259,7 @@ class ProductService:
         abc_obj = await report_service.abc_define(abc_list) 
         list_abc = []  
         
-        fsn_obj = await report_service.fsn_define(abc_list,start_date,end_date)
+        fsn_obj = await report_service.fsn_define_2(abc_list,start_date,end_date)
         
         for r in result:
             categories_name = await crud.product.get_categories_name(self.db, r.categories_id, tenant_id, branch)

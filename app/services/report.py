@@ -744,3 +744,37 @@ class ReportService:
             categorized_items.append(categorized_item)
 
         return categorized_items
+    
+    async def fsn_define_2(self, items: List[InventoryItem], start_date: date, end_date: date) -> List[CategorizedItem]:
+        categorized_items = []
+        total_items = len(items)
+        fast_threshold = int(total_items * 0.20)
+        slow_threshold = int(total_items * 0.50)
+        
+        delta = relativedelta(end_date, start_date)
+        # Calculate the number of months in the provided date range
+        num_months = delta.years * 12 + delta.months + 1
+        # Calculate average consumption
+        item_avg_consumption = [(item, item['sold'] / num_months) for item in items]
+        
+        # Sort items by average consumption in descending order
+        sorted_items = sorted(item_avg_consumption, key=lambda x: x[1], reverse=True)
+
+        # Categorize items
+        for i, (item, avg_consumption) in enumerate(sorted_items):
+            category = "Non-moving"
+            if i < fast_threshold:
+                category = "Fast-moving"
+            elif i < slow_threshold:
+                category = "Slow-moving"
+            
+            categorized_item = CategorizedItem(
+                product_id= item['product_id'],
+                product_name=item['product_name'],
+                sale_price=item['sale_price'],
+                average_consumption=avg_consumption,
+                category=category
+            )
+            categorized_items.append(categorized_item)
+
+        return categorized_items
