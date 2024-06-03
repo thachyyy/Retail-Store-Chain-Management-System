@@ -721,7 +721,7 @@ class ReportService:
         # Calculate the number of months in the provided date range
         num_months = delta.years * 12 + delta.months + 1
         # Calculate average consumption
-        item_avg_consumption = [(item, item['sold'] / num_months) for item in items]
+        item_avg_consumption = [(item, item.sold / num_months) for item in items]
         
         # Sort items by average consumption in descending order
         sorted_items = sorted(item_avg_consumption, key=lambda x: x[1], reverse=True)
@@ -735,9 +735,9 @@ class ReportService:
                 category = "Slow-moving"
             
             categorized_item = CategorizedItem(
-                product_id= item['product_id'],
-                product_name=item['product_name'],
-                sale_price=item['sale_price'],
+                product_id= item.product_id,
+                product_name=item.product_name,
+                sale_price=item.sale_price,
                 average_consumption=avg_consumption,
                 category=category
             )
